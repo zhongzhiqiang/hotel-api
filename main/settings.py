@@ -47,7 +47,9 @@ INSTALLED_APPS = [
 
     'main',
     'main.apps.market',
-    'main.apps.hotels'
+    'main.apps.hotels',
+
+    'main.apps.admin_market'
 
 ]
 
@@ -121,7 +123,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS': (

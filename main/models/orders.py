@@ -86,7 +86,9 @@ class MarketOrderDetail(models.Model):
         related_name='goods',
     )
     sale_price = models.DecimalField(
-        '销售单价'
+        '销售单价',
+        max_digits=5,
+        decimal_places=2,
     )
     nums = models.PositiveIntegerField(
         '购买数量',

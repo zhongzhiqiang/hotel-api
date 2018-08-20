@@ -15,7 +15,7 @@ services:
     network_mode: bridge
   pro:
     image: hub.gaoshiwang.cn/hotel_api:latest
-    command: supervisord -c /code/deploy/pro_supervisord.conf
+    command: supervisord -c /code/deploy/supervisord.conf
     volumes:
       - .:/code
       - /data/report_api:/data

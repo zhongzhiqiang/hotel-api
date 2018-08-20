@@ -45,6 +45,17 @@ class Goods(models.Model):
         max_digits=5,
         decimal_places=2
     )
+    is_integral = models.BooleanField(
+        '是否可以积分兑换',
+        default=False,
+        blank=True
+    )
+    # 商品实际所付等于
+    need_integral = models.PositiveIntegerField(
+        '所需最大积分',
+        default=0,
+        blank=True
+    )
     is_active = models.BooleanField(
         '是否上架',
         default=False,

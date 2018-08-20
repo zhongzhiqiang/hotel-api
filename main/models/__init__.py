@@ -3,3 +3,5 @@ from .goods import *  # noqa
 from .hotels import *  # noqa
 from .images import *  # noqa
 from .orders import *  # noqa
+from .integral import *  # noqa
+from .consumers import *

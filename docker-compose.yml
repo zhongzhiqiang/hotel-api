@@ -18,14 +18,13 @@ services:
     command: supervisord -c /code/deploy/supervisord.conf
     volumes:
       - .:/code
-      - /data/report_api:/data
+      - /data/hotel_api:/data
     ports:
       - "8010:8010"
       - "9101:9001"
     environment:
       - PYTHONPATH=/code
       - HOTEL_API_SETTINGS=main.config.product
-      - COLLECTD_DOCKER_APP=manual_data_container
     network_mode: bridge
     sysctls:
       net.core.somaxconn: 16384

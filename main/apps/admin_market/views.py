@@ -13,6 +13,18 @@ class GoodsCategoryView(mixins.CreateModelMixin,
                         mixins.RetrieveModelMixin,
                         mixins.UpdateModelMixin,
                         viewsets.GenericViewSet):
+    """
+    list:
+        返回商品分类
+    partial_update:
+        更新部分字段
+    update:
+        更新某个数据
+    create:
+        创建商品分类
+    retrieve:
+        返回单个商品分类。查询id为list返回的id
+    """
     queryset = GoodsCategory.objects.all()
     serializer_class = serializers.GoodsCategorySerializer
 
@@ -22,6 +34,18 @@ class GoodsView(mixins.CreateModelMixin,
                 mixins.RetrieveModelMixin,
                 mixins.UpdateModelMixin,
                 viewsets.GenericViewSet):
+    """
+    list:
+        返回所有商品
+    partial_update:
+        更新部分字段
+    update:
+        更新某个数据
+    create:
+        创建商品分类
+    retrieve:
+        返回单个商品分类。查询id为list返回的id
+    """
     queryset = Goods.objects.all()
     filter_class = filters.AdminGoodsFilter
     serializer_class = serializers.GoodsSerializer

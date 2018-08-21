@@ -13,6 +13,19 @@ class GrowthValueSettingView(mixins.CreateModelMixin,
                              mixins.UpdateModelMixin,
                              mixins.RetrieveModelMixin,
                              viewsets.GenericViewSet):
+    """
+    list:
+        返回成长值配置
+    partial_update:
+        更新部分字段
+    update:
+        更新某个数据
+    create:
+        创建数据
+    retrieve:
+        返回单个数据。查询id为list返回的id
+    """
+
     # 成长值配置
     queryset = GrowthValueSettings.objects.all()
     serializer_class = serializers.GrowthValueSettingsSerializer
@@ -21,12 +34,17 @@ class GrowthValueSettingView(mixins.CreateModelMixin,
 class UserIntegralView(mixins.ListModelMixin,
                        mixins.RetrieveModelMixin,
                        viewsets.GenericViewSet):
+    """
+    list:
+        返回所有用户的积分
+    retrieve:
+        返回用户的积分详情数据。查询id为list返回的id
+    """
     queryset = Integral.objects.all()
     serializer_class = serializers.IntegralSerializers
 
     def retrieve(self, request, *args, **kwargs):
         # 返回用户的积分详情
-
         instance = self.get_object()
         user = instance.user
         data = IntegralDetail.objects.filter(consumer=user)

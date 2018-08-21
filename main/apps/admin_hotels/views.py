@@ -15,6 +15,20 @@ class AdminHotelView(mixins.CreateModelMixin,
                      mixins.RetrieveModelMixin,
                      mixins.ListModelMixin,
                      viewsets.GenericViewSet):
+    """
+    get_lat_long:
+        返回经纬度
+    list:
+        返回所有的宾馆信息
+    partial_update:
+        更新部分字段
+    update:
+        更新某个数据
+    create:
+        创建数据
+    retrieve:
+        返回单个数据。查询id为list返回的id
+    """
 
     serializer_class = serializers.HotelSerializers
     queryset = Hotel.objects.all()

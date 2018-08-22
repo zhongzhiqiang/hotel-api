@@ -36,3 +36,86 @@ class Hotel(models.Model):
     class Meta:
         verbose_name = '宾馆信息'
         verbose_name_plural = verbose_name
+
+
+class RoomStyles(models.Model):
+    style_name = models.CharField(
+        '房间类型',
+        max_length=100,
+        db_index=True
+    )
+    price = models.DecimalField(
+        '单价',
+        max_digits=5,
+        decimal_places=2,
+    )
+    room_profile = models.TextField(
+        '详情'
+    )
+
+    is_active = models.BooleanField(
+        '是否对外销售',
+        default=True,
+        blank=True
+    )
+
+    def __unicode__(self):
+        return self.style_name
+
+    @property
+    def left_room_count(self):
+        return self.room.filter(room_status=10).count()
+
+    @property
+    def room_count(self):
+        return self.room.count()
+
+    class Meta:
+        verbose_name = '房间类型'
+        verbose_name_plural = verbose_name
+
+
+class Rooms(models.Model):
+    ROOM_STATUS = (
+        (10, '未入住'),
+        (20, '已预定'),
+        (30, '入住'),
+        (40, '退房'),
+    )
+    room_style = models.ForeignKey(
+        'main.RoomStyles',
+        on_delete=models.CASCADE,
+        verbose_name='房间类型',
+        related_name='room'
+    )
+    room_nums = models.CharField(
+        '房间编号',
+        max_length=20,
+    )
+    room_status = models.IntegerField(
+        '房间状态',
+        choices=ROOM_STATUS,
+        default=10
+    )
+    reserve_time = models.DateTimeField(
+        '预定时间',
+        blank=True,
+        null=True,
+        help_text='预定时间'
+    )
+    check_in_time = models.DateTimeField(
+        '入住时间',
+        blank=True,
+        null=True,
+        help_text='入住时间'
+    )
+    check_out_time = models.DateTimeField(
+        '退房时间',
+        blank=True,
+        null=True,
+        help_text='退房时间'
+    )
+
+    class Meta:
+        verbose_name = '房间'
+        verbose_name_plural = verbose_name

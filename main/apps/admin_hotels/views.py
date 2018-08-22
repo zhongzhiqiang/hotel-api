@@ -5,7 +5,7 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import list_route
 
-from main.models import Hotel
+from main.models import Hotel, RoomStyles, Rooms
 from main.apps.admin_hotels import serializers
 from main.common.gaode import GaoDeMap
 
@@ -54,3 +54,57 @@ class AdminHotelView(mixins.CreateModelMixin,
 
             return Response(status=status.HTTP_200_OK, data=ret['data'])
         return Response(status=status.HTTP_400_BAD_REQUEST, data={"error_message": "请求错误"})
+
+
+class AdminRoomStyle(mixins.CreateModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
+    """
+
+    list:
+        返回所有的房间类型信息
+    partial_update:
+        更新房间部分字段
+    update:
+        更新某个房间数据，需要传递所有字段
+    create:
+        创建房间类型数据
+    retrieve:
+        返回单个数据。查询id为list返回的id
+    """
+    queryset = RoomStyles.objects.all()
+    serializer_class = serializers.RoomStyleSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return serializers.CreateHotelSerializers
+        return self.serializer_class
+
+
+class AdminRoomView(mixins.CreateModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.RetrieveModelMixin,
+                    mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    """
+    list:
+        返回所有的房间信息
+    partial_update:
+        更新房间部分字段
+    update:
+        更新某个房间数据，需要传递所有字段
+    create:
+        创建房间类型数据
+    retrieve:
+        返回单个数据。查询id为list返回的id
+    """
+
+    queryset = Rooms.objects.all()
+    serializer_class = serializers.RoomSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return serializers.CreateRoomSerializer
+        return self.serializer_class

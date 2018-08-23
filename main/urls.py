@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^auth/', ObtainJSONWebToken.as_view()),
     url(r'^user/', include('main.apps.market.urls')),
     url(r'^user/', include('main.apps.hotels.urls')),
+    url(r'^user/', include('main.apps.integral.urls')),
     url(r'^admin/', include('main.apps.admin_market.urls')),
     url(r'^admin/', include('main.apps.admin_hotels.urls')),
     url(r'^admin/', include('main.apps.admin_integral.urls'))

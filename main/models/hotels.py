@@ -8,6 +8,8 @@ class Hotel(models.Model):
     name = models.CharField(
         '宾馆名称',
         max_length=100,
+        unique=True,
+        db_index=True
     )
     address = models.CharField(
         u'地址',
@@ -39,6 +41,12 @@ class Hotel(models.Model):
 
 
 class RoomStyles(models.Model):
+    belong_hotel = models.ForeignKey(
+        'main.Hotel',
+        on_delete=models.SET_DEFAULT,
+        verbose_name='所属酒店',
+        default=0
+    )
     style_name = models.CharField(
         '房间类型',
         max_length=100,
@@ -52,7 +60,10 @@ class RoomStyles(models.Model):
     room_profile = models.TextField(
         '详情'
     )
-
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
     is_active = models.BooleanField(
         '是否对外销售',
         default=True,
@@ -103,17 +114,11 @@ class Rooms(models.Model):
         null=True,
         help_text='预定时间'
     )
-    check_in_time = models.DateTimeField(
-        '入住时间',
+
+    reserve_out_time = models.DateTimeField(
+        '预定结束时间',
         blank=True,
-        null=True,
-        help_text='入住时间'
-    )
-    check_out_time = models.DateTimeField(
-        '退房时间',
-        blank=True,
-        null=True,
-        help_text='退房时间'
+        null=True
     )
 
     class Meta:

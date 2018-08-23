@@ -79,7 +79,7 @@ class AdminRoomStyle(mixins.CreateModelMixin,
 
     def get_serializer_class(self):
         if self.action == 'create':
-            return serializers.CreateHotelSerializers
+            return serializers.CreateRoomStyleSerializer
         return self.serializer_class
 
 

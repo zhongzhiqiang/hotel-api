@@ -33,9 +33,29 @@ class CreateHotelSerializers(serializers.ModelSerializer):
 
 
 class CreateRoomStyleSerializer(serializers.ModelSerializer):
+    hotel = serializers.CharField(
+        source='belong_hotel.name'
+    )
+
+    def validate(self, attrs):
+        belong_hotel = attrs.pop("belong_hotel", {})
+        if belong_hotel:
+            hotel = Hotel.objects.filter(name=belong_hotel.get("name")).first()
+            if not hotel:
+                raise serializers.ValidationError("请正确填写宾馆名称")
+            attrs.update({"belong_hotel": hotel})
+        return attrs
+
     class Meta:
         model = RoomStyles
-        fields = "__all__"
+        fields = (
+            'id',
+            'hotel',
+            'style_name',
+            'price',
+            'room_profile',
+            'is_active'
+        )
 
 
 class RoomStyleSerializer(serializers.ModelSerializer):
@@ -46,7 +66,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'id',
             'style_name',
             'room_profile',
-            'room_count'
+            'room_count',
             'is_active',
             'left_room_count'
         )
@@ -59,7 +79,8 @@ class CreateRoomSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, attrs):
-        style_name = attrs.pop('style_name', '')
+
+        style_name = attrs.pop('room_style', {}).get('style_name')
         room_style = RoomStyles.objects.filter(style_name=style_name).first()
         if not room_style:
             raise serializers.ValidationError("请填写房间类型名称")
@@ -77,9 +98,21 @@ class CreateRoomSerializer(serializers.ModelSerializer):
 class RoomSerializer(serializers.ModelSerializer):
 
     room_style = serializers.CharField(
-        source='room_style.style_name',
+        source='room_style.style_name'
+    )
+    room_status_display = serializers.CharField(
+        source='get_room_status_display',
         read_only=True
     )
+
+    def validate(self, attrs):
+        style_name = attrs.pop('room_style', {}).get('style_name')
+        if style_name:
+            room_style = RoomStyles.objects.filter(style_name=style_name).first()
+            if not room_style:
+                raise serializers.ValidationError("请正确房间类型名称")
+            attrs.update({"room_style": room_style})
+        return attrs
 
     class Meta:
         model = Rooms
@@ -87,7 +120,7 @@ class RoomSerializer(serializers.ModelSerializer):
             'room_style',
             'room_nums',
             'room_status',
-            'reserve_time'
-            'check_in_time',
-            'check_out_time'
+            'room_status_display',
+            'reserve_time',
+            'reserve_out_time'
         )

@@ -11,4 +11,7 @@ admin.site.register(models.IntegralDetail)
 admin.site.register(models.Integral)
 admin.site.register(models.IntegralSettings)
 admin.site.register(models.GrowthValueSettings)
-
+admin.site.register(models.RoomStyles)
+admin.site.register(models.Rooms)
+admin.site.register(models.HotelOrderRoomInfo)
+admin.site.register(models.HotelOrder)

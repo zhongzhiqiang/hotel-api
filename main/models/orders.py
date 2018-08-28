@@ -139,7 +139,7 @@ class HotelOrder(models.Model):
     )
     sale_price = models.DecimalField(
         '订单金额',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
     reserve_check_in_time = models.DateTimeField(
@@ -212,9 +212,12 @@ class HotelOrderDetail(models.Model):
     )
     room_price = models.DecimalField(
         '入住时房间单价',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
+
+    def __unicode__(self):
+        return self.room_style.style_name
 
     class Meta:
         verbose_name = '订单房间详情'
@@ -255,7 +258,7 @@ class HotelOrderRoomInfo(models.Model):
         '用户信息',
         help_text='多个用户信息放入。存入数据库为string'
     )
-
+    
     class Meta:
         verbose_name = '入住信息'
         verbose_name_plural = verbose_name

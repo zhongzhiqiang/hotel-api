@@ -42,7 +42,7 @@ class Goods(models.Model):
     )
     goods_price = models.DecimalField(
         '商品价格',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2
     )
     is_integral = models.BooleanField(

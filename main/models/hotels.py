@@ -54,7 +54,7 @@ class RoomStyles(models.Model):
     )
     price = models.DecimalField(
         '单价',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
     room_profile = models.TextField(

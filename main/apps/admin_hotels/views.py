@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import list_route
 
 from main.models import Hotel, RoomStyles, Rooms
-from main.apps.admin_hotels import serializers
+from main.apps.admin_hotels import serializers, filters
 from main.common.gaode import GaoDeMap
 
 
@@ -33,6 +33,7 @@ class AdminHotelView(mixins.CreateModelMixin,
     serializer_class = serializers.HotelSerializers
     queryset = Hotel.objects.all()
     permission_classes = ()
+    search_fields = ('name', )
 
     def get_serializer_class(self):
         if self.action == 'get_lat_long':
@@ -76,6 +77,8 @@ class AdminRoomStyle(mixins.CreateModelMixin,
     """
     queryset = RoomStyles.objects.all()
     serializer_class = serializers.RoomStyleSerializer
+    filter_class = filters.RoomStyleFilter
+    search_fields = ('style_name', )
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -103,6 +106,8 @@ class AdminRoomView(mixins.CreateModelMixin,
 
     queryset = Rooms.objects.all()
     serializer_class = serializers.RoomSerializer
+    search_fields = ('room_style__style_name', )
+    filter_class = filters.RoomFilter
 
     def get_serializer_class(self):
         if self.action == 'create':

@@ -131,6 +131,9 @@ class HotelOrder(models.Model):
     )
     order_status = models.IntegerField(
         '订单状态',
+        choices=ORDER_STATUS,
+        default=10,
+        blank=True
     )
     room_style_num = models.PositiveIntegerField(
         '房间类型数量',
@@ -229,7 +232,8 @@ class HotelOrderRoomInfo(models.Model):
     belong_order = models.ForeignKey(
         'main.HotelOrder',
         on_delete=models.CASCADE,
-        verbose_name='订单号'
+        verbose_name='订单号',
+        related_name='hotel_order_room_info'
     )
     check_in_room = models.ForeignKey(
         'main.Rooms',
@@ -256,9 +260,13 @@ class HotelOrderRoomInfo(models.Model):
     # guest_info = [{"username":"","idcard_num": ""#加密},{"username":"","idcard_num": ""#加密},]
     guest_info = JSONField(
         '用户信息',
+        default='[]',
         help_text='多个用户信息放入。存入数据库为string'
     )
-    
+
+    def __unicode__(self):
+        return self.check_in_room.room_nums
+
     class Meta:
         verbose_name = '入住信息'
         verbose_name_plural = verbose_name

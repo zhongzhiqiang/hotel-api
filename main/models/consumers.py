@@ -41,10 +41,197 @@ class Consumer(models.Model):
         blank='',
         default=''
     )
+    is_distribution = models.BooleanField(
+        '是否为分销人员',
+        default=False,
+        blank=True
+    )
+    sell_user = models.ForeignKey(
+        'main.Consumer',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text='推销人'
+    )
 
     def __unicode__(self):
         return self.user.username
 
     class Meta:
         verbose_name = '消费者信息'
+        verbose_name_plural = verbose_name
+
+
+class DistributionApply(models.Model):
+
+    APPLY_STATUS = (
+        (10, '提交成功'),
+        (20, '受理中'),
+        (30, '受理完成'),
+        (40, '撤回申请')
+    )
+
+    consumer = models.ForeignKey(
+        'main.Consumer',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text='用户',
+        blank=True
+    )
+    apply_status = models.IntegerField(
+        '申请状态',
+        choices=APPLY_STATUS,
+        default=10,
+    )
+    apply_time = models.DateTimeField(
+        '申请时间',
+        auto_now_add=True
+    )
+    apply_remark = models.CharField(
+        '申请原因',
+        max_length=520,
+    )
+    success_time = models.DateTimeField(
+        '成功时间',
+        null=True,
+        blank=True
+    )
+    operator_time = models.DateTimeField(
+        '操作时间',
+        auto_now=True,
+        blank=True
+    )
+
+    is_success = models.BooleanField(
+        '是否申请成功',
+        default=False,
+        blank=True
+    )
+
+    fail_remark = models.CharField(
+        '失败原因',
+        blank=True,
+        default='',
+        max_length=200
+    )
+
+    class Meta:
+        verbose_name = '分销申请记录'
+        verbose_name_plural = verbose_name
+
+
+class DistributionBonus(models.Model):
+    consumer = models.OneToOneField(
+        'main.Consumer',
+        related_name='distribution_bonus',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    bonus = models.DecimalField(
+        '分销奖金',
+        max_digits=10,
+        decimal_places=2
+    )
+    operator_time = models.DateTimeField(
+        '操作时间',
+        auto_now=True,
+        blank=True
+    )
+
+    class Meta:
+        verbose_name = '分销奖金'
+        verbose_name_plural = verbose_name
+
+
+class DistributionBonusDetail(models.Model):
+    consumer = models.ForeignKey(
+        'main.Consumer',
+        related_name='distribution_bonus_detail',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    last_bonus = models.DecimalField(
+        '剩余奖金',
+        max_digits=10,
+        decimal_places=2
+    )
+    bonus_detail = models.DecimalField(
+        '使用金额',
+        max_digits=10,
+        decimal_places=2
+    )
+    remark = models.CharField(
+        '使用原因',
+        max_length=100,
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+
+    operator_time = models.DateTimeField(
+        '操作时间',
+        auto_now=True
+    )
+
+    def __unicode__(self):
+        return self.consumer.user_name
+
+    class Meta:
+        verbose_name = '分销奖金明细'
+        verbose_name_plural = verbose_name
+
+
+class DistributionBonusPick(models.Model):
+
+    PICK_STATUS = (
+        (10, '提交申请'),
+        (20, '正在处理'),
+        (30, '转账中'),
+        (40, '完成'),
+        (50, '提取失败'),
+        (60, '取消申请'),
+    )
+    consumer = models.ForeignKey(
+        'main.Consumer',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    pick_status = models.IntegerField(
+        '提取状态',
+        choices=PICK_STATUS,
+        default=10,
+        blank=True,
+    )
+    pick_money = models.DecimalField(
+        '提取金额',
+        max_digits=10,
+        decimal_places=2,
+    )
+    pick_time = models.DateTimeField(
+        '提交时间',
+        auto_now_add=True
+    )
+    success_time = models.DateTimeField(
+        '完成时间',
+        null=True,
+        blank=True
+    )
+    transfer_time = models.DateTimeField(
+        '转账时间',
+        null=True,
+        blank=True
+    )
+
+    fail_remark = models.CharField(
+        '失败原因',
+        null=True,
+        blank=True,
+        max_length=500,
+        default=''
+    )
+
+    class Meta:
+        verbose_name = '提取分销金额申请'
         verbose_name_plural = verbose_name

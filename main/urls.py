@@ -30,8 +30,12 @@ urlpatterns = [
     url(r'^user/', include('main.apps.market.urls')),
     url(r'^user/', include('main.apps.hotels.urls')),
     url(r'^user/', include('main.apps.integral.urls')),
+    url(r'^user/', include('main.apps.distribution.urls')),
     url(r'^admin/', include('main.apps.admin_market.urls')),
     url(r'^admin/', include('main.apps.admin_hotels.urls')),
-    url(r'^admin/', include('main.apps.admin_integral.urls'))
+    url(r'^admin/', include('main.apps.admin_integral.urls')),
+    url(r'^admin/', include("main.apps.admin_images.urls")),
+    url(r'^admin/', include('main.apps.admin_order.urls')),
+    url(r'^admin/', include('main.apps.admin_distribution.urls'))
 
 ]

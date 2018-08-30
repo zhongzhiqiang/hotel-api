@@ -36,6 +36,15 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
     hotel = serializers.CharField(
         source='belong_hotel.name'
     )
+    images = serializers.ListField(child=serializers.CharField(max_length=300))
+
+    def validate_images(self, attr):
+        if isinstance(attr, list):
+            for i in attr:
+                if not i.startswith(("https", "http")):
+                    raise serializers.ValidationError("图片路径以http/https开头")
+            return attr
+        raise serializers.ValidationError("请传递数组")
 
     def validate(self, attrs):
         belong_hotel = attrs.pop("belong_hotel", {})
@@ -54,11 +63,13 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
             'style_name',
             'price',
             'room_profile',
+            'images',
             'is_active'
         )
 
 
 class RoomStyleSerializer(serializers.ModelSerializer):
+    images = serializers.ListField(child=serializers.CharField(max_length=300), read_only=False)
 
     class Meta:
         model = RoomStyles
@@ -68,7 +79,8 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'room_profile',
             'room_count',
             'is_active',
-            'left_room_count'
+            'left_room_count',
+            'images',
         )
         read_only_fields = ('room_count', 'left_room_count')
 

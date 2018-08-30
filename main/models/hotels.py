@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from main.modelfields.JsonFields import JSONField
+
 
 class Hotel(models.Model):
     name = models.CharField(
@@ -27,6 +29,13 @@ class Hotel(models.Model):
         blank=True,
         null=True
 
+    )
+    images = JSONField(
+        '图片',
+        default='[]',
+        blank=True,
+        null=True,
+        help_text='图片，存放图片的URL'
     )
     hotel_profile = models.TextField(
         '宾馆简介'
@@ -59,6 +68,10 @@ class RoomStyles(models.Model):
     )
     room_profile = models.TextField(
         '详情'
+    )
+    images = JSONField(
+        '图片列表',
+        default='[]'
     )
     create_time = models.DateTimeField(
         '创建时间',
@@ -102,6 +115,8 @@ class Rooms(models.Model):
     room_nums = models.CharField(
         '房间编号',
         max_length=20,
+        db_index=True,
+        unique=True
     )
     room_status = models.IntegerField(
         '房间状态',
@@ -120,6 +135,9 @@ class Rooms(models.Model):
         blank=True,
         null=True
     )
+
+    def __unicode__(self):
+        return self.room_nums
 
     class Meta:
         verbose_name = '房间'

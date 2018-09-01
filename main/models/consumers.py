@@ -144,11 +144,30 @@ class DistributionBonus(models.Model):
 
 
 class DistributionBonusDetail(models.Model):
+    DETAIL_STATUS = (
+        (10, '未知'),
+        (20, '成功'),
+        (30, '失败'),
+        (40, '取消'),
+    )
     consumer = models.ForeignKey(
         'main.Consumer',
         related_name='distribution_bonus_detail',
         on_delete=models.SET_NULL,
         null=True
+    )
+    status = models.IntegerField(
+        '状态',
+        choices=DETAIL_STATUS,
+        default=10,
+        blank=True
+    )
+    pick = models.ForeignKey(
+        'main.DistributionBonusPick',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        verbose_name='提取关联申请'
     )
     last_bonus = models.DecimalField(
         '剩余奖金',

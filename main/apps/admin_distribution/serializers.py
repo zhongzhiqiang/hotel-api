@@ -66,6 +66,7 @@ class BonusPickSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         pick_status = validated_data.pop('pick_status', None)
         if pick_status and pick_status == 50:
@@ -73,6 +74,7 @@ class BonusPickSerializer(serializers.ModelSerializer):
         elif pick_status and pick_status == 30:
             validated_data.update({"transfer_time": datetime.datetime.now()})
         elif pick_status and pick_status == 40:
+            # 这里需要把提取明细更改为成功
             validated_data.update({"success_time": datetime.datetime.now()})
 
         instance = super(BonusPickSerializer, self).update(instance, validated_data)

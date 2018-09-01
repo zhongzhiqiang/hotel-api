@@ -6,8 +6,30 @@ from django.db import models
 
 class IntegralSettings(models.Model):
     integral = models.PositiveIntegerField(
-        '积分配置（1元等于多少积分）'
+        '积分',
     )
+    money = models.DecimalField(
+        '钱',
+        default=0,
+        max_digits=10,
+        decimal_places=2,
+    )
+
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+
+    def __unicode__(self):
+        return '%d' % self.ratio
+
+    @property
+    def ratio(self):
+        return self.money / self.integral
 
     class Meta:
         verbose_name = '积分配置'

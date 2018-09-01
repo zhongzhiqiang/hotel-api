@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 
-from main.models import GrowthValueSettings, Integral, IntegralDetail
+from main.models import GrowthValueSettings, Integral, IntegralDetail, IntegralSettings
 from main.apps.admin_integral import serializers
 
 
@@ -29,6 +29,25 @@ class GrowthValueSettingView(mixins.CreateModelMixin,
     # 成长值配置
     queryset = GrowthValueSettings.objects.all()
     serializer_class = serializers.GrowthValueSettingsSerializer
+
+
+class AdminIntegralSettingsView(mixins.CreateModelMixin,
+                                mixins.ListModelMixin,
+                                mixins.UpdateModelMixin,
+                                mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
+    """
+    list：
+        返回所有积分配置
+    partial_update:
+        更新积分配置部分字段
+    update:
+        更新积分配置
+    create:
+        创建积分配置
+    """
+    queryset = IntegralSettings.objects.all()
+    serializer_class = serializers.IntegralSettingsSerializer
 
 
 class UserIntegralView(mixins.ListModelMixin,

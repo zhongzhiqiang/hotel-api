@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
 from main.models import HotelOrder, HotelOrderRoomInfo
-from main.apps.admin_order import serializers
+from main.apps.admin_order import serializers, filters
 
 
 class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
@@ -45,6 +45,7 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
 
     queryset = HotelOrder.objects.prefetch_related('hotel_order_detail', 'hotel_order_room_info')
     serializer_class = serializers.HotelOrderInfoSerializer
+    filter_class = filters.HotelOrderFilter
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

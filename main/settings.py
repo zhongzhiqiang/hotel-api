@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'main',
     'main.apps.market',
     'main.apps.hotels',
-
+    'main.apps.admin_banner',
     'main.apps.admin_market'
 
 ]

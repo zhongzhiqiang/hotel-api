@@ -23,6 +23,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'id',
             'belong_hotel_name',
             'belong_hotel',
+            'left_room_count',
             'style_name',
             'price',
             'room_profile'

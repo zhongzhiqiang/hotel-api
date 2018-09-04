@@ -54,6 +54,10 @@ class Consumer(models.Model):
         help_text='推销人'
     )
 
+    @property
+    def order_count(self):
+        return self.hotelorder_set.count()
+
     def __unicode__(self):
         return self.user.username
 

@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^admin/', include("main.apps.admin_images.urls")),
     url(r'^admin/', include('main.apps.admin_order.urls')),
     url(r'^admin/', include('main.apps.admin_distribution.urls')),
-    url(r'^admin/', include('main.apps.admin_banner.urls'))
+    url(r'^admin/', include('main.apps.admin_banner.urls')),
+    url(r'^admin/', include('main.apps.admin_consumer.urls'))
 
 ]

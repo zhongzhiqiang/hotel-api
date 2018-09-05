@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'main.apps.market',
     'main.apps.hotels',
     'main.apps.admin_banner',
-    'main.apps.admin_market'
+    'main.apps.admin_market',
+    'main.apps.distribution'
 
 ]
 
@@ -197,7 +198,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

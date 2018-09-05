@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets
 
-from main.apps.admin_banner import serializers
+from main.apps.admin_banner import serializers, filters
 from main.models import Banners
 
 
@@ -17,5 +17,7 @@ class AdminBannerView(mixins.CreateModelMixin,
                       mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
                       viewsets.GenericViewSet):
+
     queryset = Banners.objects.all()
     serializer_class = serializers.BannerSerializer
+    filter_class = filters.BannersFilter

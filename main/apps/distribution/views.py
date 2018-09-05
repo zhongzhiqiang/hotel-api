@@ -6,10 +6,8 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
-from rest_framework.decorators import list_route
-from rest_framework.response import Response
 
-from main.models import DistributionApply, DistributionBonus, DistributionBonusDetail, DistributionBonusPick
+from main.models import DistributionApply, DistributionBonusDetail, DistributionBonusPick
 from main.apps.distribution import serializers
 
 
@@ -49,27 +47,9 @@ class DistributionDetailView(mixins.ListModelMixin,
             返回当前用户的奖金列表
         retrieve:
             返回详细的数据
-        distribution_bonus:
-            返回分销金额
     """
     queryset = DistributionBonusDetail.objects.all()
     serializer_class = serializers.DistributionBonusDetailSerializer
-
-    def get_queryset(self):
-        if self.action == 'distribution_bonus':
-            return DistributionBonus.objects.all()
-        return self.queryset
-
-    def get_serializer_class(self):
-        if self.action == 'distribution_bonus':
-            return serializers.DistributionBonusSerializer
-        return self.serializer_class
-
-    @list_route(methods=['GET'])
-    def distribution_bonus(self, request, *args, **kwargs):
-        bonus = self.get_queryset()  # TODO 暂时返回有的金额，这里需要根据使用人来获取
-        serializer = self.get_serializer(bonus, many=True)
-        return Response(serializer.data)
 
 
 class DistributionBonusPickViews(mixins.CreateModelMixin,

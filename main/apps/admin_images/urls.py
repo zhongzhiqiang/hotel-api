@@ -11,6 +11,6 @@ from rest_framework import routers
 from main.apps.admin_images import views
 
 router = routers.DefaultRouter()
-router.register('image/', views.ImageViews, base_name='image')
+router.register('image', views.ImageViews, base_name='image')
 
 urlpatterns = router.urls

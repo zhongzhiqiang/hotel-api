@@ -1,6 +1,8 @@
 # coding:utf-8
 from __future__ import unicode_literals
 
+import datetime
+
 from django.db import models
 
 
@@ -52,6 +54,14 @@ class Consumer(models.Model):
         null=True,
         blank=True,
         help_text='推销人'
+    )
+
+    bonus = models.DecimalField(
+        '分销奖金',
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        default=0,
     )
 
     @property
@@ -119,31 +129,11 @@ class DistributionApply(models.Model):
         max_length=200
     )
 
+    def __unicode__(self):
+        return self.consumer.user_name
+
     class Meta:
         verbose_name = '分销申请记录'
-        verbose_name_plural = verbose_name
-
-
-class DistributionBonus(models.Model):
-    consumer = models.OneToOneField(
-        'main.Consumer',
-        related_name='distribution_bonus',
-        on_delete=models.SET_NULL,
-        null=True
-    )
-    bonus = models.DecimalField(
-        '分销奖金',
-        max_digits=10,
-        decimal_places=2
-    )
-    operator_time = models.DateTimeField(
-        '操作时间',
-        auto_now=True,
-        blank=True
-    )
-
-    class Meta:
-        verbose_name = '分销奖金'
         verbose_name_plural = verbose_name
 
 
@@ -153,6 +143,11 @@ class DistributionBonusDetail(models.Model):
         (20, '成功'),
         (30, '失败'),
         (40, '取消'),
+    )
+    DETAIL_TYPE = (
+        (0, '未知'),
+        (10, '收入'),
+        (20, '支出')
     )
     consumer = models.ForeignKey(
         'main.Consumer',
@@ -166,6 +161,11 @@ class DistributionBonusDetail(models.Model):
         default=10,
         blank=True
     )
+    detail_type = models.IntegerField(
+        '类型',
+        help_text='奖金明细类型',
+        default=0
+    )
     pick = models.ForeignKey(
         'main.DistributionBonusPick',
         null=True,
@@ -178,10 +178,11 @@ class DistributionBonusDetail(models.Model):
         max_digits=10,
         decimal_places=2
     )
-    bonus_detail = models.DecimalField(
+    use_bonus = models.DecimalField(
         '使用金额',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        help_text='消费金额'
     )
     remark = models.CharField(
         '使用原因',
@@ -221,6 +222,17 @@ class DistributionBonusPick(models.Model):
         null=True,
         blank=True
     )
+    pick_order = models.CharField(
+        '提取订单号',
+        max_length=20,
+        blank=True,
+        null=True,
+        db_index=True,
+        unique=True,
+        error_messages={
+            'unique': "订单号错误"
+        }
+    )
     pick_status = models.IntegerField(
         '提取状态',
         choices=PICK_STATUS,
@@ -254,6 +266,10 @@ class DistributionBonusPick(models.Model):
         max_length=500,
         default=''
     )
+
+    def make_order_id(self):
+        """创建工单号"""
+        return '%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     class Meta:
         verbose_name = '提取分销金额申请'

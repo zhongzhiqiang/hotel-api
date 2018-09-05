@@ -6,11 +6,15 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 import datetime
+import logging
+
 
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import DistributionBonusPick, DistributionBonus, DistributionBonusDetail, DistributionApply
+from main.models import DistributionBonusPick, DistributionBonusDetail, DistributionApply
+
+logger = logging.getLogger(__name__)
 
 
 class ApplySerializer(serializers.ModelSerializer):
@@ -66,15 +70,54 @@ class BonusPickSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    @staticmethod
+    def create_bonus_detail(**kwargs):
+        instance = DistributionBonusDetail.objects.create(**kwargs)
+        logger.info("create bonus detail:{}, instance:{}".format(kwargs, instance))
+
     @transaction.atomic
     def update(self, instance, validated_data):
-        pick_status = validated_data.pop('pick_status', None)
+        pick_status = validated_data.get('pick_status', None)
+        if instance.pick_status == 40 and pick_status == 40:
+            raise serializers.ValidationError({"pick_status": ['当前提取申请已转账成功']})
+        remark = "提取金额:{}, ".format(instance.pick_money)
+
         if pick_status and pick_status == 50:
+            remark += '失败'
+            kwargs = {
+                "status": "20",
+                "pick": instance,
+                "last_bonus": instance.consumer.bonus,
+                "use_bonus": -instance.pick_money,
+                "consumer": instance.consumer,
+                "remark": remark,
+                'detail_type': 20,  # 支出
+            }
+            self.create_bonus_detail(**kwargs)
+
             raise serializers.ValidationError("提取失败时，需要输入失败原因")
         elif pick_status and pick_status == 30:
             validated_data.update({"transfer_time": datetime.datetime.now()})
         elif pick_status and pick_status == 40:
             # 这里需要把提取明细更改为成功
+            last_bonus = instance.consumer.bonus - instance.pick_money
+            if last_bonus < 0:
+                logger.info("consumer pick:{}, last lte 0".format(instance.consumer.user_name))
+                raise serializers.ValidationError({"pick_money": ['提取金额超出限制']})
+            remark += '成功'
+            kwargs = {
+                "status": "20",
+                "pick": instance,
+                "last_bonus": last_bonus,
+                "use_bonus": -instance.pick_money,
+                "consumer": instance.consumer,
+                "remark": remark,
+                "detail_type": 20,
+            }
+            self.create_bonus_detail(**kwargs)
+            # 将关联用户的
+            instance.consumer.bonus = last_bonus
+            instance.consumer.save()
             validated_data.update({"success_time": datetime.datetime.now()})
 
         instance = super(BonusPickSerializer, self).update(instance, validated_data)

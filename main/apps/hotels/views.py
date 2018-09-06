@@ -22,6 +22,8 @@ class HotelView(mixins.ListModelMixin,
 
     queryset = Hotel.objects.all()
     serializer_class = HotelSerializers
+    permission_classes = ()
+    authentication_classes = ()
 
     @detail_route(methods=['GET'])
     def room_style(self, request, *args, **kwargs):

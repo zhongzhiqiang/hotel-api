@@ -20,3 +20,5 @@ class BannerViews(mixins.ListModelMixin,
     """
     queryset = Banners.objects.filter(is_show=True)
     serializer_class = serializers.BannerSerializer
+    permission_classes = ()
+    authentication_classes = ()

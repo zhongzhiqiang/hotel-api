@@ -10,11 +10,22 @@ class Consumer(models.Model):
     # 消费者的username为用户昵称或者账号。
 
     SEX_STATUS = (
-        (10, '为止'),
+        (10, '未知'),
         (20, '男'),
         (30, '女')
     )
-
+    openid = models.CharField(
+        '微信openid',
+        max_length=100,
+        blank=True,
+        null=True
+    )
+    session_key = models.CharField(
+        '微信回话key',
+        max_length=100,
+        blank=True,
+        null=True
+    )
     user = models.OneToOneField(
         'auth.User',
         on_delete=models.CASCADE,

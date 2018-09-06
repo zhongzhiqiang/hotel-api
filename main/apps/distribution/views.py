@@ -28,7 +28,6 @@ class DistributionApplyView(mixins.CreateModelMixin,
     """
     queryset = DistributionApply.objects.all()  # 这里需要根据用户来返回
     serializer_class = serializers.ApplySerializer
-    permission_classes = ()  # 这里需要时客户才能够登录
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user.consumer)
@@ -61,14 +60,15 @@ class DistributionBonusPickViews(mixins.CreateModelMixin,
     create:
         创建分销金额提取
     update:
-        更新分销金额提取
+        更新分销金额提取.传递pick_order值
     retrieve:
-        返回提取明细
+        返回提取明细,传递pick_order值
     list:
         返回所有的分销金额提取
     """
     queryset = DistributionBonusPick.objects.all()
     serializer_class = serializers.BonusPickSerializer
+    lookup_field = 'pick_order'
 
     def perform_create(self, serializer):
         serializer.save(consumer=self.request.user.consumer)

@@ -25,6 +25,8 @@ class GoodsList(mixins.ListModelMixin,
     """
     queryset = GoodsCategory.objects.filter(is_active=True).prefetch_related('goods')
     serializer_class = GoodsCategorySerializer
+    permission_classes = ()
+    authentication_classes = ()
 
 
 class GoodsCategoryView(mixins.ListModelMixin,
@@ -44,6 +46,8 @@ class GoodsCategoryView(mixins.ListModelMixin,
 
     queryset = GoodsCategory.objects.filter(is_active=True)
     serializer_class = GoodsCategorySerializer
+    permission_classes = ()
+    authentication_classes = ()
 
 
 class GoodsView(mixins.ListModelMixin,
@@ -65,3 +69,5 @@ class GoodsView(mixins.ListModelMixin,
     queryset = Goods.objects.filter(is_active=True)
     serializer_class = GoodsSerializer
     filter_class = GoodsFilter
+    permission_classes = ()
+    authentication_classes = ()

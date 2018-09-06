@@ -38,6 +38,8 @@ class WeiXinAuth(mixins.CreateModelMixin,
     """
     queryset = Consumer.objects.all()
     serializer_class = serializers.ConsumerSerializer
+    authentication_classes = ()
+    permission_classes = ()
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -69,19 +71,6 @@ class WeiXinAuth(mixins.CreateModelMixin,
             return Response(response_data, status=status.HTTP_200_OK)
         return Response(data={"code": ['认证异常']}, status=status.HTTP_400_BAD_REQUEST)
 
-    @list_route(methods=['POST'])
-    def decrypt(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        wx_api = WXBizDataCrypt(appid=APP_ID, session_key=self.request.user.consumer.session_key)
-        data = serializer.data
-        try:
-            result = wx_api.decrypt(data['encrypt_data'], data['iv'])
-        except Exception as e:
-            logger.exception("decrypt encrypt data error:{}".format(e))
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"encrypt_data": ['解密失败']})
-        return Response(data=result, status=status.HTTP_200_OK)
-
 
 class UserCenterView(mixins.UpdateModelMixin,
                      mixins.ListModelMixin,
@@ -92,6 +81,8 @@ class UserCenterView(mixins.UpdateModelMixin,
         返回当前用户登录信息
     update:
         更新用户信息
+    decrypt:
+        解密用户用户，传递解密数据以及向量
     """
     queryset = Consumer.objects.all()
     serializer_class = serializers.ConsumerSerializer
@@ -106,3 +97,16 @@ class UserCenterView(mixins.UpdateModelMixin,
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @list_route(methods=['POST'])
+    def decrypt(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        wx_api = WXBizDataCrypt(appid=APP_ID, session_key=self.request.user.consumer.session_key)
+        data = serializer.data
+        try:
+            result = wx_api.decrypt(data['encrypt_data'], data['iv'])
+        except Exception as e:
+            logger.exception("decrypt encrypt data error:{}".format(e))
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"encrypt_data": ['解密失败']})
+        return Response(data=result, status=status.HTTP_200_OK)

@@ -40,6 +40,7 @@ class ConsumerSerializer(serializers.ModelSerializer):
             'contact_addr',
             'is_distribution',
             'sell_user',
+            'sex_display',
             'bonus',
             'sell_user',
             'sell_user_name'

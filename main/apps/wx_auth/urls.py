@@ -12,6 +12,6 @@ from main.apps.wx_auth import views
 
 router = routers.DefaultRouter()
 
-router.register('auth', views.WeiXinAuth, base_name='user_center')
-
+router.register('auth', views.WeiXinAuth, base_name='auth')
+router.register('user_center', views.UserCenterView, base_name='user_center')
 urlpatterns = router.urls

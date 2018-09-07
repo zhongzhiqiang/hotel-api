@@ -49,7 +49,7 @@ class WeiXinAuth(mixins.CreateModelMixin,
         return self.serializer_class
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         wx_api = WXAPPAPI(appid=APP_ID, app_secret=APP_SECRET)
         data = serializer.data

@@ -59,7 +59,7 @@ class WeiXinAuth(mixins.CreateModelMixin,
             user, _ = User.objects.get_or_create(
                 defaults={"password": make_password(PASSWORD)}, username=openid)
             user_profile, _ = Consumer.objects.update_or_create(
-                user=user, defaults={"last_login": datetime.datetime.now(),
+                user=user, defaults={'openid': openid,
                                      'session_key': session_info['session_key']})
             serializer = JSONWebTokenSerializer(data={
                 "username": openid, "password": PASSWORD

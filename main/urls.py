@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^user/', include('main.apps.distribution.urls')),
     url(r'^user/', include('main.apps.banner.urls')),
     url(r'^user/', include('main.apps.wx_auth.urls')),
+    url(r'^user/', include('main.apps.market_order.urls')),
     url(r'^admin/', include('main.apps.admin_market.urls')),
     url(r'^admin/', include('main.apps.admin_hotels.urls')),
     url(r'^admin/', include('main.apps.admin_integral.urls')),

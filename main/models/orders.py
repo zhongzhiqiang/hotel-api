@@ -22,7 +22,7 @@ class MarketOrder(models.Model):
         max_length=20,
         blank=True,
     )
-    order_statue = models.IntegerField(
+    order_status = models.IntegerField(
         '订单状态',
         choices=ORDER_STATUS,
         default=10,
@@ -56,11 +56,33 @@ class MarketOrder(models.Model):
         default='',
         null=True,
     )
+    consumer = models.ForeignKey(
+        'main.Consumer',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+
+    consignee_name = models.CharField(
+        '收货人姓名',
+        max_length=50,
+        default=''
+    )
+    consignee_address = models.CharField(
+        '收货人地址',
+        max_length=200,
+        default=''
+    )
+    consignee_phone = models.CharField(
+        '收货人电话',
+        max_length=15,
+        default=''
+    )
 
     @property
     def goods_count(self):
         # 返回订单商品数量
-        return self.market_order.count()
+        return self.market_order_detail.count()
 
     def __unicode__(self):
         return self.order_id
@@ -78,13 +100,15 @@ class MarketOrderDetail(models.Model):
     market_order = models.ForeignKey(
         'main.MarketOrder',
         verbose_name='商场订单',
-        related_name='market_order',
-        on_delete=models.CASCADE
+        related_name='market_order_detail',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
     )
 
     goods = models.ForeignKey(
         'main.Goods',
-        verbose_name='商品分类',
+        verbose_name='商品名称',
         related_name='goods',
     )
     sale_price = models.DecimalField(
@@ -97,8 +121,14 @@ class MarketOrderDetail(models.Model):
         default=0,
     )
 
+    @property
+    def order_goods_price(self):
+        return self.sale_price * self.nums
+
     def __unicode__(self):
-        return '%s, %s' % (self.market_order.order_id, self.goods.goods_name)
+        if self.market_order:
+            return '%s, %s' % (self.market_order.order_id, self.goods.goods_name)
+        return '%s' % self.goods.goods_name
 
     class Meta:
         verbose_name = '商场订单明细'

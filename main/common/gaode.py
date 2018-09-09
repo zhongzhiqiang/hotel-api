@@ -65,8 +65,6 @@ class GaoDeMap(object):
             "address": address,
         }
         ret = self.request_data(data)
-        import ipdb
-        ipdb.set_trace()
         if ret.status_code == status.HTTP_200_OK:
             try:
                 content = json.loads(ret.content)

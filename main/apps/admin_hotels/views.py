@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 
 from main.models import Hotel, RoomStyles, Rooms
 from main.apps.admin_hotels import serializers, filters
@@ -28,6 +28,8 @@ class AdminHotelView(mixins.CreateModelMixin,
         创建数据
     retrieve:
         返回单个数据。查询id为list返回的id
+    update_lat_long:
+        强制后端更新数据。不需要传递参数.
     """
 
     serializer_class = serializers.HotelSerializers
@@ -52,9 +54,19 @@ class AdminHotelView(mixins.CreateModelMixin,
 
         ret = GaoDeMap().get_lat_longitude(address)
         if ret['status'] == '00000':
-
             return Response(status=status.HTTP_200_OK, data=ret['data'])
         return Response(status=status.HTTP_400_BAD_REQUEST, data={"error_message": "请求错误"})
+
+    @detail_route(methods=['POST'])
+    def update_lat_long(self, request, *args, **kwargs):
+        instance = self.get_object()
+        ret = GaoDeMap().get_lat_longitude(instance.address)
+        if ret['status'] == '00000':
+            instance.longitude = ret['data'].get('longitude')
+            instance.latitude = ret['data'].get('latitude')
+            instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class AdminRoomStyle(mixins.CreateModelMixin,

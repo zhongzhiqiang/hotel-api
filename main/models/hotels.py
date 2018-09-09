@@ -13,22 +13,35 @@ class Hotel(models.Model):
         unique=True,
         db_index=True
     )
-    address = models.CharField(
-        u'地址',
-        max_length=100
+    province = models.CharField(
+        '省份',
+        max_length=100,
+        default='四川省',
+    )
+    city = models.CharField(
+        '市',
+        max_length=20,
+        default='成都市'
+    )
+    area = models.CharField(
+        '区',
+        max_length=100,
+        default=''
+    )
+    street = models.CharField(
+        '街道地址',
+        max_length=200,
+        default=''
     )
     longitude = models.CharField(
         '经度',
         max_length=100,
-        blank=True,
-        null=True
+        default=''
     )
     latitude = models.CharField(
         '纬度',
         max_length=100,
-        blank=True,
-        null=True
-
+        default=''
     )
     images = JSONField(
         '图片',
@@ -40,9 +53,22 @@ class Hotel(models.Model):
     hotel_profile = models.TextField(
         '宾馆简介'
     )
+    cover_images = models.CharField(
+        '封面图',
+        max_length=100,
+        default=''
+    )
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def min_price(self):
+        return self.room_styles.aggregate(min_price=models.Min('price')).get('min_price') or '0'
+
+    @property
+    def address(self):
+        return self.province + self.city + self.area + self.street
 
     class Meta:
         verbose_name = '宾馆信息'
@@ -54,6 +80,7 @@ class RoomStyles(models.Model):
         'main.Hotel',
         on_delete=models.SET_DEFAULT,
         verbose_name='所属酒店',
+        related_name='room_styles',
         default=0
     )
     style_name = models.CharField(

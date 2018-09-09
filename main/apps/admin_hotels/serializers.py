@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from main.models import Hotel, RoomStyles, Rooms
+from main.common.gaode import GaoDeMap
 
 
 class HotelSerializers(serializers.ModelSerializer):
@@ -21,14 +22,26 @@ class AddressSerializers(serializers.Serializer):
 
 class CreateHotelSerializers(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        instance = super(CreateHotelSerializers, self).create(validated_data)
+        ret = GaoDeMap().get_lat_longitude(instance.address)
+        if ret['status'] == '00000':
+            instance.longitude = ret['data'].get('longitude')
+            instance.latitude = ret['data'].get('latitude')
+            instance.save()
+
+        return instance
+
     class Meta:
         model = Hotel
         fields = (
             'name',
-            'address',
-            'longitude',
-            'latitude',
-            'hotel_profile'
+            'province',
+            'city',
+            'area',
+            'street',
+            'hotel_profile',
+            'cover_images'
         )
 
 

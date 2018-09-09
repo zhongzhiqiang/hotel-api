@@ -8,7 +8,19 @@ from main.models import Hotel, RoomStyles
 class HotelSerializers(serializers.ModelSerializer):
     class Meta:
         model = Hotel
-        fields = "__all__"
+        fields = (
+            'id',
+            'address',
+            'province',
+            'city',
+            'area',
+            'street',
+            'longitude',
+            'latitude',
+            'cover_images',
+            'hotel_profile',
+            'min_price'
+        )
 
 
 class RoomStyleSerializer(serializers.ModelSerializer):

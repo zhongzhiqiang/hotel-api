@@ -50,7 +50,7 @@ class RoleSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-class EditRoleSerializer(serializers.ModelSerializer):
+class CreateRoleSerializer(serializers.ModelSerializer):
 
     perms = serializers.ListField(
         child=serializers.CharField(),
@@ -60,7 +60,7 @@ class EditRoleSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         perms = validated_data.pop('perms', [])
         with transaction.atomic():
-            group = super(EditRoleSerializer, self).create(validated_data)
+            group = super(CreateRoleSerializer, self).create(validated_data)
             permissions = list(Permission.objects.filter(codename__in=perms))
             group.permissions.set(permissions)
         return group
@@ -69,7 +69,7 @@ class EditRoleSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         perms = validated_data.pop('perms', [])
 
-        group = super(EditRoleSerializer, self).update(instance, validated_data)
+        group = super(CreateRoleSerializer, self).update(instance, validated_data)
         permissions = list(Permission.objects.filter(codename__in=perms))
         group.permissions.set(permissions)
         return group

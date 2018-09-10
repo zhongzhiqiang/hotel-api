@@ -6,6 +6,8 @@ from main.models import Hotel, RoomStyles
 
 
 class HotelSerializers(serializers.ModelSerializer):
+    address = serializers.CharField(read_only=True)
+
     class Meta:
         model = Hotel
         fields = (

@@ -9,6 +9,8 @@ from main.common.gaode import GaoDeMap
 
 class HotelSerializers(serializers.ModelSerializer):
 
+    address = serializers.CharField(read_only=True)
+
     def update(self, instance, validated_data):
         instance = super(HotelSerializers, self).update(instance, validated_data)
         ret = GaoDeMap().get_lat_longitude(instance.address)
@@ -27,6 +29,7 @@ class HotelSerializers(serializers.ModelSerializer):
             'city',
             'area',
             'street',
+            'address',
             'longitude',
             'latitude',
             'hotel_profile',

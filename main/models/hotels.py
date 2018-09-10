@@ -104,6 +104,11 @@ class RoomStyles(models.Model):
         '创建时间',
         auto_now_add=True
     )
+    cover_image = models.CharField(
+        '封面图',
+        default='',
+        max_length=100,
+    )
     is_active = models.BooleanField(
         '是否对外销售',
         default=True,

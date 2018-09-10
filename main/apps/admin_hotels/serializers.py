@@ -100,6 +100,7 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
             'price',
             'room_profile',
             'images',
+            'cover_image',
             'is_active'
         )
 

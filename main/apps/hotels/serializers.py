@@ -41,5 +41,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'left_room_count',
             'style_name',
             'price',
-            'room_profile'
+            'images',
+            'room_profile',
+            'cover_image',
         )

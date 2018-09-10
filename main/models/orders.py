@@ -168,7 +168,8 @@ class HotelOrder(models.Model):
     room_style_num = models.PositiveIntegerField(
         '房间类型数量',
         default=0,
-        help_text='用于'
+        help_text='用于统计订单有多少房间',
+        blank=True,
     )
     sale_price = models.DecimalField(
         '订单金额',
@@ -217,6 +218,10 @@ class HotelOrder(models.Model):
         blank=True,
         help_text='管理人员备注'
     )
+
+    def make_order_id(self):
+        """创建订单号"""
+        return '%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     def __unicode__(self):
         return self.order_id

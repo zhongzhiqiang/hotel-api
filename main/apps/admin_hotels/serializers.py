@@ -9,9 +9,29 @@ from main.common.gaode import GaoDeMap
 
 class HotelSerializers(serializers.ModelSerializer):
 
+    def update(self, instance, validated_data):
+        instance = super(HotelSerializers, self).update(instance, validated_data)
+        ret = GaoDeMap().get_lat_longitude(instance.address)
+        if ret['status'] == '00000':
+            instance.longitude = ret['data'].get('longitude')
+            instance.latitude = ret['data'].get('latitude')
+            instance.save()
+        return instance
+
     class Meta:
         model = Hotel
-        fields = "__all__"
+        fields = (
+            'id',
+            'name',
+            'province',
+            'city',
+            'area',
+            'street',
+            'longitude',
+            'latitude',
+            'hotel_profile',
+            'cover_images'
+        )
         read_only_fields = ('longitude', 'latitude')
 
 

@@ -78,8 +78,8 @@ class GaoDeMap(object):
                 if code == self.success_code:
                     geocodes = content['geocodes'][0]
                     lat_long = geocodes['location'].split(",")
-                    latitude = lat_long[0]
-                    longitude = lat_long[1]
+                    longitude = lat_long[0]
+                    latitude = lat_long[1]
                     ret = {
                         "status": "00000",
                         "data": {

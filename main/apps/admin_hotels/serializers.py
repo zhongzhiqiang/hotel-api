@@ -64,7 +64,8 @@ class CreateHotelSerializers(serializers.ModelSerializer):
             'area',
             'street',
             'hotel_profile',
-            'cover_images'
+            'cover_images',
+            'tel'
         )
 
 

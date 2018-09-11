@@ -58,6 +58,11 @@ class Hotel(models.Model):
         max_length=100,
         default=''
     )
+    tel = models.CharField(
+        '联系电话',
+        max_length=50,
+        default=''
+    )
 
     def __unicode__(self):
         return self.name

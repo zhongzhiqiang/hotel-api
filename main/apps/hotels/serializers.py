@@ -22,7 +22,8 @@ class HotelSerializers(serializers.ModelSerializer):
             'latitude',
             'cover_images',
             'hotel_profile',
-            'min_price'
+            'min_price',
+            'tel'
         )
 
 

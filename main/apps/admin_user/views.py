@@ -30,7 +30,6 @@ class AdminUserViews(mixins.CreateModelMixin,
         else:
             if self.request.user and self.request.user.staffprofile:
                 return self.queryset.filter(belong_hotel=self.request.user.staffprofile.belong_hotel)
-
         return self.request
 
     def get_serializer_class(self):

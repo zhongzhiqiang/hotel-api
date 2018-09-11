@@ -26,6 +26,15 @@ class GrowthValueSettingView(mixins.CreateModelMixin,
         返回单个数据。查询id为list返回的id
     """
 
+    def perform_create(self, serializer):
+        if self.request.user and self.request.user.staffprofile:
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user and self.request.user.staffprofile:
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
     # 成长值配置
     queryset = GrowthValueSettings.objects.all()
     serializer_class = serializers.GrowthValueSettingsSerializer
@@ -46,6 +55,17 @@ class AdminIntegralSettingsView(mixins.CreateModelMixin,
     create:
         创建积分配置
     """
+
+    def perform_create(self, serializer):
+        if self.request.user and self.request.user.staffprofile:
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user and self.request.user.staffprofile:
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
     queryset = IntegralSettings.objects.all()
     serializer_class = serializers.IntegralSettingsSerializer
 

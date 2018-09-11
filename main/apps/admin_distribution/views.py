@@ -25,6 +25,11 @@ class AdminDistributionApplyView(mixins.UpdateModelMixin,
             返回单个申请详情
     """
 
+    def perform_update(self, serializer):
+        if self.request.user and self.request.user.staffprofile:
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
     queryset = DistributionApply.objects.all()
     serializer_class = serializers.ApplySerializer
     search_fields = ("consumer__user_name", )
@@ -43,5 +48,10 @@ class BonusPickViews(mixins.UpdateModelMixin,
     retrieve:
         返回提取记录详情
     """
+    def perform_update(self, serializer):
+        if self.request.user and self.request.user.staffprofile:
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
     queryset = DistributionBonusPick.objects.all()
     serializer_class = serializers.BonusPickSerializer

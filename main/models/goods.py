@@ -11,13 +11,24 @@ class GoodsCategory(models.Model):
         max_length=10
     )
     create_time = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        verbose_name='创建时间'
     )
     is_active = models.BooleanField(
         '是否上架',
         default=False,
         help_text='默认不上架',
         blank=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
     )
 
     def __unicode__(self):
@@ -52,7 +63,7 @@ class Goods(models.Model):
     )
     # 商品实际所付等于
     need_integral = models.PositiveIntegerField(
-        '所需最大积分',
+        '所需积分',
         default=0,
         blank=True
     )
@@ -60,6 +71,20 @@ class Goods(models.Model):
         '是否上架',
         default=False,
         blank=True
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True,
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     def __unicode__(self):

@@ -20,7 +20,7 @@ class HotelView(mixins.ListModelMixin,
         返回宾馆的所有房间信息
     """
 
-    queryset = Hotel.objects.all()
+    queryset = Hotel.objects.filter(is_active=True)
     serializer_class = HotelSerializers
     permission_classes = ()
     authentication_classes = ()

@@ -30,6 +30,16 @@ permission_list = [
         ]
     },
     {
-        "model": "di"
+        "model": "hotel",
+        "perms": [
+            {
+                "name": "添加宾馆信息",
+                "codename": "add_hotel"
+            },
+            {
+                "name": "修改宾馆信息",
+                "codename": "update_hotel",
+            }
+        ]
     }
 ]

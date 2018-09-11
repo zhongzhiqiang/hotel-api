@@ -83,7 +83,7 @@ class Consumer(models.Model):
         return self.user.username
 
     class Meta:
-        verbose_name = '消费者信息'
+        verbose_name = '客户信息'
         verbose_name_plural = verbose_name
 
 
@@ -126,7 +126,12 @@ class DistributionApply(models.Model):
         auto_now=True,
         blank=True
     )
-
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
     is_success = models.BooleanField(
         '是否申请成功',
         default=False,
@@ -209,6 +214,13 @@ class DistributionBonusDetail(models.Model):
         auto_now=True
     )
 
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
     def __unicode__(self):
         return self.consumer.user_name
 
@@ -277,10 +289,21 @@ class DistributionBonusPick(models.Model):
         max_length=500,
         default=''
     )
+    operator_time = models.DateTimeField(
+        '操作时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        verbose_name='操作人员',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
 
     def make_order_id(self):
         """创建工单号"""
-        return '%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+        return 'pick_%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     class Meta:
         verbose_name = '提取分销金额申请'

@@ -8,14 +8,42 @@ from main.models import Goods, GoodsCategory
 
 
 class GoodsCategorySerializer(serializers.ModelSerializer):
+
+    operator_name = serializers.CharField(
+        source='operator_name.user_name',
+        read_only=True
+    )
+
     class Meta:
         model = GoodsCategory
-        fields = "__all__"
+        fields = (
+            'id',
+            'category_name',
+            'create_time',
+            'is_active',
+            'update_time',
+            'operator_name'
+        )
+
+
+class CreateGoodsCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GoodsCategory
+        fields = (
+            'id',
+            'category_name',
+            'is_active'
+        )
 
 
 class GoodsSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
         source='category.category_name',
+        read_only=True
+    )
+
+    operator_name = serializers.CharField(
+        source='operator_name.user_name',
         read_only=True
     )
 
@@ -26,5 +54,36 @@ class GoodsSerializer(serializers.ModelSerializer):
             'goods_name',
             'category_name',
             'goods_price',
-            'is_active'
+            'is_active',
+            'need_integral',
+            'is_integral',
+            'create_time',
+            'update_time',
+            'operator_name'
+        )
+
+
+class CreateGoodsSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(
+        source='category.category_name',
+    )
+
+    def validate(self, attrs):
+        category_name = attrs.pop('category', {}).get('category_name')
+        category = GoodsCategory.objects.filter(category_name=category_name).first()
+        if not category:
+            raise serializers.ValidationError({"category": "请正确填写商品分类"})
+        attrs.update({"category": category})
+        return attrs
+
+    class Meta:
+        model = Goods
+        fields = (
+            'id',
+            'goods_name',
+            'category',
+            'goods_price',
+            'is_active',
+            'is_integral',
+            'need_integral',
         )

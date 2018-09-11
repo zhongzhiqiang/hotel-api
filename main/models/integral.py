@@ -23,6 +23,12 @@ class IntegralSettings(models.Model):
         '更新时间',
         auto_now=True
     )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
 
     def __unicode__(self):
         return '%d' % self.ratio
@@ -51,6 +57,20 @@ class GrowthValueSettings(models.Model):
         '等级',
         max_length=10,
         help_text='成长值对应等级'
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     def __unicode__(self):

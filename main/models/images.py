@@ -9,6 +9,18 @@ class Images(models.Model):
         '图片'
     )
 
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        verbose_name='创建人员',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
     def __unicode__(self):
         return self.image.url
 

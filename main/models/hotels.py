@@ -63,6 +63,25 @@ class Hotel(models.Model):
         max_length=50,
         default=''
     )
+    is_active = models.BooleanField(
+        '是否对外开放',
+        default=False,
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name='操作人员'
+    )
 
     def __unicode__(self):
         return self.name
@@ -119,6 +138,16 @@ class RoomStyles(models.Model):
         default=True,
         blank=True
     )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     def __unicode__(self):
         return self.style_name
@@ -142,6 +171,7 @@ class Rooms(models.Model):
         (20, '已预定'),
         (30, '入住'),
         (40, '退房'),
+        (50, '维修'),
     )
     room_style = models.ForeignKey(
         'main.RoomStyles',
@@ -166,11 +196,24 @@ class Rooms(models.Model):
         null=True,
         help_text='预定时间'
     )
-
     reserve_out_time = models.DateTimeField(
         '预定结束时间',
         blank=True,
         null=True
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now_add=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
     )
 
     def __unicode__(self):

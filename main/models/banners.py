@@ -39,6 +39,12 @@ class Banners(models.Model):
         '更新时间',
         auto_now=True
     )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     def __unicode__(self):
         return self.banner_title

@@ -16,6 +16,10 @@ class MarketOrder(models.Model):
         (40, '已完成'),
         (50, '已取消'),
     )
+    PAY_TYPE = (
+        (10, '积分'),
+        (20, '金钱')
+    )
 
     order_id = models.CharField(
         '订单号',
@@ -31,6 +35,12 @@ class MarketOrder(models.Model):
     create_time = models.DateTimeField(
         '创建时间',
         auto_now_add=True
+    )
+    pay_type = models.IntegerField(
+        '支付方式',
+        choices=PAY_TYPE,
+        default=20,
+        help_text='默认金钱支付'
     )
     pay_time = models.DateTimeField(
         '支付时间',
@@ -199,6 +209,12 @@ class HotelOrder(models.Model):
         '操作时间',
         auto_now=True,
         blank=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
     )
     consumer = models.ForeignKey(
         'main.Consumer',

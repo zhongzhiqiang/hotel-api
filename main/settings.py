@@ -206,6 +206,8 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/data/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/data/media/'
 
 LOGGING = {
     'version': 1,

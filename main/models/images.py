@@ -6,9 +6,8 @@ from django.db import models
 
 class Images(models.Model):
     image = models.ImageField(
-        '图片'
+        '图片',
     )
-
     create_time = models.DateTimeField(
         '创建时间',
         auto_now_add=True

@@ -10,6 +10,7 @@ from rest_framework import mixins, viewsets
 
 from main.models import MarketOrder
 from main.apps.market_order import serializers
+from main.common.permissions import ClientPermission
 
 
 class MarketOrderViews(mixins.CreateModelMixin,
@@ -33,6 +34,7 @@ class MarketOrderViews(mixins.CreateModelMixin,
     """
     queryset = MarketOrder.objects.filter().prefetch_related('market_order_detail')
     serializer_class = serializers.MarketOrderSerializer
+    permission_classes = (ClientPermission, )
 
     def perform_create(self, serializer):
         serializer.save(consumer=self.request.user.consumer)
@@ -42,3 +44,8 @@ class MarketOrderViews(mixins.CreateModelMixin,
         if self.action == 'create':
             return serializers.CreateMarketOrderSerializer
         return self.serializer_class
+
+    def get_queryset(self):
+        if self.request.user and hasattr(self.request.user, 'consumer'):
+            return self.queryset.filter(consumer=self.request.user.consumer)
+        return self.queryset

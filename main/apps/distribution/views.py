@@ -9,6 +9,7 @@ from rest_framework import mixins, viewsets
 
 from main.models import DistributionApply, DistributionBonusDetail, DistributionBonusPick
 from main.apps.distribution import serializers
+from main.common.permissions import ClientPermission
 
 
 class DistributionApplyView(mixins.CreateModelMixin,
@@ -28,6 +29,7 @@ class DistributionApplyView(mixins.CreateModelMixin,
     """
     queryset = DistributionApply.objects.all()  # 这里需要根据用户来返回
     serializer_class = serializers.ApplySerializer
+    permission_classes = (ClientPermission, )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user.consumer)
@@ -36,6 +38,9 @@ class DistributionApplyView(mixins.CreateModelMixin,
         if self.action == 'create':
             return serializers.CreateApplySerializer
         return self.serializer_class
+
+    def get_queryset(self):
+        return self.queryset.filter(consumer=self.request.user.consumer)
 
 
 class DistributionDetailView(mixins.ListModelMixin,
@@ -49,6 +54,10 @@ class DistributionDetailView(mixins.ListModelMixin,
     """
     queryset = DistributionBonusDetail.objects.all()
     serializer_class = serializers.DistributionBonusDetailSerializer
+    permission_classes = (ClientPermission, )
+
+    def get_queryset(self):
+        return self.queryset.filter(consumer=self.request.user.consumer)
 
 
 class DistributionBonusPickViews(mixins.CreateModelMixin,
@@ -69,9 +78,13 @@ class DistributionBonusPickViews(mixins.CreateModelMixin,
     queryset = DistributionBonusPick.objects.all()
     serializer_class = serializers.BonusPickSerializer
     lookup_field = 'pick_order'
+    permission_classes = (ClientPermission, )
 
     def perform_create(self, serializer):
         serializer.save(consumer=self.request.user.consumer)
+
+    def get_queryset(self):
+        return self.queryset.filter(consumer=self.request.user.consumer)
 
     def get_serializer_class(self):
         if self.action == 'create':

@@ -23,3 +23,8 @@ class ImageViews(mixins.CreateModelMixin,
 
     queryset = Images.objects.all()
     serializer_class = serializers.ImageSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return serializers.CreateImageSerializer
+        return self.serializer_class

@@ -251,7 +251,6 @@ class DistributionBonusPick(models.Model):
         blank=True,
         null=True,
         db_index=True,
-        unique=True,
         error_messages={
             'unique': "订单号错误"
         }
@@ -304,6 +303,9 @@ class DistributionBonusPick(models.Model):
     def make_order_id(self):
         """创建工单号"""
         return 'pick_%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+
+    def __unicode__(self):
+        return self.consumer.user_name
 
     class Meta:
         verbose_name = '提取分销金额申请'

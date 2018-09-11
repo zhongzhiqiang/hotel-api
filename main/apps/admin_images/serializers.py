@@ -12,6 +12,25 @@ from main.models import Images
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    operator_name = serializers.CharField(
+        source='operator_name.user_name',
+        read_only=True
+    )
+
     class Meta:
         model = Images
-        fields = "__all__"
+        fields = (
+            'id',
+            'image',
+            'operator_name',
+            'create_time'
+        )
+
+class CreateImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Images
+        fields = (
+            'id',
+            'image',
+        )

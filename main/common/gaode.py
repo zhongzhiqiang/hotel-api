@@ -76,6 +76,7 @@ class GaoDeMap(object):
             else:
                 code = content['status']
                 if code == self.success_code:
+                    logger.info("gaode address:{},return:{}".format(address, content))
                     geocodes = content['geocodes'][0]
                     lat_long = geocodes['location'].split(",")
                     longitude = lat_long[0]

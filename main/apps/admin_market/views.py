@@ -27,12 +27,12 @@ class GoodsCategoryView(mixins.CreateModelMixin,
     """
 
     def perform_create(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
     def perform_update(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
@@ -68,12 +68,12 @@ class GoodsView(mixins.CreateModelMixin,
     serializer_class = serializers.GoodsSerializer
 
     def perform_create(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
     def perform_update(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 

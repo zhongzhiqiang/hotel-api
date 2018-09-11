@@ -26,7 +26,7 @@ class AdminDistributionApplyView(mixins.UpdateModelMixin,
     """
 
     def perform_update(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
@@ -49,7 +49,7 @@ class BonusPickViews(mixins.UpdateModelMixin,
         返回提取记录详情
     """
     def perform_update(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 

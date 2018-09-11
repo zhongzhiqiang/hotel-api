@@ -17,8 +17,8 @@ class ImageViews(mixins.CreateModelMixin,
                  viewsets.GenericViewSet):
 
     def perform_create(self, serializer):
-        if self.request.user and self.request.user.stafprofile:
-            serializer.save(operator_name=self.request.user.stafprofile)
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
     queryset = Images.objects.all()

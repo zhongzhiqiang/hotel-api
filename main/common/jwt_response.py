@@ -14,7 +14,7 @@ def jwt_response_payload_handler(token, user=None, request=None):
     if user:
         kwargs.update({"username": user.username})
 
-    if user and user.staffprofile:
+    if user and hasattr(user, 'staffprofile'):
         kwargs.update({"user_name": user.staffprofile.user_name})
 
     return kwargs

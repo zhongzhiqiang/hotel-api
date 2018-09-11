@@ -38,12 +38,12 @@ class AdminHotelView(mixins.CreateModelMixin,
     search_fields = ('name', )
 
     def perform_create(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
     def perform_update(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
@@ -103,12 +103,12 @@ class AdminRoomStyle(mixins.CreateModelMixin,
     search_fields = ('style_name', )
 
     def perform_create(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
     def perform_update(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 
@@ -140,6 +140,16 @@ class AdminRoomView(mixins.CreateModelMixin,
     serializer_class = serializers.RoomSerializer
     search_fields = ('room_style__style_name', )
     filter_class = filters.RoomFilter
+
+    def perform_create(self, serializer):
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
 
     def get_serializer_class(self):
         if self.action == 'create':

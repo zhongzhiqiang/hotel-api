@@ -48,7 +48,7 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
     filter_class = filters.HotelOrderFilter
 
     def perform_update(self, serializer):
-        if self.request.user and self.request.user.staffprofile:
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
         serializer.save()
 

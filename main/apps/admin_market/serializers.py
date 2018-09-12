@@ -64,17 +64,10 @@ class GoodsSerializer(serializers.ModelSerializer):
 
 
 class CreateGoodsSerializer(serializers.ModelSerializer):
-    category = serializers.CharField(
+    category_name = serializers.CharField(
         source='category.category_name',
+        read_only=True
     )
-
-    def validate(self, attrs):
-        category_name = attrs.pop('category', {}).get('category_name')
-        category = GoodsCategory.objects.filter(category_name=category_name).first()
-        if not category:
-            raise serializers.ValidationError({"category": "请正确填写商品分类"})
-        attrs.update({"category": category})
-        return attrs
 
     class Meta:
         model = Goods
@@ -86,4 +79,5 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
             'is_active',
             'is_integral',
             'need_integral',
+            'category_name'
         )

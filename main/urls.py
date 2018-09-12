@@ -42,6 +42,5 @@ urlpatterns = [
     url(r'^admin/', include('main.apps.admin_distribution.urls')),
     url(r'^admin/', include('main.apps.admin_banner.urls')),
     url(r'^admin/', include('main.apps.admin_consumer.urls')),
-    url(r'^admin/', include('main.apps.admin_user.urls'))
-
+    url(r'^admin/', include('main.apps.admin_user.urls')),
 ]

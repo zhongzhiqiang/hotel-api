@@ -18,7 +18,8 @@ class MarketOrder(models.Model):
     )
     PAY_TYPE = (
         (10, '积分'),
-        (20, '金钱')
+        (20, '金钱'),
+        (30, '混合')
     )
 
     order_id = models.CharField(
@@ -41,6 +42,18 @@ class MarketOrder(models.Model):
         choices=PAY_TYPE,
         default=20,
         help_text='默认金钱支付'
+    )
+    pay_money = models.DecimalField(
+        '支付金额',
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        default=0
+    )
+    pay_integral = models.PositiveIntegerField(
+        '消费积分',
+        default=0,
+        help_text='当支付方式为积分时'
     )
     pay_time = models.DateTimeField(
         '支付时间',
@@ -125,6 +138,13 @@ class MarketOrderDetail(models.Model):
         '销售单价',
         max_digits=5,
         decimal_places=2,
+        blank=True,
+        default=0
+    )
+    integral = models.PositiveIntegerField(
+        '兑换积分单价',
+        blank=True,
+        default=0,
     )
     nums = models.PositiveIntegerField(
         '购买数量',

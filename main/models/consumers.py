@@ -59,6 +59,11 @@ class Consumer(models.Model):
         default=False,
         blank=True
     )
+    is_vip = models.BooleanField(
+        '是否为会员',
+        default=False,
+        blank=True
+    )
     sell_user = models.ForeignKey(
         'main.Consumer',
         on_delete=models.SET_NULL,
@@ -86,6 +91,22 @@ class Consumer(models.Model):
         verbose_name = '客户信息'
         verbose_name_plural = verbose_name
 
+
+class ConsumerVipInfo(models.Model):
+    consumer = models.OneToOneField(
+        'main.Consumer',
+        related_name='vip_info'
+    )
+    vip_start_time = models.DateTimeField(
+        '会员有效期',
+    )
+    vip_end_time = models.DateTimeField(
+        '会员失效期'
+    )
+
+    class Meta:
+        verbose_name = '客户会员系统'
+        verbose_name_plural = verbose_name
 
 class DistributionApply(models.Model):
 

@@ -29,6 +29,12 @@ class MarketOrderViews(mixins.CreateModelMixin,
         ```
     create:
         创建订单
+        ```
+        market_order_detail 字段传递:
+        [{"goods_name":"商品名称，从goods获取的goods_name"，
+        "sale_price": "销售价格 TODO 这里暂时前端传递。等带后续改进",
+        "nums"： "购买数量"}]
+        ```
     update:
         更新数据。
     """

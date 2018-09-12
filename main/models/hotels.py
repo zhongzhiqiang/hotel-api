@@ -110,7 +110,8 @@ class RoomStyles(models.Model):
     style_name = models.CharField(
         '房间类型',
         max_length=100,
-        db_index=True
+        db_index=True,
+        unique=True,
     )
     price = models.DecimalField(
         '单价',

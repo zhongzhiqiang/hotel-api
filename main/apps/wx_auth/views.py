@@ -53,7 +53,11 @@ class WeiXinAuth(mixins.CreateModelMixin,
         serializer.is_valid(raise_exception=True)
         wx_api = WXAPPAPI(appid=APP_ID, app_secret=APP_SECRET)
         data = serializer.data
-        session_info = wx_api.exchange_code_for_session_key(data['code'])
+        try:
+            session_info = wx_api.exchange_code_for_session_key(data['code'])
+        except Exception as e:
+            logger.warning("exchange code error:{}".format(e))
+            return Response(data={"code": ["登录失败"]}, status=status.HTTP_400_BAD_REQUEST)
         if session_info:
             openid = session_info['openid']
             user, _ = User.objects.get_or_create(
@@ -79,8 +83,19 @@ class UserCenterView(mixins.UpdateModelMixin,
     """
     list:
         返回当前用户登录信息
+    update_info:
+        更新用户部分信息.
+        ```
+        SEX_STATUS = (
+        (10, '未知'),
+        (20, '男'),
+        (30, '女')
+        ) 传递字母
+        ```
     update:
-        更新用户信息
+        这个接口不使用
+    partial_update:
+        这个接口不使用
     decrypt:
         解密用户用户，传递解密数据以及向量
     """
@@ -95,8 +110,13 @@ class UserCenterView(mixins.UpdateModelMixin,
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset)
         return Response(serializer.data)
+
+    @list_route(methods=['POST'])
+    def update_info(self, request, *args, **kwargs):
+        self.kwargs['pk'] = self.request.user.consumer.id
+        return self.partial_update(request, *args, **kwargs)
 
     @list_route(methods=['POST'])
     def decrypt(self, request):

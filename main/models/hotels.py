@@ -134,6 +134,10 @@ class RoomStyles(models.Model):
         default='',
         max_length=100,
     )
+    room_count = models.PositiveIntegerField(
+        '房间数',
+        default=0,
+    )
     is_active = models.BooleanField(
         '是否对外销售',
         default=True,
@@ -152,14 +156,6 @@ class RoomStyles(models.Model):
 
     def __unicode__(self):
         return self.style_name
-
-    @property
-    def left_room_count(self):
-        return self.room.filter(room_status=10).count()
-
-    @property
-    def room_count(self):
-        return self.room.count()
 
     class Meta:
         verbose_name = '房间类型'

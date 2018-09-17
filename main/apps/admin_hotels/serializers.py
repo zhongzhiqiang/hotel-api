@@ -96,7 +96,8 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
             'room_profile',
             'images',
             'cover_image',
-            'is_active'
+            'is_active',
+            'room_count',
         )
 
 
@@ -111,10 +112,8 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'room_profile',
             'room_count',
             'is_active',
-            'left_room_count',
             'images',
         )
-        read_only_fields = ('room_count', 'left_room_count')
 
 
 class CreateRoomSerializer(serializers.ModelSerializer):

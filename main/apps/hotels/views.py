@@ -1,11 +1,9 @@
 # coding:utf-8
 
 from rest_framework import mixins, viewsets
-from rest_framework.decorators import detail_route, list_route
-from rest_framework.response import Response
 
-from main.models import Hotel, RoomStyles
-from main.apps.hotels.serializers import HotelSerializers, RoomStyleSerializer
+from main.models import Hotel
+from main.apps.hotels.serializers import HotelSerializers, HotelDetailSerializer
 
 
 class HotelView(mixins.ListModelMixin,
@@ -20,15 +18,12 @@ class HotelView(mixins.ListModelMixin,
         返回宾馆的所有房间信息
     """
 
-    queryset = Hotel.objects.filter(is_active=True)
+    queryset = Hotel.objects.filter(is_active=True).prefetch_related('room_styles')
     serializer_class = HotelSerializers
     permission_classes = ()
     authentication_classes = ()
 
-    @detail_route(methods=['GET'])
-    def room_style(self, request, *args, **kwargs):
-        instance = self.get_object()
-        room_style = RoomStyles.objects.filter(belong_hotel=instance.id)
-        serializer = RoomStyleSerializer(instance=room_style, many=True)
-        return Response(serializer.data)
-
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return HotelDetailSerializer
+        return self.serializer_class

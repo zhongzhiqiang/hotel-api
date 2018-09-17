@@ -39,10 +39,33 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'id',
             'belong_hotel_name',
             'belong_hotel',
-            'left_room_count',
+            'room_count',
             'style_name',
             'price',
             'images',
             'room_profile',
             'cover_image',
+        )
+
+
+class HotelDetailSerializer(serializers.ModelSerializer):
+    room_styles = RoomStyleSerializer(many=True)
+
+    class Meta:
+        model = Hotel
+        fields = (
+            'id',
+            'name',
+            'address',
+            'province',
+            'city',
+            'area',
+            'street',
+            'longitude',
+            'latitude',
+            'cover_images',
+            'hotel_profile',
+            'min_price',
+            'tel',
+            'room_style_info'
         )

@@ -67,5 +67,5 @@ class HotelDetailSerializer(serializers.ModelSerializer):
             'hotel_profile',
             'min_price',
             'tel',
-            'room_style_info'
+            'room_styles'
         )

@@ -6,8 +6,9 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 from rest_framework import serializers
+from django.db.transaction import atomic
 
-from main.models import HotelOrder, HotelOrderDetail, HotelOrderRoomInfo
+from main.models import HotelOrder, HotelOrderDetail
 
 
 class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
@@ -31,7 +32,9 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
     )
     hotel_detail = CreateHotelOrderDetailSerializer(many=True)
 
+    @atomic
     def create(self, validated_data):
+        hotel_detail = validated_data.pop('hotel_detail', {})
         instance = super(CreateHotelOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
         instance.save()

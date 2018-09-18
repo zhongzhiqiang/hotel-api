@@ -5,6 +5,13 @@ from rest_framework import serializers
 from main.models import Hotel, RoomStyles
 
 
+class ImageFiled(serializers.CharField):
+    def to_representation(self, value):
+        if isinstance(value, basestring):
+            return eval(value)
+        return value
+
+
 class HotelSerializers(serializers.ModelSerializer):
     address = serializers.CharField(read_only=True)
 
@@ -32,7 +39,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
         source='belong_hotel.name',
         read_only=True
     )
-
+    images = ImageFiled()
     class Meta:
         model = RoomStyles
         fields = (

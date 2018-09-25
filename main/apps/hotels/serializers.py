@@ -40,7 +40,8 @@ class HotelSerializers(serializers.ModelSerializer):
             'hotel_profile',
             'min_price',
             'tel',
-            'tags'
+            'tags',
+            'images'
         )
 
 
@@ -64,6 +65,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'images',
             'room_profile',
             'cover_image',
+            'tags'
         )
 
 

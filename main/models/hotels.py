@@ -63,6 +63,12 @@ class Hotel(models.Model):
         max_length=50,
         default=''
     )
+    tags = JSONField(
+        '标签管理',
+        default='[]',
+        blank=True,
+        help_text='标签,存放为数组,数据库为json后的list'
+    )
     is_active = models.BooleanField(
         '是否对外开放',
         default=False,

@@ -12,8 +12,16 @@ class ImageFiled(serializers.CharField):
         return value
 
 
+class TagsField(serializers.CharField):
+    def to_representation(self, value):
+        if isinstance(value, basestring):
+            return eval(value)
+        return value
+
+
 class HotelSerializers(serializers.ModelSerializer):
     address = serializers.CharField(read_only=True)
+    tags = serializers.CharField(read_only=True)
 
     class Meta:
         model = Hotel
@@ -30,7 +38,8 @@ class HotelSerializers(serializers.ModelSerializer):
             'cover_images',
             'hotel_profile',
             'min_price',
-            'tel'
+            'tel',
+            'tags'
         )
 
 
@@ -40,6 +49,8 @@ class RoomStyleSerializer(serializers.ModelSerializer):
         read_only=True
     )
     images = ImageFiled()
+    tags = serializers.CharField(read_only=True)
+
     class Meta:
         model = RoomStyles
         fields = (
@@ -74,5 +85,6 @@ class HotelDetailSerializer(serializers.ModelSerializer):
             'hotel_profile',
             'min_price',
             'tel',
-            'room_styles'
+            'room_styles',
+            'tags'
         )

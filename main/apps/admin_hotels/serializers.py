@@ -10,6 +10,8 @@ from main.common.gaode import GaoDeMap
 class HotelSerializers(serializers.ModelSerializer):
 
     address = serializers.CharField(read_only=True)
+    tags = serializers.ListField()
+    images = serializers.ListField()
 
     def update(self, instance, validated_data):
         instance = super(HotelSerializers, self).update(instance, validated_data)
@@ -33,7 +35,10 @@ class HotelSerializers(serializers.ModelSerializer):
             'longitude',
             'latitude',
             'hotel_profile',
-            'cover_images'
+            'cover_images',
+            'is_active',
+            'tags',
+            'images',
         )
         read_only_fields = ('longitude', 'latitude')
 
@@ -45,6 +50,16 @@ class AddressSerializers(serializers.Serializer):
 
 class CreateHotelSerializers(serializers.ModelSerializer):
 
+    tags = serializers.ListField()
+    images = serializers.ListField()
+
+    def validate(self, attrs):
+
+        tags = attrs.get('tags', [])
+        if not isinstance(tags, list):
+            return serializers.ValidationError({"tags": 'tags须为数组'})
+        return attrs
+
     def create(self, validated_data):
         instance = super(CreateHotelSerializers, self).create(validated_data)
         ret = GaoDeMap().get_lat_longitude(instance.address)
@@ -52,7 +67,6 @@ class CreateHotelSerializers(serializers.ModelSerializer):
             instance.longitude = ret['data'].get('longitude')
             instance.latitude = ret['data'].get('latitude')
             instance.save()
-
         return instance
 
     class Meta:
@@ -65,7 +79,10 @@ class CreateHotelSerializers(serializers.ModelSerializer):
             'street',
             'hotel_profile',
             'cover_images',
-            'tel'
+            'tel',
+            'tags',
+            'is_active',
+            'images'
         )
 
 

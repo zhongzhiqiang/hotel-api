@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from django.db.transaction import atomic
 
-from main.models import HotelOrder, HotelOrderDetail
+from main.models import HotelOrder, HotelOrderDetail, Hotel
 
 
 class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'room_style',
-            'room_nms',
+            'room_nums',
             'room_price',
         )
 
@@ -30,14 +30,19 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
     belong_hotel = serializers.CharField(
         source='belong_hotel.name'
     )
-    hotel_detail = CreateHotelOrderDetailSerializer(many=True)
+    hotel_detail = CreateHotelOrderDetailSerializer()
 
     @atomic
     def create(self, validated_data):
         hotel_detail = validated_data.pop('hotel_detail', {})
+        sale_price = hotel_detail.get('room_nums', 0) * hotel_detail.get('room_price')
+        validated_data.update({"sale_price": sale_price})
         instance = super(CreateHotelOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
         instance.save()
+
+        hotel_detail_obj = HotelOrderDetail(belong_order=instance, **hotel_detail)
+        hotel_detail_obj.save()
         return instance
 
     class Meta:
@@ -54,3 +59,10 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             'belong_hotel',
             'hotel_detail'
         )
+        read_only_fields = ('order_id', 'order_status', 'room_style_num', 'sale_price')
+
+
+class HotelOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HotelOrder
+        fields = "__all__"

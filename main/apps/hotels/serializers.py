@@ -65,7 +65,8 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'images',
             'room_profile',
             'cover_image',
-            'tags'
+            'tags',
+            'vip_price'
         )
 
 

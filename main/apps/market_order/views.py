@@ -7,10 +7,14 @@
 from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets
+from rest_framework.response import Response
+from rest_framework import status
 
 from main.models import MarketOrder
 from main.apps.market_order import serializers
 from main.common.permissions import ClientPermission
+from main.common.defines import PayType
+from main.apps.market_order.utils import unifiedorder
 
 
 class MarketOrderViews(mixins.CreateModelMixin,
@@ -31,14 +35,13 @@ class MarketOrderViews(mixins.CreateModelMixin,
         创建订单
         ```
         market_order_detail 字段传递:
-        [{"goods_name":"商品名称，从goods获取的goods_name"，
-        "sale_price": "销售价格 TODO 这里暂时前端传递。等带后续改进",
-        "nums"： "购买数量"}]
+        {"goods":"商品id，从goods获取的id"，  
+        "nums"： "购买数量"}
         ```
     update:
         更新数据。
     """
-    queryset = MarketOrder.objects.filter().prefetch_related('market_order_detail')
+    queryset = MarketOrder.objects.filter().prefetch_related('marketorderdetail').prefetch_related('marketorderdetail__goods')
     serializer_class = serializers.MarketOrderSerializer
     permission_classes = (ClientPermission, )
 
@@ -55,3 +58,15 @@ class MarketOrderViews(mixins.CreateModelMixin,
         if self.request.user and hasattr(self.request.user, 'consumer'):
             return self.queryset.filter(consumer=self.request.user.consumer)
         return self.queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        data = serializers.data
+        if data['pay_type'] == PayType.weixin:
+            data = unifiedorder('', '')
+
+        headers = self.get_success_headers(data)
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)

@@ -108,6 +108,12 @@ class Integral(models.Model):
 
 
 class IntegralDetail(models.Model):
+
+    DetailType = (
+        (10, '增加'),
+        (20, '消费')
+    )
+
     consumer = models.ForeignKey(
         'main.Consumer',
         verbose_name='用户',
@@ -116,6 +122,11 @@ class IntegralDetail(models.Model):
     integral = models.IntegerField(
         '积分情况',
         default=0,
+    )
+    integral_type = models.IntegerField(
+        '积分类型',
+        choices=DetailType,
+        default=10,
     )
     remark = models.CharField(
         '备注',

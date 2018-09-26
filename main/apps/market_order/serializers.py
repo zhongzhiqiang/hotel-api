@@ -10,24 +10,16 @@ from django.db.transaction import atomic
 from rest_framework import serializers
 
 from main.models import MarketOrder, MarketOrderDetail, Goods
+from main.common.defines import PayType
 
 
 class MarketOrderDetailSerializer(serializers.ModelSerializer):
-    goods_name = serializers.CharField(
-        source='goods.goods_name',
-    )
-    goods_category = serializers.CharField(
-        source='goods.category.category_name',
-        read_only=True
-    )
 
     class Meta:
         model = MarketOrderDetail
         fields = (
             'id',
             'goods',
-            'goods_name',
-            'goods_category',
             'sale_price',
             'nums',
         )
@@ -38,8 +30,7 @@ class MarketOrderSerializer(serializers.ModelSerializer):
         source='get_order_status_display',
         read_only=True
     )
-
-    market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
+    marketorderdetail = MarketOrderDetailSerializer()
 
     class Meta:
         model = MarketOrder
@@ -52,7 +43,7 @@ class MarketOrderSerializer(serializers.ModelSerializer):
             'user_remark',
             'goods_count',
             'pay_money',
-            'market_order_detail',
+            'marketorderdetail',
             'consignee_name',
             'consignee_address',
             'consignee_phone',
@@ -61,56 +52,69 @@ class MarketOrderSerializer(serializers.ModelSerializer):
 
 class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
 
-    goods = serializers.CharField(
-        source='goods.goods_name'
-    )
-
     def validate(self, attrs):
-        consumer = self.context['request'].user.consumer
-        # 这里判断用户是否为会员等
-        goods = attrs.pop("goods", '')
+        goods = attrs.get("goods")
         if not goods:
-            raise serializers.ValidationError({"goods": ['goods字段商必须存在']})
-        goods_name = goods.get("goods_name")
-        goods = Goods.objects.filter(goods_name=goods_name).filter().first()
-        if not goods:
-            raise serializers.ValidationError({"goods": ['商品不存在']})
-        if consumer.is_vip:
-            from decimal import Decimal
-            attrs.update({"sale_price": goods.goods_price * Decimal(0.8)})  # TODO 这里折扣需要重新编辑
-        else:
-            attrs.update({"sale_price": goods.goods_price})
-        attrs.update({"goods": goods})
+            raise serializers.ValidationError("商品不存在")
+
         return attrs
 
     class Meta:
         model = MarketOrderDetail
         fields = (
+            'id',
             'goods',
             'nums',
             'sale_price',
-        )
-        read_only_fields = ('sale_price', )
+            'integral')
+        read_only_fields = ('sale_price', 'integral')
 
 
 class CreateMarketOrderSerializer(serializers.ModelSerializer):
-    market_order_detail = CreateMarketOrderDetailSerializer(many=True)
+    marketorderdetail = CreateMarketOrderDetailSerializer()
+
+    def validate(self, attrs):
+        consumer = self.context['request'].user.consumer
+        order_detail = attrs['marketorderdetail']
+        goods = order_detail['goods']
+
+        pay_type = attrs.get("pay_type") or PayType.weixin
+        if pay_type == PayType.integral and not goods.is_integral:
+            raise serializers.ValidationError("当前商品不支持积分兑换")
+
+        unit_integral = 0  # 积分单价
+        need_price = 0  # 当前用户需要支付金额
+        need_integral = 0  # 当前用户需要花费金额
+        unit_price = 0
+        if pay_type == PayType.integral:
+            unit_integral = goods.need_integral
+            need_integral = unit_integral * order_detail['nums']
+            if need_integral > consumer.integral:
+                raise serializers.ValidationError("积分不足, 无法兑换")
+        elif pay_type == PayType.balance:
+            unit_price = goods.goods_price
+            need_price = unit_price * order_detail['nums']
+            if need_price > consumer.balance:
+                raise serializers.ValidationError("用户余额不足, 无法购买")
+        else:
+            unit_price = goods.goods_price
+            need_price = unit_price * order_detail['nums']
+        attrs.update({"pay_integral": need_integral, "pay_money": need_price})
+        order_detail.update({"sale_price": unit_price, "integral": unit_integral})
+        return attrs
 
     @atomic
     def create(self, validated_data):
-        market_order_detail_list = validated_data.pop('market_order_detail', None)
+        market_order_detail = validated_data.pop('marketorderdetail', None)
+
         # 这里需要计算出本次订单的金额以及积分
         validated_data.update({"order_status": 20})
         instance = super(CreateMarketOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
         instance.save()
-        price_num = 0
-        for market_order_detail in market_order_detail_list:
-            price_num += market_order_detail.get('sale_price')
-            market_order_detail.update({"market_order": instance})
-            MarketOrderDetail.objects.create(**market_order_detail)
-        instance.pay_money = price_num
-        instance.save()
+        market_order_detail.update({"market_order": instance})
+        MarketOrderDetail.objects.create(**market_order_detail)
+        # 这里进行余额减。以及积分剪除并有余额详情
         return instance
 
     class Meta:
@@ -121,7 +125,9 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'consignee_name',
             'consignee_address',
             'consignee_phone',
-            'market_order_detail',
-            'pay_money'
+            'marketorderdetail',
+            'pay_money',
+            'pay_type',
+            'pay_integral',
         )
-        read_only_fields = ('make_order_id', 'pay_money')
+        read_only_fields = ('make_order_id', 'pay_money', 'pay_integral')

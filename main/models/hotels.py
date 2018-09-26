@@ -160,6 +160,11 @@ class RoomStyles(models.Model):
         on_delete=models.SET_NULL,
     )
 
+    @property
+    def vip_price(self):
+        from decimal import Decimal
+        return self.price * Decimal(0.8)
+
     def __unicode__(self):
         return self.style_name
 

@@ -79,6 +79,26 @@ class Consumer(models.Model):
         blank=True,
         default=0,
     )
+    recharge_balance = models.DecimalField(
+        '余额',
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        default=0,
+        help_text='充值余额'
+    )
+    free_balance = models.DecimalField(
+        '奖励金',
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        default=0,
+        help_text='充值赠送金额'
+    )
+
+    @property
+    def balance(self):
+        return self.recharge_balance + self.free_balance
 
     @property
     def order_count(self):
@@ -107,6 +127,28 @@ class ConsumerVipInfo(models.Model):
     class Meta:
         verbose_name = '客户会员系统'
         verbose_name_plural = verbose_name
+
+
+class ConsumerBalance(models.Model):
+    # 用户充值记录
+    BalanceType = (
+        (10, '充值'),
+        (20, '消费'),
+    )
+    consumer = models.OneToOneField(
+        'main.Consumer',
+        verbose_name='对应用户'
+    )
+    balance_type = models.IntegerField(
+        '余额类型',
+        choices=BalanceType,
+        default=10,
+    )
+
+    class Meta:
+        verbose_name = '用户余额详情'
+        verbose_name_plural = verbose_name
+
 
 class DistributionApply(models.Model):
 

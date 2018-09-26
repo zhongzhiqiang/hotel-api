@@ -6,6 +6,7 @@ import datetime
 from django.db import models
 
 from main.modelfields.JsonFields import JSONField
+from main.common.defines import PayType
 
 
 class MarketOrder(models.Model):
@@ -17,9 +18,9 @@ class MarketOrder(models.Model):
         (50, '已取消'),
     )
     PAY_TYPE = (
-        (10, '积分'),
-        (20, '金钱'),
-        (30, '混合')
+        (PayType.integral, '积分'),
+        (PayType.balance, '余额'),
+        (PayType.weixin, '微信支付')
     )
 
     order_id = models.CharField(
@@ -40,8 +41,8 @@ class MarketOrder(models.Model):
     pay_type = models.IntegerField(
         '支付方式',
         choices=PAY_TYPE,
-        default=20,
-        help_text='默认金钱支付'
+        default=PayType.weixin,
+        help_text='默认微信支付'
     )
     pay_money = models.DecimalField(
         '支付金额',
@@ -105,7 +106,7 @@ class MarketOrder(models.Model):
     @property
     def goods_count(self):
         # 返回订单商品数量
-        return self.market_order_detail.count()
+        return self.marketorderdetail.nums
 
     def __unicode__(self):
         return self.order_id
@@ -120,19 +121,18 @@ class MarketOrder(models.Model):
 
 
 class MarketOrderDetail(models.Model):
-    market_order = models.ForeignKey(
+    market_order = models.OneToOneField(
         'main.MarketOrder',
         verbose_name='商场订单',
-        related_name='market_order_detail',
+
         blank=True,
         null=True,
-        on_delete=models.SET_NULL,
     )
-
     goods = models.ForeignKey(
         'main.Goods',
-        verbose_name='商品名称',
-        related_name='goods',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
     )
     sale_price = models.DecimalField(
         '销售单价',
@@ -203,7 +203,7 @@ class HotelOrder(models.Model):
     )
     sale_price = models.DecimalField(
         '订单金额',
-        max_digits=10,
+        max_digits=5,
         decimal_places=2,
     )
     reserve_check_in_time = models.DateTimeField(
@@ -286,7 +286,7 @@ class HotelOrderDetail(models.Model):
     )
     room_price = models.DecimalField(
         '入住时房间单价',
-        max_digits=10,
+        max_digits=5,
         decimal_places=2,
     )
 

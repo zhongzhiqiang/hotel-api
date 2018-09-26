@@ -7,3 +7,4 @@ from .integral import *  # noqa
 from .consumers import *  # noqa
 from .banners import *  # noqa
 from .staffs import *  # noqa
+from .tags import *  # noqa

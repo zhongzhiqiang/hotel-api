@@ -19,7 +19,7 @@ from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt.settings import api_settings
 
 from main.apps.wx_auth import serializers
-from main.models import Consumer
+from main.models import Consumer, ConsumerBalance
 
 APP_ID = 'wx310b2c1f223f61c8'
 APP_SECRET = 'af6d4f4c7c5fb0489deed97610e3064c'
@@ -98,14 +98,23 @@ class UserCenterView(mixins.UpdateModelMixin,
         这个接口不使用
     decrypt:
         解密用户用户，传递解密数据以及向量
+    balance_info:
+        返回用户的消费记录以及充值记录
     """
     queryset = Consumer.objects.all()
     serializer_class = serializers.ConsumerSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'balance_info':
+            return serializers.ConsumerBalanceSerializer
+        return self.serializer_class
 
     def get_queryset(self):
         queryset = super(UserCenterView, self).get_queryset()
         if self.action == 'list':
             queryset = queryset.filter(user=self.request.user).first()
+        elif self.action == 'balance_info':
+            queryset = ConsumerBalance.objects.filter(consumer=self.request.user.consumer)
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -130,3 +139,15 @@ class UserCenterView(mixins.UpdateModelMixin,
             logger.exception("decrypt encrypt data error:{}".format(e))
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"encrypt_data": ['解密失败']})
         return Response(data=result, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'])
+    def balance_info(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

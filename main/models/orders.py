@@ -16,6 +16,8 @@ class MarketOrder(models.Model):
         (30, '待收货'),
         (40, '已完成'),
         (50, '已取消'),
+        (60, '等待评价'),
+        (70, '评价完成')  # 评价完成后才有积分
     )
     PAY_TYPE = (
         (PayType.integral, '积分'),
@@ -27,6 +29,7 @@ class MarketOrder(models.Model):
         '订单号',
         max_length=20,
         blank=True,
+        default='',
     )
     order_status = models.IntegerField(
         '订单状态',
@@ -272,6 +275,10 @@ class HotelOrder(models.Model):
         blank=True,
         help_text='管理人员备注'
     )
+
+    @property
+    def days(self):
+        return (self.reserve_check_out_time - self.reserve_check_in_time).days
 
     def make_order_id(self):
         """创建订单号"""

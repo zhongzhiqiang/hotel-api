@@ -64,9 +64,9 @@ class MarketOrderViews(mixins.CreateModelMixin,
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
-        data = serializers.data
+        data = serializer.data
         if data['pay_type'] == PayType.weixin:
-            data = unifiedorder('', '')
-
+            detail = data['marketorderdetail']['goods_name']
+            data = unifiedorder(data['order_id'], data['pay_money'], self.request.user.consumer.openid, detail)
         headers = self.get_success_headers(data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)

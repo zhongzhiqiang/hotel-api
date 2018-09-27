@@ -17,8 +17,31 @@ class HotelOrderViews(mixins.CreateModelMixin,
                       mixins.RetrieveModelMixin,
                       mixins.ListModelMixin,
                       viewsets.GenericViewSet):
+    """
+    create:
+        创建订单
+    ```
+    {
+        "pay_type": "string",
+        "belong_hotel": "string",
+        "hotelorderdetail": {
+        "room_style": "",  # 传递room_tyle的ID
+        "room_nums":""  # 传递需要的房间数
+        },
+        "reserve_check_out_time": "string",  # 退房时间
+        "user_remark": "string",
+        "reserve_check_in_time": "string"  # 入住时间
+    }
+    ```
+    """
     queryset = HotelOrder.objects.all()
     serializer_class = serializers.HotelOrderSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(consumer=self.request.user.consumer)
+
+    def perform_create(self, serializer):
+        serializer.save(consumer=self.request.user.consumer)
 
     def get_serializer_class(self):
         if self.action == 'create':

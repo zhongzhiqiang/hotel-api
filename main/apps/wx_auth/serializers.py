@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Consumer
+from main.models import Consumer, ConsumerBalance
 
 
 class WeiXinCreateTokenSerializer(serializers.Serializer):
@@ -50,3 +50,22 @@ class ConsumerSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('is_distribution', 'sell_user', 'bonus')
 
+
+class ConsumerBalanceSerializer(serializers.ModelSerializer):
+    # 用户余额详情
+    balance_type_display = serializers.CharField(
+        source='get_balance_type_display',
+        read_only=True
+    )
+
+    class Meta:
+        model = ConsumerBalance
+        fields = (
+            'id',
+            'balance_type',
+            'balance_type_display',
+            'message',
+            'cost_price',
+            'create_time',
+            'left_balance'
+        )

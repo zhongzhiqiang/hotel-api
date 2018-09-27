@@ -7,13 +7,19 @@
 from __future__ import unicode_literals
 from weixin.pay import WXAppPay
 
+from main.common.wx_config import WXConfig
 
-def unifiedorder(body, out_trade_no, total_fee, openid):
+
+def unifiedorder(out_trade_no, total_fee, openid, detail):
+    total_fee = int(float(total_fee) * 100)
     kwargs = {
-        "appid": "",
-        "mch_id": "",
-        "notify_url": "",
+        "body": '曼嘉酒店-商场',
+        "out_trade_no": out_trade_no,
+        "total_fee": total_fee,
+        "openid": openid,
+        "detail": detail,
+
     }
-    wx_pay = WXAppPay(**kwargs)
-    result = wx_pay.unifiedorder()
+    wx_pay = WXAppPay(WXConfig.APP_ID, WXConfig.MCH_ID)
+    result = wx_pay.unifiedorder(**kwargs)
     return result

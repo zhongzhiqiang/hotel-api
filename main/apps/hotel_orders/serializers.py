@@ -42,9 +42,16 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         else:
             room_price = sale_price
 
-        pay_money = room_price * hotel_detail['room_nums']
+        if attrs['reserve_check_in_time'] > attrs['reserve_check_out_time']:
+            raise serializers.ValidationError("入住时间不能够大于退房时间")
+        days = (attrs['reserve_check_out_time'] - attrs['reserve_check_in_time']).days
+
+        pay_money = room_price * hotel_detail['room_nums'] * days
         if consumer.balance < pay_money and attrs.get("pay_type") == PayType.balance:
             raise serializers.ValidationError("用户余额不足")
+
+        if hotel_detail['room_nums'] > hotel_detail['room_style'].room_count:
+            raise serializers.ValidationError("房间数不足")
         hotel_detail.update({"room_price": room_price})
         attrs.update({"sale_price": pay_money})
         return attrs
@@ -70,7 +77,6 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
                 free_balance = consumer.free_balance - left_money
                 consumer.free_balance = free_balance
                 consumer.save()
-
             # 这里记录数据
             params = {
                 "consumer": consumer,
@@ -81,6 +87,9 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             }
             balance_info = ConsumerBalance(**params)
             balance_info.save()
+            # 下单扣除房间数
+            hotel_detail['room_style'].room_count = hotel_detail['room_style'].room_count - hotel_detail['room_nums']
+            hotel_detail['room_style'].save()
         else:
             validated_data.update({"order_status": 10})  # 等待支付
         instance = super(CreateHotelOrderSerializer, self).create(validated_data)
@@ -110,8 +119,56 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         read_only_fields = ('order_id', 'order_status', 'room_style_num', 'sale_price')
 
 
+class HotelOrderDetailSerializer(serializers.ModelSerializer):
+    room_style_name = serializers.CharField(
+        source='room_style.style_name',
+        read_only=True
+    )
+
+    class Meta:
+        model = HotelOrderDetail
+        fields = (
+            'id',
+            'room_style_name',
+            'room_nums'
+        )
+
+
 class HotelOrderSerializer(serializers.ModelSerializer):
+    hotelorderdetail = HotelOrderDetailSerializer()
+    hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True,
+    )
+    order_status_display = serializers.CharField(
+        source='get_order_status_display',
+        read_only=True,
+    )
+    pay_type_display = serializers.CharField(
+        source='get_pay_type_display',
+        read_only=True,
+    )
+
     class Meta:
         model = HotelOrder
-        fields = "__all__"
-        depth = 3
+        fields = (
+            'id',
+            'hotelorderdetail',
+            'order_id',
+            'belong_hotel',
+            'hotel_name',
+            'order_status',
+            'order_status_display',
+            'pay_type',
+            'pay_type_display',
+            'room_style_num',
+            'sale_price',
+            'reserve_check_in_time',
+            'reserve_check_out_time',
+            'pay_time',
+            'create_time',
+            'refund_reason',
+            'user_remark',
+            'days',
+        )
+

@@ -43,7 +43,10 @@ class ConsumerSerializer(serializers.ModelSerializer):
             'sex_display',
             'bonus',
             'sell_user',
-            'sell_user_name'
+            'sell_user_name',
+            'balance',
+            'recharge_balance',
+            'free_balance'
         )
         read_only_fields = ('is_distribution', 'sell_user', 'bonus')
 

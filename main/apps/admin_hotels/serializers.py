@@ -37,6 +37,9 @@ class HotelSerializers(serializers.ModelSerializer):
             'hotel_profile',
             'cover_images',
             'is_active',
+            'create_time',
+            'update_time',
+            'tel',
             'tags',
             'images',
         )

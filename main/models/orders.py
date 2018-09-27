@@ -176,6 +176,10 @@ class HotelOrder(models.Model):
         (70, '待退款'),
         (80, '已退款')
     )
+    PAYTYPE = (
+        (PayType.balance, '余额'),
+        (PayType.weixin, '微信支付')
+    )
     belong_hotel = models.ForeignKey(
         'main.Hotel',
         on_delete=models.SET_DEFAULT,
@@ -195,6 +199,12 @@ class HotelOrder(models.Model):
         default=10,
         blank=True
     )
+    pay_type = models.IntegerField(
+        '支付类型',
+        choices=PAYTYPE,
+        default=PayType.weixin,
+        help_text='默认微信支付'
+    )
     room_style_num = models.PositiveIntegerField(
         '房间类型数量',
         default=0,
@@ -203,7 +213,7 @@ class HotelOrder(models.Model):
     )
     sale_price = models.DecimalField(
         '订单金额',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
     reserve_check_in_time = models.DateTimeField(
@@ -240,7 +250,15 @@ class HotelOrder(models.Model):
         'main.Consumer',
         on_delete=models.SET_NULL,
         verbose_name='用户',
-        null=True
+        null=True,
+        blank=True
+    )
+    refund_reason = models.CharField(
+        '退款原因',
+        blank=True,
+        max_length=200,
+        default='',
+        help_text='退款时,必须填写'
     )
     user_remark = models.TextField(
         '用户备注',
@@ -268,11 +286,10 @@ class HotelOrder(models.Model):
 
 
 class HotelOrderDetail(models.Model):
-    belong_order = models.ForeignKey(
+    belong_order = models.OneToOneField(
         'main.HotelOrder',
         on_delete=models.CASCADE,
         verbose_name='所属订单',
-        related_name='hotel_order_detail'
     )
     room_style = models.ForeignKey(
         'main.RoomStyles',

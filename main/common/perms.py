@@ -7,39 +7,36 @@
 from __future__ import unicode_literals
 
 
-permission_list = [
+permission = [
     {
-        "model": "banner",
-        "perms": [
-            {
-                "name": "查看所有横幅",
-                "codename": "search_banner"
-            },
-            {
-                "name": "添加横幅",
-                "codename": "add_banner"
-            },
-            {
-                "name": "修改横幅内容",
-                "codename": "update_banner"
-            },
-            {
-                "name": "下架横幅",
-                "codename": "delete_banner"
-            }
-        ]
-    },
-    {
-        "model": "hotel",
-        "perms": [
-            {
-                "name": "添加宾馆信息",
-                "codename": "add_hotel"
-            },
-            {
-                "name": "修改宾馆信息",
-                "codename": "update_hotel",
-            }
-        ]
+        "name": "横幅页",
+        "codename": "banner"
+    }, {
+        "name": "宾馆中心",
+        "codename": "hotel"
+    }, {
+        "name": "客户中心",
+        "codename": "consumer"
+    }, {
+        "name": "权限中心",
+        "codename": "groups"
+    }, {
+        "name": "分销中心",
+        "codename": "distribution",
+    }, {
+        "name": "积分中心",
+        "codename": "integral",
+    }, {
+        "name": "商城中心",
+        "codename": "market"
+    }, {
+        "name": "商城订单中心",
+        "codename": "market_order"
+    }, {
+        "name": "标签中心",
+        "codename": "tags"
+    }, {
+        "name": "职员中心",
+        "codename": "staff"
     }
 ]

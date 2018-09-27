@@ -54,34 +54,5 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
-            return serializers.HotelOrderSerializer
-        elif self.action == 'order_room_info':
-            return serializers.HotelOrderRoomInfoSerializer
-        elif self.action == 'add_order_room_info':
-            return serializers.CreateHotelOrderRoomInfoSerializer
+            return serializers.HotelOrderInfoSerializer
         return self.serializer_class
-
-    @detail_route(methods=['GET'])
-    def order_room_info(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        hotel_order_room_info = HotelOrderRoomInfo.objects.filter(belong_order=instance)
-        serializer = self.get_serializer(hotel_order_room_info, many=True)
-        return Response(serializer.data)
-
-    @detail_route(methods=['POST'])
-    def add_order_room_info(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = request.data
-        data.update({"belong_order": instance.order_id})
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-    # @detail_route(methods=['POST'])
-    # def check_out_room(self, request, *args, **kwargs):
-    #     # 退房操作。传递退房房间号。
-    #     instance = self.get_object()
-    #     data = request.data
-    #     data.update({"belong_order": instance.order_id})

@@ -130,19 +130,42 @@ class ConsumerVipInfo(models.Model):
 
 
 class ConsumerBalance(models.Model):
-    # 用户充值记录
+    # 用户消费记录
     BalanceType = (
         (10, '充值'),
         (20, '消费'),
     )
-    consumer = models.OneToOneField(
+    consumer = models.ForeignKey(
         'main.Consumer',
-        verbose_name='对应用户'
+        verbose_name='对应用户',
     )
     balance_type = models.IntegerField(
         '余额类型',
         choices=BalanceType,
         default=10,
+    )
+    message = models.CharField(
+        '消费备注',
+        max_length=30,
+        default=0,
+    )
+    cost_price = models.DecimalField(
+        '消费金额',
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='正数代表为充值。负数代表消费'
+    )
+    create_time = models.DateTimeField(
+        '消费时间',
+        auto_now_add=True,
+    )
+    left_balance = models.DecimalField(
+        '剩余余额',
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='用户剩余余额'
     )
 
     class Meta:

@@ -13,6 +13,10 @@ from main.common.defines import PayType
 
 
 class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
+    room_style_name = serializers.CharField(
+        source='room_style.style_name',
+        read_only=True,
+    )
 
     class Meta:
         model = HotelOrderDetail
@@ -21,6 +25,7 @@ class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
             'room_style',
             'room_nums',
             'room_price',
+            'room_style_name'
         )
         read_only_fields = ('room_price', )
 

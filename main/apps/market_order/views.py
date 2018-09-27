@@ -7,14 +7,14 @@
 from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
 
-from main.models import MarketOrder
 from main.apps.market_order import serializers
-from main.common.permissions import ClientPermission
+from main.apps.wx_pay.utils import unifiedorder
 from main.common.defines import PayType
-from main.apps.market_order.utils import unifiedorder
+from main.common.permissions import ClientPermission
+from main.models import MarketOrder
 
 
 class MarketOrderViews(mixins.CreateModelMixin,

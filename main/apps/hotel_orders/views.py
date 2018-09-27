@@ -6,10 +6,13 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, status
+from rest_framework.response import Response
 
 from main.apps.hotel_orders import serializers
 from main.models import HotelOrder
+from main.common.defines import PayType
+from main.apps.wx_pay.utils import unifiedorder
 
 
 class HotelOrderViews(mixins.CreateModelMixin,
@@ -47,3 +50,15 @@ class HotelOrderViews(mixins.CreateModelMixin,
         if self.action == 'create':
             return serializers.CreateHotelOrderSerializer
         return self.serializer_class
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        data = serializer.data
+        if data['pay_type'] == PayType.weixin:
+            detail = data['hotelorderdetail']['room_style_name']
+            data = unifiedorder(data['order_id'], data['sale_price'], self.request.user.consumer.openid, detail)
+
+        headers = self.get_success_headers(data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

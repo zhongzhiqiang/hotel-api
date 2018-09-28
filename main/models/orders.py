@@ -275,6 +275,16 @@ class HotelOrder(models.Model):
         blank=True,
         help_text='管理人员备注'
     )
+    contact_name = models.CharField(
+        '联系人',
+        max_length=50,
+        default=''
+    )
+    contact_phone = models.CharField(
+        '联系电话',
+        max_length=20,
+        default=''
+    )
 
     @property
     def days(self):

@@ -120,6 +120,8 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             'pay_type',
             'hotelorderdetail',
             'pay_type',
+            'contact_name',
+            'contact_phone',
         )
         read_only_fields = ('order_id', 'order_status', 'room_style_num', 'sale_price')
 
@@ -175,5 +177,7 @@ class HotelOrderSerializer(serializers.ModelSerializer):
             'refund_reason',
             'user_remark',
             'days',
+            'contact_phone',
+            'contact_name'
         )
 

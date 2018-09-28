@@ -48,9 +48,12 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
             'user_remark',
             'operator_name',
             'flow_remark',
-            'hotelorderdetail'
+            'hotelorderdetail',
+            'contact_name',
+            'contact_phone'
         )
         read_only_fields = ('belong_hotel', 'order_id', 'room_style_num',
                             'sale_price', 'reserve_check_in_time',
                             'reserve_check_out_time', 'pay_time', 'consumer',
-                            'user_remark', 'operator_name')
+                            'user_remark', 'operator_name', 'contact_phone',
+                            'contact_name')

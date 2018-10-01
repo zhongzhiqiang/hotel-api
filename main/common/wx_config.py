@@ -12,5 +12,6 @@ class WXConfig(object):
     APP_SECRET = 'af6d4f4c7c5fb0489deed97610e3064c'
     MCH_ID = '1510838941'
     TOKEN = ''
-    NOTIFY_URL = ''
+    NOTIFY_URL = 'https://api.gaoshiwang.cn/notify/'
     KEY = 'MAJORHotels168168168168168168168'
+

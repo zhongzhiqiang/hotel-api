@@ -67,6 +67,8 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
 
         pay_type = validated_data.get("pay_type") or PayType.weixin
         consumer = self.context['request'].user.consumer
+
+        validated_data.update({"room_style_num": hotel_detail['room_nums']})
         # 这里需要判断用户的支付方式
         if pay_type == PayType.balance:
             # 扣除用户余额以及新增用户余额消费明细。

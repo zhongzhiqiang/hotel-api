@@ -18,14 +18,15 @@ import xml.etree.ElementTree as ET
 from main.common.wx_config import WXConfig
 
 
-def unifiedorder(out_trade_no, total_fee, openid, detail):
+def unifiedorder(body, out_trade_no, total_fee, openid, detail):
     total_fee = int(float(total_fee) * 100)
     kwargs = {
-        "body": '曼嘉酒店-商场',
+        "body": body,
         "out_trade_no": out_trade_no,
         "total_fee": total_fee,
         "openid": openid,
         "detail": detail,
+        "notify_url": WXConfig.NOTIFY_URL
 
     }
     wx_pay = WXAppPay(WXConfig.APP_ID, WXConfig.MCH_ID, partner_key=WXConfig.KEY)

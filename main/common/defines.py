@@ -20,3 +20,19 @@ class MarketOrderStatus(object):
     take_delivery = 30  # 等待收货
     success = 40
     cancel = 50
+
+
+class WeiXinCode(object):
+    success = 'SUCCESS'
+    fail = 'FAIL'
+
+
+class HotelOrderStatus(object):
+    unpay = 10
+    check_to_be = 20
+    check_in = 30
+    success = 40
+    appraise = 50
+    canceled = 60
+    refund_to_be = 70
+    refunded = 80

@@ -116,7 +116,7 @@ class MarketOrder(models.Model):
 
     def make_order_id(self):
         """创建订单号"""
-        return '%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+        return 'market%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     class Meta:
         verbose_name = '商场订单'
@@ -292,7 +292,7 @@ class HotelOrder(models.Model):
 
     def make_order_id(self):
         """创建订单号"""
-        return '%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+        return 'hotel%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     def __unicode__(self):
         return self.order_id

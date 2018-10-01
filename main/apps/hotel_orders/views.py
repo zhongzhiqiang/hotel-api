@@ -59,6 +59,7 @@ class HotelOrderViews(mixins.CreateModelMixin,
         if data['pay_type'] == PayType.weixin:
             detail = data['hotelorderdetail']['room_style_name']
             data = unifiedorder(data['order_id'], data['sale_price'], self.request.user.consumer.openid, detail)
+            data.update({"pay_type": PayType.weixin})
 
         headers = self.get_success_headers(data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(data, status=status.HTTP_200_OK, headers=headers)

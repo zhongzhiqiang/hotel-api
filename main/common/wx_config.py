@@ -11,4 +11,6 @@ class WXConfig(object):
     APP_ID = 'wx310b2c1f223f61c8'
     APP_SECRET = 'af6d4f4c7c5fb0489deed97610e3064c'
     MCH_ID = '1510838941'
+    TOKEN = ''
     NOTIFY_URL = ''
+    KEY = 'MAJORHotels168168168168168168168'

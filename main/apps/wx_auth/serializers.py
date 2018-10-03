@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Consumer, ConsumerBalance
+from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings
 
 
 class WeiXinCreateTokenSerializer(serializers.Serializer):
@@ -69,3 +69,40 @@ class ConsumerBalanceSerializer(serializers.ModelSerializer):
             'create_time',
             'left_balance'
         )
+
+
+class CreateRechargeSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        recharge_money = validated_data["recharge_money"]
+        discount = RechargeSettings.objects.filter(recharge_price=recharge_money).first()
+        if not discount:
+            raise serializers.ValidationError("充值金额错误")
+        validated_data.update({"free_money": discount.free_balance})
+        instance = super(CreateRechargeSerializer, self).create(validated_data)
+        instance.order_id = instance.make_order()
+        instance.save()
+        return instance
+
+    class Meta:
+        model = RechargeInfo
+        fields = (
+            'id',
+            'order_id',
+            'recharge_money',
+            'free_money'
+        )
+        read_only_fields = ("free_money", )
+
+
+class RechargeInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RechargeInfo
+        fields = "__all__"
+
+
+class RechargeSettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RechargeSettings
+        fields = "__all__"

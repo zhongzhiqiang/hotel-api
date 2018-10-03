@@ -67,6 +67,7 @@ class MarketOrderViews(mixins.CreateModelMixin,
         data = serializer.data
         if data['pay_type'] == PayType.weixin:
             detail = data['marketorderdetail']['goods_name']
-            data = unifiedorder('曼嘉尔酒店-商场', data['order_id'], data['pay_money'], self.request.user.consumer.openid, detail)
+            result = unifiedorder('曼嘉尔酒店-商场', data['order_id'], data['pay_money'], self.request.user.consumer.openid, detail)
+            data.update(result)
         headers = self.get_success_headers(data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)

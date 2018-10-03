@@ -196,9 +196,16 @@ class RechargeInfo(models.Model):
         max_digits=5,
         decimal_places=2,
     )
+    free_money = models.DecimalField(
+        '赠送金额',
+        max_digits=5,
+        decimal_places=2,
+    )
     consumer = models.ForeignKey(
         'main.Consumer',
-        verbose_name='用户'
+        verbose_name='用户',
+        blank=True,
+        null=True
     )
     create_time = models.DateTimeField(
         '创建时间',

@@ -14,4 +14,5 @@ router = routers.DefaultRouter()
 
 router.register('auth', views.WeiXinAuth, base_name='auth')
 router.register('user_center', views.UserCenterView, base_name='user_center')
+router.register('recharge', views.RechargeInfoView, base_name='recharge')
 urlpatterns = router.urls

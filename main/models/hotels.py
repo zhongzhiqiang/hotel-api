@@ -65,7 +65,7 @@ class Hotel(models.Model):
     )
     tags = JSONField(
         '标签管理',
-        default='[]',
+        default=[],
         blank=True,
         help_text='标签,存放为数组,数据库为json后的list'
     )
@@ -129,7 +129,8 @@ class RoomStyles(models.Model):
     )
     images = JSONField(
         '图片列表',
-        default='[]'
+        default=[],
+        blank=True,
     )
     create_time = models.DateTimeField(
         '创建时间',

@@ -18,6 +18,16 @@ class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    def validate(self, attrs):
+        room_style = attrs.get("room_style")
+        if not room_style:
+            raise serializers.ValidationError("请传递房间类型")
+        room_nums = attrs.get("room_nums")
+        if not room_nums:
+            raise serializers.ValidationError("请传递房间数量")
+
+        return attrs
+
     class Meta:
         model = HotelOrderDetail
         fields = (
@@ -34,6 +44,14 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
     hotelorderdetail = CreateHotelOrderDetailSerializer()
 
     def validate(self, attrs):
+        contact_name = attrs.get("contact_name") or None
+        contact_phone = attrs.get("contact_phone") or None
+        if not contact_name:
+            raise serializers.ValidationError("请传递订单联系姓名")
+
+        if not contact_phone:
+            raise serializers.ValidationError("请传递订单联系电话")
+
         # 这里如果用户使用余额支付，需要判断余额是否足够
         consumer = self.context['request'].user.consumer
         hotel_detail = attrs.get('hotelorderdetail')
@@ -63,6 +81,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
 
     @atomic
     def create(self, validated_data):
+
         hotel_detail = validated_data.pop('hotelorderdetail', {})
 
         pay_type = validated_data.get("pay_type") or PayType.weixin

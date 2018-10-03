@@ -48,5 +48,6 @@ urlpatterns = [
     url(r'^admin/', include('main.apps.admin_user.urls')),
     url(r'^admin/', include('main.apps.admin_tags.urls')),
     url(r'^admin/', include('main.apps.admin_marketorder.urls')),
-    url(r'^notify/$', views.ReceiveWXNotifyView.as_view())
+    url(r'^notify/$', views.ReceiveWXNotifyView.as_view()),
+    url(r'^user/status_search/$', views.OrderStatusSearchView.as_view())
 ]

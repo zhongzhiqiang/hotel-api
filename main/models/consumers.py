@@ -167,9 +167,53 @@ class ConsumerBalance(models.Model):
         default=0,
         help_text='用户剩余余额'
     )
+    recharge = models.ForeignKey(
+        'main.RechargeInfo',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = '用户余额详情'
+        verbose_name_plural = verbose_name
+
+
+class RechargeInfo(models.Model):
+    RECHARGE_STATUS = (
+        (10, '成功'),
+        (20, '取消'),
+        (30, '等待支付')
+    )
+    order_id = models.CharField(
+        '充值订单号',
+        max_length=20,
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    recharge_money = models.DecimalField(
+        '充值金额',
+        max_digits=5,
+        decimal_places=2,
+    )
+    consumer = models.ForeignKey(
+        'main.Consumer',
+        verbose_name='用户'
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+
+    def make_order(self):
+        return 'recharge%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+
+    class Meta:
+        verbose_name = '用户充值信息'
         verbose_name_plural = verbose_name
 
 

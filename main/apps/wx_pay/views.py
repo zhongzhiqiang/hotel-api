@@ -9,13 +9,16 @@ import logging
 from decimal import Decimal
 import datetime
 
-from rest_framework import views, viewsets
+from rest_framework import views
+from rest_framework import response, status
 from django.db import transaction
 from django.http import HttpResponse
 
 from main.apps.wx_pay.utils import WxpayServerPub
 from main.common.defines import WeiXinCode, MarketOrderStatus, HotelOrderStatus
 from main.models import MarketOrder, HotelOrder
+from main.apps.hotel_orders.serializers import HotelOrderSerializer
+from main.apps.market_order.serializers import MarketOrderSerializer
 
 logger = logging.getLogger("__name__")
 
@@ -103,7 +106,45 @@ class ReceiveWXNotifyView(views.APIView):
         return return_code
 
 
-class OrderStatusSearchView(viewsets.GenericViewSet):
+class OrderStatusSearchView(views.APIView):
 
-    queryset = ''
-    serializer_class = ''
+    SEARCH_TYPE = {
+        "market": MarketOrder,
+        "hotel": HotelOrder
+    }
+    serializer_map = {
+        'market': MarketOrderSerializer,
+        "hotel": HotelOrderSerializer
+    }
+
+    def get(self, request, *args, **kwargs):
+        """
+        传递数据 {
+        order_id,
+        search_type. 传递值:{market, hotel}
+        }
+        :param request: 
+        :param args: 
+        :param kwargs: 
+        :return: 
+        """
+        order_id = self.request.query_params.get("order_id")
+        search_type = self.request.query_params.get("search_type")
+
+        if not order_id:
+            return response.Response(data={"non_field_errors": ['请传递order_id']},
+                                     status=status.HTTP_400_BAD_REQUEST)
+
+        if not search_type or search_type not in self.SEARCH_TYPE.keys():
+            return response.Response(data={"non_field_errors": ['请传递正确查询类型']},
+                                     status=status.HTTP_400_BAD_REQUEST)
+
+        model = self.SEARCH_TYPE[search_type]
+
+        order_id = model.objects.filter(order_id=order_id).first()
+        if not order_id:
+            return response.Response(data={"non_field_errors": ['当前订单号不存在']},
+                                     status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_map[search_type]
+        serializer = serializer(instance=order_id)
+        return response.Response(serializer.data)

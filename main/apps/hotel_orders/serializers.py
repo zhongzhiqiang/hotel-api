@@ -5,6 +5,8 @@
 # File    : serializers.py
 # Software: PyCharm
 from __future__ import unicode_literals
+import datetime
+
 from rest_framework import serializers
 from django.db.transaction import atomic
 
@@ -70,14 +72,40 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         days = (attrs['reserve_check_out_time'] - attrs['reserve_check_in_time']).days
 
         pay_money = room_price * hotel_detail['room_nums'] * days
-        if consumer.balance < pay_money and attrs.get("pay_type") == PayType.balance:
-            raise serializers.ValidationError("用户余额不足")
 
         if hotel_detail['room_nums'] > hotel_detail['room_style'].room_count:
             raise serializers.ValidationError("房间数不足")
         hotel_detail.update({"room_price": room_price})
         attrs.update({"sale_price": pay_money})
         return attrs
+
+    @staticmethod
+    def charge_user_balance(hotel_detail, consumer, validated_data):
+        # 扣除用户余额。首先扣去充值金额
+        # 剩余的钱就是用户本金还有的钱。
+        left_money = consumer.recharge_balance - validated_data['sale_price']
+        if left_money > 0:
+            consumer.recharge_balance = left_money
+            consumer.save()
+        else:
+            consumer.recharge_balance = 0
+            free_balance = consumer.free_balance - left_money
+            consumer.free_balance = free_balance
+            consumer.save()
+
+        # 这里记录数据
+        params = {
+            "consumer": consumer,
+            "balance_type": 20,
+            "message": "余额消费,预定房间:{},数量:{}".format(hotel_detail['room_style'].style_name, hotel_detail['room_nums']),
+            "cost_price": -validated_data['sale_price'],
+            "left_balance": consumer.balance,
+        }
+        balance_info = ConsumerBalance(**params)
+        balance_info.save()
+        # 下单扣除房间数
+        hotel_detail['room_style'].room_count = hotel_detail['room_style'].room_count - hotel_detail['room_nums']
+        hotel_detail['room_style'].save()
 
     @atomic
     def create(self, validated_data):
@@ -91,31 +119,14 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         # 这里需要判断用户的支付方式
         if pay_type == PayType.balance:
             # 扣除用户余额以及新增用户余额消费明细。
-            validated_data.update({"order_status": 20})
-            # 扣除用户余额。首先扣去充值金额
-            # 剩余的钱就是用户本金还有的钱。
-            left_money = consumer.recharge_balance - validated_data['sale_price']
-            if left_money > 0:
-                consumer.recharge_balance = left_money
-                consumer.save()
+            # 这里判断是否足够，如果不足够只生成订单并返回支付失败。
+            if consumer.balance > validated_data['sale_price']:
+                validated_data.update({"order_status": 20})
+                validated_data.update({"pay_time": datetime.datetime.now()})
+                self.charge_user_balance(hotel_detail, consumer, validated_data)
             else:
-                consumer.recharge_balance = 0
-                free_balance = consumer.free_balance - left_money
-                consumer.free_balance = free_balance
-                consumer.save()
-            # 这里记录数据
-            params = {
-                "consumer": consumer,
-                "balance_type": 20,
-                "message": "余额消费,预定房间:{},数量:{}".format(hotel_detail['room_style'].style_name, hotel_detail['room_nums']),
-                "cost_price": -validated_data['sale_price'],
-                "left_balance": consumer.balance,
-            }
-            balance_info = ConsumerBalance(**params)
-            balance_info.save()
-            # 下单扣除房间数
-            hotel_detail['room_style'].room_count = hotel_detail['room_style'].room_count - hotel_detail['room_nums']
-            hotel_detail['room_style'].save()
+                validated_data.update({"order_status": 10})
+
         else:
             validated_data.update({"order_status": 10})  # 等待支付
         instance = super(CreateHotelOrderSerializer, self).create(validated_data)
@@ -202,3 +213,75 @@ class HotelOrderSerializer(serializers.ModelSerializer):
             'contact_name'
         )
 
+
+class HotelOrderPayAgainSerializer(serializers.ModelSerializer):
+    hotelorderdetail = CreateHotelOrderDetailSerializer(read_only=True)
+
+    @staticmethod
+    def charge_user_balance(instance, consumer):
+        # 扣除用户余额。首先扣去充值金额
+        # 剩余的钱就是用户本金还有的钱。
+        hotel_detail = instance.hotelorderdetail
+        left_money = consumer.recharge_balance - instance.sale_price
+        if left_money > 0:
+            consumer.recharge_balance = left_money
+            consumer.save()
+        else:
+            consumer.recharge_balance = 0
+            free_balance = consumer.free_balance - left_money
+            consumer.free_balance = free_balance
+            consumer.save()
+
+        # 这里记录数据
+        params = {
+            "consumer": consumer,
+            "balance_type": 20,
+            "message": "余额消费,预定房间:{},数量:{}".format(hotel_detail.room_style.style_name, hotel_detail.room_nums),
+            "cost_price": -instance.sale_price,
+            "left_balance": consumer.balance,
+        }
+        balance_info = ConsumerBalance(**params)
+        balance_info.save()
+        # 下单扣除房间数
+        hotel_detail.room_style.room_count = hotel_detail.room_style.room_count - hotel_detail.room_nums
+        hotel_detail.room_style.save()
+
+    def validate(self, attrs):
+        if self.instance.order_status == 90:
+            raise serializers.ValidationError("当前订单已过期,请重新下单")
+        if self.instance.order_status >= 20:
+            raise serializers.ValidationError("当前订单已支付")
+
+        # 这里判断一下时间, 20分钟过期。
+        if datetime.datetime.now() - self.instance.create_time > datetime.timedelta(minutes=20):
+            self.instance.order_status = 90
+            self.instance.save()
+            raise serializers.ValidationError("当前订单已过期，请重新下单")
+        return attrs
+
+    @atomic
+    def update(self, instance, validated_data):
+        pay_type = validated_data.get("pay_type") or instance.pay_type
+        consumer = self.context['request'].user.consumer
+
+        if pay_type == PayType.balance:
+            if consumer.balance > instance.sale_price:
+                validated_data.update({"order_status": 20})
+                validated_data.update({"pay_time": datetime.datetime.now()})
+                self.charge_user_balance(instance, consumer)
+            else:
+                validated_data.update({"order_status": 10})
+        instance = super(HotelOrderPayAgainSerializer, self).update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = HotelOrder
+        fields = (
+            'id',
+            'order_id',
+            'pay_type',
+            'hotelorderdetail',
+            'sale_price',
+            'order_status'
+        )
+        read_only_fields = ('sale_price', 'order_id', 'order_status')

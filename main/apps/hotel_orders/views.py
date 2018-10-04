@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import detail_route
 
 from main.apps.hotel_orders import serializers
 from main.models import HotelOrder
@@ -64,3 +65,38 @@ class HotelOrderViews(mixins.CreateModelMixin,
 
         headers = self.get_success_headers(data)
         return Response(data, status=status.HTTP_200_OK, headers=headers)
+
+
+class HotelOrderPayView(viewsets.GenericViewSet):
+    """
+    again_pay:
+        重新支付。传递支付类型。根据支付类型进行支付
+    """
+    serializer_class = serializers.HotelOrderPayAgainSerializer
+    queryset = HotelOrder.objects.all()
+    lookup_field = 'order_id'
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def get_queryset(self):
+        return self.queryset.filter(consumer=self.request.user.consumer)
+
+    @detail_route(methods=['POST'])
+    def again_pay(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        data = serializer.data
+
+        # 支付方式为30，并且状态为10时，重新生成支付信息
+        if data['pay_type'] == PayType.weixin and data['status'] == 10:
+            detail = data['hotelorderdetail']['room_style_name']
+            result = unifiedorder('曼嘉酒店-住宿', data['order_id'], data['sale_price'], self.request.user.consumer.openid,
+                                  detail)
+
+            data.update(result)
+
+        return Response(data)

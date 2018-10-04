@@ -177,7 +177,8 @@ class HotelOrder(models.Model):
         (50, '待评价'),
         (60, '取消'),
         (70, '待退款'),
-        (80, '已退款')
+        (80, '已退款'),
+        (90, '已过期')
     )
     PAYTYPE = (
         (PayType.balance, '余额'),

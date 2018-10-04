@@ -9,16 +9,19 @@ import logging
 from decimal import Decimal
 import datetime
 
-from rest_framework import views
+from rest_framework import views, viewsets, mixins
 from rest_framework import response, status
+from rest_framework.decorators import list_route
 from django.db import transaction
 from django.http import HttpResponse
 
 from main.apps.wx_pay.utils import WxpayServerPub
 from main.common.defines import WeiXinCode, MarketOrderStatus, HotelOrderStatus
-from main.models import MarketOrder, HotelOrder
+from main.models import MarketOrder, HotelOrder, ConsumerBalance
 from main.apps.hotel_orders.serializers import HotelOrderSerializer
 from main.apps.market_order.serializers import MarketOrderSerializer
+from main.apps.wx_pay import serializers
+from main.common.defines import PayType
 
 logger = logging.getLogger("__name__")
 
@@ -99,7 +102,16 @@ class ReceiveWXNotifyView(views.APIView):
             hotel_order.pay_time = datetime.datetime.strptime(
                 time_end, '%Y%m%d%H%M%S')
             hotel_order.save()
-
+    
+            params = {
+                "consumer": hotel_order.consumer,
+                "balance_type": 30,
+                "message": "微信消费,预定房间:{},数量:{}".format(
+                    hotel_order.room_style.style_name, hotel_order.room_nums),
+                "cost_price": -hotel_order.sale_price,
+                "left_balance": hotel_order.consumer.balance,
+            }
+            ConsumerBalance(**params).save()
             return_code = WeiXinCode.success
         else:
             return_code = WeiXinCode.fail

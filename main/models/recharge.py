@@ -41,6 +41,9 @@ class RechargeSettings(models.Model):
         default=True,
     )
 
+    def __unicode__(self):
+        return "充值:%s, 赠送:%s" % (self.recharge_price, self.free_balance)
+
     class Meta:
         verbose_name = '充值配置'
         verbose_name_plural = verbose_name

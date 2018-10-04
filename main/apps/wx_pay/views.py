@@ -9,19 +9,16 @@ import logging
 from decimal import Decimal
 import datetime
 
-from rest_framework import views, viewsets, mixins
+from rest_framework import views
 from rest_framework import response, status
-from rest_framework.decorators import list_route
 from django.db import transaction
 from django.http import HttpResponse
 
 from main.apps.wx_pay.utils import WxpayServerPub
 from main.common.defines import WeiXinCode, MarketOrderStatus, HotelOrderStatus
-from main.models import MarketOrder, HotelOrder, ConsumerBalance
+from main.models import MarketOrder, HotelOrder, ConsumerBalance, RechargeInfo
 from main.apps.hotel_orders.serializers import HotelOrderSerializer
 from main.apps.market_order.serializers import MarketOrderSerializer
-from main.apps.wx_pay import serializers
-from main.common.defines import PayType
 
 logger = logging.getLogger("__name__")
 
@@ -66,10 +63,10 @@ class ReceiveWXNotifyView(views.APIView):
 
         if order_id.startswith('market'):
             return_code = self.handler_market(order_id, time_end, pay_money)
-
+        elif order_id.startswith('recharge'):
+            return_code = self.handler_recharge(order_id, time_end, pay_money)
         else:
             return_code = self.handler_hotel(order_id, time_end, pay_money)
-
         return_param.update({
             "return_code": return_code,
             "sign": wx_pay_server.get_sign(return_param)
@@ -102,10 +99,10 @@ class ReceiveWXNotifyView(views.APIView):
             hotel_order.pay_time = datetime.datetime.strptime(
                 time_end, '%Y%m%d%H%M%S')
             hotel_order.save()
-    
+
             params = {
                 "consumer": hotel_order.consumer,
-                "balance_type": 30,
+                "balance_type": 20,
                 "message": "微信消费,预定房间:{},数量:{}".format(
                     hotel_order.room_style.style_name, hotel_order.room_nums),
                 "cost_price": -hotel_order.sale_price,
@@ -115,6 +112,34 @@ class ReceiveWXNotifyView(views.APIView):
             return_code = WeiXinCode.success
         else:
             return_code = WeiXinCode.fail
+        return return_code
+
+    @staticmethod
+    def handler_recharge(order_id, time_end, pay_money):
+        recharge = RechargeInfo.objects.filter(
+            order_id=order_id, recharge_money=pay_money
+        ).prefetch_related('consumer').first()
+        if recharge and recharge.recharge_status == 30:
+            recharge.recharge_status = 10
+            recharge.pay_time = datetime.datetime.strptime(time_end, '%Y%m%d%H%M%S')
+            recharge.save()
+
+            recharge.consumer.balance = recharge.consumer.balance + recharge.recharge_money
+            recharge.consumer.free_balance = recharge.consumer.free_balance + recharge.free_money
+            recharge.save()
+
+            params = {
+                "consumer": recharge.consumer,
+                "balance_type": 10,
+                "message": "微信消费,充值余额:{}, 赠送余额".format(recharge.recharge_money, recharge.free_money),
+                "cost_price": recharge.recharge_money,
+                "left_balance": recharge.consumer.balance,
+            }
+            ConsumerBalance(**params).save()
+            return_code = WeiXinCode.success
+        else:
+            return_code = WeiXinCode.fail
+
         return return_code
 
 

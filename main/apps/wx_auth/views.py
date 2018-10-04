@@ -5,7 +5,6 @@
 # File    : views.py
 # Software: PyCharm
 from __future__ import unicode_literals
-import datetime
 import logging
 
 from django.contrib.auth.models import User
@@ -19,7 +18,7 @@ from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt.settings import api_settings
 
 from main.apps.wx_auth import serializers
-from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings
+from main.models import Consumer, ConsumerBalance
 
 APP_ID = 'wx310b2c1f223f61c8'
 APP_SECRET = 'af6d4f4c7c5fb0489deed97610e3064c'
@@ -149,37 +148,5 @@ class UserCenterView(mixins.UpdateModelMixin,
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-
-class RechargeInfoView(mixins.CreateModelMixin,
-                       mixins.ListModelMixin,
-                       mixins.UpdateModelMixin,
-                       mixins.RetrieveModelMixin,
-                       viewsets.GenericViewSet):
-    serializer_class = serializers.RechargeInfoSerializer
-    queryset = RechargeInfo.objects.all()
-
-    def perform_create(self, serializer):
-        serializer.save(consumer=self.request.user.consumer)
-
-    def get_queryset(self):
-        return self.queryset.filter(consumer=self.request.user.consumer)
-
-    def get_serializer_class(self):
-        if self.action == 'recharge_settings':
-            return serializers.RechargeSettingSerializer
-        elif self.action == 'create':
-            return serializers.CreateRechargeSerializer
-        return self.serializer_class
-
-    @list_route(methods=['GET'])
-    def recharge_settings(self):
-        queryset = RechargeSettings.objects.filter(is_active=True)
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

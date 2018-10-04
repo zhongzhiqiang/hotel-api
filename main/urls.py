@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^user/', include('main.apps.wx_auth.urls')),
     url(r'^user/', include('main.apps.market_order.urls')),
     url(r'^user/', include('main.apps.hotel_orders.urls')),
+    url(r'^user/', include('main.apps.recharge.urls')),
     url(r'^admin/', include('main.apps.admin_market.urls')),
     url(r'^admin/', include('main.apps.admin_hotels.urls')),
     url(r'^admin/', include('main.apps.admin_integral.urls')),
@@ -48,6 +49,7 @@ urlpatterns = [
     url(r'^admin/', include('main.apps.admin_user.urls')),
     url(r'^admin/', include('main.apps.admin_tags.urls')),
     url(r'^admin/', include('main.apps.admin_marketorder.urls')),
+    url(r'^admin/', include('main.apps.admin_recharge_settings.urls')),
     url(r'^notify/$', views.ReceiveWXNotifyView.as_view()),
     url(r'^user/status_search/$', views.OrderStatusSearchView.as_view())
 ]

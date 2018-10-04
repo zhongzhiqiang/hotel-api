@@ -173,6 +173,9 @@ class ConsumerBalance(models.Model):
         null=True,
     )
 
+    def __unicode__(self):
+        return '%s, %s' % (self.consumer, self.get_balance_type_display())
+
     class Meta:
         verbose_name = '用户余额详情'
         verbose_name_plural = verbose_name
@@ -191,6 +194,12 @@ class RechargeInfo(models.Model):
         null=True,
         db_index=True
     )
+    recharge_status = models.IntegerField(
+        '充值状态',
+        choices=RECHARGE_STATUS,
+        default=30,
+        blank=True,
+    )
     recharge_money = models.DecimalField(
         '充值金额',
         max_digits=5,
@@ -200,6 +209,7 @@ class RechargeInfo(models.Model):
         '赠送金额',
         max_digits=5,
         decimal_places=2,
+        default=0,
     )
     consumer = models.ForeignKey(
         'main.Consumer',
@@ -211,12 +221,17 @@ class RechargeInfo(models.Model):
         '创建时间',
         auto_now_add=True
     )
+    pay_time = models.DateTimeField(
+        '支付时间',
+        blank=True,
+        null=True
+    )
     update_time = models.DateTimeField(
         '更新时间',
         auto_now=True
     )
 
-    def make_order(self):
+    def make_order_id(self):
         return 'recharge%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     class Meta:

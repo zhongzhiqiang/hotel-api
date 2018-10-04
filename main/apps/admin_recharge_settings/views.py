@@ -31,4 +31,4 @@ class RechargeSettingsView(mixins.CreateModelMixin,
     serializer_class = serializers.RechargeSettingsSerializer
 
     def perform_create(self, serializer):
-        serializer.save()
+        serializer.save(operator_name=self.request.user.staffprofile)

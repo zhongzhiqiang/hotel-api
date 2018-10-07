@@ -92,7 +92,7 @@ class HotelOrderPayView(viewsets.GenericViewSet):
         data = serializer.data
 
         # 支付方式为30，并且状态为10时，重新生成支付信息
-        if data['pay_type'] == PayType.weixin and data['status'] == 10:
+        if data['pay_type'] == PayType.weixin and data['order_status'] == 10:
             detail = data['hotelorderdetail']['room_style_name']
             result = unifiedorder('曼嘉酒店-住宿', data['order_id'], data['sale_price'], self.request.user.consumer.openid,
                                   detail)

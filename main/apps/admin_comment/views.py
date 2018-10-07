@@ -29,6 +29,11 @@ class HotelOrderCommentViews(mixins.ListModelMixin,
     queryset = HotelOrderComment.objects.all()
     serializer_class = serializers.CommentSerializer
 
+    def perform_create(self, serializer):
+        if hasattr(self.request.user, 'staffprofile'):
+            serializer.save(reply_staff=self.request.user.staffprofile)
+        serializer.save()
+
     def get_serializer_class(self):
         if self.action == 'create':
             return serializers.CreateReplySerializer

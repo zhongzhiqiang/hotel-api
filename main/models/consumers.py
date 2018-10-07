@@ -40,6 +40,7 @@ class Consumer(models.Model):
     user_name = models.CharField(
         '用户姓名',
         max_length=30,
+        default=''
     )
 
     sex = models.IntegerField(

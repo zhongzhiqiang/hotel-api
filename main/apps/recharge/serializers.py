@@ -55,6 +55,10 @@ class CreateRechargeSerializer(serializers.ModelSerializer):
 
 
 class RechargeSerializer(serializers.ModelSerializer):
+    recharge_status_display = serializers.CharField(
+        source='get_recharge_status_display',
+        read_only=True
+    )
 
     class Meta:
         model = RechargeInfo
@@ -67,7 +71,70 @@ class RechargeSerializer(serializers.ModelSerializer):
             "create_time",
             "update_time",
             "pay_time",
-            "recharge_status"
+            "recharge_status",
+            'recharge_status_display'
         )
         read_only_fields = ("order_id", "recharge_money", "free_money", "pay_time")
 
+
+class RechargePayAgainSerializer(serializers.ModelSerializer):
+
+    recharge_status_display = serializers.CharField(
+        source='get_recharge_status_display',
+        read_only=True
+    )
+
+    def validate(self, attrs):
+        if self.instance.recharge_status != 30:
+            raise serializers.ValidationError("当前订单状态非等待支付")
+
+        return attrs
+
+    class Meta:
+        model = RechargeInfo
+        fields = (
+            'id',
+            'order_id',
+            'recharge_money',
+            'free_money',
+            'consumer',
+            'create_time',
+            "update_time",
+            "pay_time",
+            "recharge_status",
+            'recharge_status_display',
+        )
+        read_only_fields = ("order_id", "recharge_money", "free_money", "pay_time", 'recharge_status')
+
+
+class RechargeCancelSerializer(serializers.ModelSerializer):
+    recharge_status_display = serializers.CharField(
+        source='get_recharge_status_display',
+        read_only=True
+    )
+
+    def validate(self, attrs):
+        recharge_status = attrs.get('recharge_status')
+        if recharge_status != 20:
+            raise serializers.ValidationError("订单状态传递错误")
+
+        if self.instance.recharge_status != 30:
+            raise serializers.ValidationError("当前订单不能够取消")
+
+        return attrs
+
+    class Meta:
+        model = RechargeInfo
+        fields = (
+            'id',
+            'order_id',
+            'recharge_money',
+            'free_money',
+            'consumer',
+            'create_time',
+            "update_time",
+            "pay_time",
+            "recharge_status",
+            'recharge_status_display',
+        )
+        read_only_fields = ("order_id", "recharge_money", "free_money", "pay_time")

@@ -7,6 +7,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets, status
+from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from main.models import RechargeSettings, RechargeInfo
@@ -72,3 +73,56 @@ class RechargeViews(mixins.CreateModelMixin,
                               self.request.user.consumer.openid, '充值余额')
         data.update(result)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class RechargeAgainPayView(viewsets.GenericViewSet):
+    """
+    cancel_recharge:
+        从等待支付变为取消。已充值无法变为取消
+    again_recharge:
+        重新支付.
+    """
+
+    queryset = RechargeInfo.objects.all()
+    serializer_class = serializers.RechargePayAgainSerializer
+    lookup_field = 'order_id'
+
+    def get_serializer_class(self):
+        if self.action == 'again_recharge':
+            return self.serializer_class
+        return serializers.RechargeCancelSerializer
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def get_queryset(self):
+        if hasattr(self.request.user, 'consumer'):
+            return self.queryset.filter(consumer=self.request.user.consumer)
+        return self.request
+
+    @detail_route(methods=['POST'])
+    def cancel_recharge(self, request, *args, **kwargs):
+        # 从等待支付变为取消。已充值无法变为取消
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        data = serializer.data
+        return Response(data)
+
+    @detail_route(methods=['POST'])
+    def again_recharge(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        data = serializer.data
+
+        if data['recharge_status'] == 20:
+            result = unifiedorder('曼嘉酒店-充值余额', data['order_id'], data['recharge_money'],
+                                  self.request.user.consumer.openid, '充值余额')
+            data.update(result)
+
+        return Response(data)

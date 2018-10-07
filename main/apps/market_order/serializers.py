@@ -36,6 +36,7 @@ class MarketOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = MarketOrder
         fields = (
+            'id',
             'order_id',
             'order_status',
             'order_status_display',
@@ -49,6 +50,8 @@ class MarketOrderSerializer(serializers.ModelSerializer):
             'consignee_address',
             'consignee_phone',
         )
+        read_only_fields = ('order_id', 'create_time', 'order_status',
+                            'pay_time', 'goods_count', 'pay_money')
 
 
 class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):

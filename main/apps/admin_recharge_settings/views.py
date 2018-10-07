@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets
 
-from main.models import RechargeSettings
+from main.models import RechargeSettings, RechargeInfo
 from main.apps.admin_recharge_settings import serializers
 
 
@@ -32,3 +32,16 @@ class RechargeSettingsView(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         serializer.save(operator_name=self.request.user.staffprofile)
+
+
+class RechargeInfoView(mixins.ListModelMixin,
+                       mixins.RetrieveModelMixin,
+                       viewsets.GenericViewSet):
+    """
+    list:
+        返回所有用户充值记录
+    retrieve:
+        返回用户充值记录详情
+    """
+    queryset = RechargeInfo.objects.all()
+    serializer_class = serializers.RechargeInfoSerializer

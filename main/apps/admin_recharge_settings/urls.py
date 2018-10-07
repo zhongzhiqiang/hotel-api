@@ -13,5 +13,6 @@ from main.apps.admin_recharge_settings import views
 router = routers.DefaultRouter()
 
 router.register('recharge_settings', views.RechargeSettingsView, base_name='admin_recharge_settings')
+router.register('recharge_info', views.RechargeInfoView, base_name='admin_recharge_info')
 
 urlpatterns = router.urls

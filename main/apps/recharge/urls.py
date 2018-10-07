@@ -15,5 +15,6 @@ router = routers.DefaultRouter()
 
 router.register('recharge_settings', views.RechargeSettingsViews, base_name='recharge_settings')
 router.register('recharge', views.RechargeViews, base_name='recharge')
+router.register('recharge_again', views.RechargeAgainPayView, base_name='recharge_again')
 
 urlpatterns = router.urls

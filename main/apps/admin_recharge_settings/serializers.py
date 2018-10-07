@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import RechargeSettings
+from main.models import RechargeSettings, RechargeInfo
 
 
 class RechargeSettingsSerializer(serializers.ModelSerializer):
@@ -28,3 +28,30 @@ class RechargeSettingsSerializer(serializers.ModelSerializer):
         model = RechargeSettings
         fields = "__all__"
         read_only_fields = ("operator_name", )
+
+
+class RechargeInfoSerializer(serializers.ModelSerializer):
+    recharge_status_display = serializers.CharField(
+        source='get_recharge_status_display',
+        read_only=True
+    )
+    consumer_name = serializers.CharField(
+        source='consumer.user_name',
+        read_only=True
+    )
+
+    class Meta:
+        model = RechargeInfo
+        fields = (
+            'id',
+            'order_id',
+            'recharge_status_display',
+            'recharge_status',
+            'recharge_money',
+            'free_money',
+            'consumer',
+            'consumer_name',
+            'create_time',
+            'pay_time',
+            'update_time'
+        )

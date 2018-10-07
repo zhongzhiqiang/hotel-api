@@ -8,4 +8,5 @@ from .consumers import *  # noqa
 from .banners import *  # noqa
 from .staffs import *  # noqa
 from .tags import *  # noqa
-from .recharge import RechargeSettings  # noqa
+from .recharge import *  # noqa
+from .comment import *  # noqa

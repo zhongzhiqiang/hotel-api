@@ -10,7 +10,7 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
-from main.apps.hotel_orders import serializers
+from main.apps.hotel_orders import serializers, filters
 from main.models import HotelOrder
 from main.common.defines import PayType
 from main.apps.wx_pay.utils import unifiedorder
@@ -38,8 +38,10 @@ class HotelOrderViews(mixins.CreateModelMixin,
     }
     ```
     """
-    queryset = HotelOrder.objects.all()
+    queryset = HotelOrder.objects.all().order_by('-create_time')
     serializer_class = serializers.HotelOrderSerializer
+    filter_class = filters.HotelOrderFilter
+    ordering_fields = ('create_time', 'pay_time', 'order_id')
 
     def get_queryset(self):
         return self.queryset.filter(consumer=self.request.user.consumer)

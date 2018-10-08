@@ -392,6 +392,12 @@ class DistributionBonusPick(models.Model):
         (50, '提取失败'),
         (60, '取消申请'),
     )
+
+    TRANSFER_TYPE = (
+        (10, '支付宝'),
+        (20, '微信'),
+        (30, '银行卡'),
+    )
     consumer = models.ForeignKey(
         'main.Consumer',
         on_delete=models.SET_NULL,
@@ -419,6 +425,23 @@ class DistributionBonusPick(models.Model):
         max_digits=10,
         decimal_places=2,
     )
+    transfer_type = models.IntegerField(
+        '转账方式',
+        choices=TRANSFER_TYPE,
+        default=10
+    )
+    transfer_account = models.CharField(
+        '转账账号',
+        max_length=100,
+        default='',
+    )
+    bank = models.CharField(
+        '开户行',
+        max_length=100,
+        default='',
+        help_text='当提取方式为银行卡时,此字段必须输入'
+    )
+
     pick_time = models.DateTimeField(
         '提交时间',
         auto_now_add=True
@@ -455,7 +478,7 @@ class DistributionBonusPick(models.Model):
 
     def make_order_id(self):
         """创建工单号"""
-        return 'pick_%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+        return 'pick%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     def __unicode__(self):
         return self.consumer.user_name

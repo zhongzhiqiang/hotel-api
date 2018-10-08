@@ -68,6 +68,22 @@ class DistributionBonusPickViews(mixins.CreateModelMixin,
     """
     create:
         创建分销金额提取
+        ```
+        PICK_STATUS = (
+        (10, '提交申请'),
+        (20, '正在处理'),
+        (30, '转账中'),
+        (40, '完成'),
+        (50, '提取失败'),
+        (60, '取消申请'),
+    )
+
+    TRANSFER_TYPE = (
+        (10, '支付宝'),
+        (20, '微信'),
+        (30, '银行卡'),
+    )
+        ```
     update:
         更新分销金额提取.传递pick_order值
     retrieve:

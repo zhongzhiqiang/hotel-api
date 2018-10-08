@@ -69,6 +69,10 @@ class BonusPickSerializer(serializers.ModelSerializer):
         source='consumer.user_name',
         read_only=True
     )
+    transfer_type_display = serializers.CharField(
+        source='get_transfer_type_display',
+        read_only=True,
+    )
 
     @staticmethod
     def create_bonus_detail(**kwargs):
@@ -94,7 +98,6 @@ class BonusPickSerializer(serializers.ModelSerializer):
                 'detail_type': 20,  # 支出
             }
             self.create_bonus_detail(**kwargs)
-
             raise serializers.ValidationError("提取失败时，需要输入失败原因")
         elif pick_status and pick_status == 30:
             validated_data.update({"transfer_time": datetime.datetime.now()})
@@ -132,7 +135,12 @@ class BonusPickSerializer(serializers.ModelSerializer):
             'pick_status_display',
             'pick_money',
             'pick_time',
-            'success_time'
+            'success_time',
+            'transfer_type',
+            'transfer_account',
+            'bank',
+            'transfer_type_display'
         )
 
-        read_only_fields = ('pick_money', 'pick_time', 'success_time')
+        read_only_fields = ('pick_money', 'pick_time', 'success_time',
+                            'transfer_type', 'transfer_account', 'bank')

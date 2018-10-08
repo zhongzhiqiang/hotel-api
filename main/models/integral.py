@@ -31,10 +31,11 @@ class IntegralSettings(models.Model):
     )
 
     def __unicode__(self):
-        return '%d' % self.ratio
+        return '%f' % self.ratio
 
     @property
     def ratio(self):
+
         return self.money / self.integral
 
     class Meta:

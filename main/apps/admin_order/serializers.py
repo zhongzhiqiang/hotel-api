@@ -5,10 +5,15 @@
 # File    : serializers.py
 # Software: PyCharm
 from __future__ import unicode_literals
+import logging
 
 from rest_framework import serializers
+from django.db import transaction
 
 from main.models import HotelOrder, HotelOrderDetail
+from main.apps.admin_integral.utils import get_integral, make_integral
+
+logger = logging.getLogger(__name__)
 
 
 class HotelOrderDetailSerializer(serializers.ModelSerializer):
@@ -29,6 +34,32 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
         source='get_order_status_display',
         read_only=True
     )
+
+    @staticmethod
+    def make_integral(instance):
+        integral = get_integral(instance.sale_price)
+        remark = "住宿:%s,积分:%s" % (instance.hotelorderdetail.room_style.style_name, integral)
+        make_integral(instance.consumer, integral, remark)
+
+    def validate(self, attrs):
+        order_status = attrs.get("order_status")
+        if order_status and order_status < self.instance.order_status:
+            raise serializers.ValidationError("当前订单状态为:{}".format(self.instance.get_order_status_display()))
+        return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        order_status = validated_data.get("order_status")
+
+        if order_status == 40 and instance.order_status < 40:
+            try:
+                self.make_integral(instance)
+            except Exception as e:
+                logger.warning("make integral error:{}".format(e), exc_info=True)
+                raise serializers.ValidationError("生成积分失败")
+            validated_data.update({"order_status": 50})
+        instance = super(HotelOrderInfoSerializer, self).update(instance, validated_data)
+        return instance
 
     class Meta:
         model = HotelOrder

@@ -38,6 +38,7 @@ class IntegralSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = IntegralSettings
         fields = "__all__"
+        read_only_fields = ("operator_name", )
 
 
 class GrowthValueSettingsSerializer(serializers.ModelSerializer):

@@ -43,7 +43,7 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
         ```
     """
 
-    queryset = HotelOrder.objects.prefetch_related('hotel_order_detail', 'hotel_order_room_info')
+    queryset = HotelOrder.objects.prefetch_related('hotelorderdetail')
     serializer_class = serializers.HotelOrderInfoSerializer
     filter_class = filters.HotelOrderFilter
 

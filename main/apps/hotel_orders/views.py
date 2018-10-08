@@ -100,5 +100,4 @@ class HotelOrderPayView(viewsets.GenericViewSet):
                                   detail)
 
             data.update(result)
-
         return Response(data)

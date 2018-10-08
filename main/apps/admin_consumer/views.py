@@ -18,6 +18,13 @@ class AdminConsumerView(mixins.ListModelMixin,
     """
     list:
         返回所有客户
+    ```
+    SEX_STATUS = (
+        (10, '未知'),
+        (20, '男'),
+        (30, '女')
+    )
+    ```
     partial_update:
         更新部分字段
     update:

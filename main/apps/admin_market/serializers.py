@@ -59,7 +59,8 @@ class GoodsSerializer(serializers.ModelSerializer):
             'is_integral',
             'create_time',
             'update_time',
-            'operator_name'
+            'operator_name',
+            'is_promotion'
         )
 
 
@@ -79,5 +80,6 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
             'is_active',
             'is_integral',
             'need_integral',
-            'category_name'
+            'category_name',
+            'is_promotion'
         )

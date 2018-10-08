@@ -55,3 +55,4 @@ class BonusPickViews(mixins.UpdateModelMixin,
 
     queryset = DistributionBonusPick.objects.all()
     serializer_class = serializers.BonusPickSerializer
+    filter_class = filters.PickFilter

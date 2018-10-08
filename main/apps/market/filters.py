@@ -11,4 +11,5 @@ class GoodsFilter(django_filters.rest_framework.FilterSet):
         model = Goods
         fields = {
             'category': ['exact'],
+            "is_promotion": ['exact']
         }

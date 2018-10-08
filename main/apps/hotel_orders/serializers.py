@@ -163,13 +163,18 @@ class HotelOrderDetailSerializer(serializers.ModelSerializer):
         source='room_style.style_name',
         read_only=True
     )
+    room_style_image = serializers.CharField(
+        source='room_style.cover_image',
+        read_only=True
+    )
 
     class Meta:
         model = HotelOrderDetail
         fields = (
             'id',
             'room_style_name',
-            'room_nums'
+            'room_nums',
+            'room_style_image'
         )
 
 

@@ -134,3 +134,5 @@ class BonusPickSerializer(serializers.ModelSerializer):
             'pick_time',
             'success_time'
         )
+
+        read_only_fields = ('pick_money', 'pick_time', 'success_time')

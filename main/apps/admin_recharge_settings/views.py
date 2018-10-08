@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
 
 from main.models import RechargeSettings, RechargeInfo
-from main.apps.admin_recharge_settings import serializers
+from main.apps.admin_recharge_settings import serializers, filters
 
 
 class RechargeSettingsView(mixins.CreateModelMixin,
@@ -45,3 +45,4 @@ class RechargeInfoView(mixins.ListModelMixin,
     """
     queryset = RechargeInfo.objects.all()
     serializer_class = serializers.RechargeInfoSerializer
+    filter_class = filters.RechargeInfoFilter

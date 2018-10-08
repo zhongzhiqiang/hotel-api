@@ -5,7 +5,7 @@ from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 
 from main.models import GrowthValueSettings, Integral, IntegralDetail, IntegralSettings
-from main.apps.admin_integral import serializers
+from main.apps.admin_integral import serializers, filters
 
 
 class GrowthValueSettingView(mixins.CreateModelMixin,
@@ -68,6 +68,7 @@ class AdminIntegralSettingsView(mixins.CreateModelMixin,
 
     queryset = IntegralSettings.objects.all()
     serializer_class = serializers.IntegralSettingsSerializer
+    filter_class = filters.IntegralSettingsFilter
 
 
 class UserIntegralView(mixins.ListModelMixin,
@@ -76,11 +77,16 @@ class UserIntegralView(mixins.ListModelMixin,
     """
     list:
         返回所有用户的积分
+        DetailType = (
+        (10, '增加'),
+        (20, '消费')
+        )
     retrieve:
         返回用户的积分详情数据。查询id为list返回的id
     """
     queryset = Integral.objects.all()
     serializer_class = serializers.IntegralSerializers
+    filter_class = filters.IntegralDetailFilter
 
     def retrieve(self, request, *args, **kwargs):
         # 返回用户的积分详情

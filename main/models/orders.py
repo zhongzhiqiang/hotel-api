@@ -321,7 +321,7 @@ class HotelOrderDetail(models.Model):
     )
     room_price = models.DecimalField(
         '入住时房间单价',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
 

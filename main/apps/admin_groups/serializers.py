@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
+from rest_framework.validators import UniqueValidator
 
 
 class PermissionSerializer(serializers.ModelSerializer):
@@ -55,6 +56,8 @@ class CreateRoleSerializer(serializers.ModelSerializer):
     perms = serializers.ListField(
         child=serializers.CharField(),
         write_only=True,
+        allow_empty=False,
+        error_messages={'empty': u'请选择权限'},
     )
 
     def create(self, validated_data):
@@ -81,3 +84,15 @@ class CreateRoleSerializer(serializers.ModelSerializer):
             'name',
             'perms',
         )
+        extra_kwargs = {
+            'name': {
+                'validators': [
+                    UniqueValidator(Group.objects.all(), message=u'该名称已被占用'),
+                ],
+                'error_messages': {
+                    'null': u'请填写角色名称',
+                    'blank': u'请填写角色名称',
+                    'required': u'请填写角色名称',
+                }
+            },
+        }

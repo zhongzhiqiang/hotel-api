@@ -7,6 +7,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets
+from rest_framework.decorators import list_route
 
 from main.apps.admin_user import serializers
 from main.models import StaffProfile
@@ -20,6 +21,18 @@ class AdminUserViews(mixins.CreateModelMixin,
     """
     create:
         创建后端管理员
+    list:
+        返回所有后端用户
+    assign_role:
+        分配用户角色
+        ```
+        {
+          "user_id": 0,  # list返回的user_id
+          "role_id_list": [  # 角色返回的id
+            "string"
+  ]
+}
+        ```
     """
     queryset = StaffProfile.objects.all()
     serializer_class = serializers.StaffProfileSerializer
@@ -35,7 +48,13 @@ class AdminUserViews(mixins.CreateModelMixin,
     def get_serializer_class(self):
         if self.action == 'create':
             return serializers.CreateStaffProfileSerializer
+        elif self.action == 'assign_role':
+            return serializers.AssignRoleSerializer
         return self.serializer_class
+
+    @list_route(methods=['post'])
+    def assign_role(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
     # def perform_create(self, serializer):
     #     if self.request.user.is_superuser:

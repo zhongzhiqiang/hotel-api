@@ -35,6 +35,14 @@ class IntegralDetailSerializer(serializers.ModelSerializer):
 
 
 class IntegralSettingsSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        count = IntegralSettings.objects.all().count()
+        if count > 1:
+            raise serializers.ValidationError("已经有积分配置")
+        instance = super(IntegralSettingsSerializer, self).create(validated_data)
+        return instance
+
     class Meta:
         model = IntegralSettings
         fields = "__all__"

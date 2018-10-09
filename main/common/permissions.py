@@ -6,9 +6,27 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 
-from rest_framework.permissions import  BasePermission
+from rest_framework.permissions import BasePermission
 
 
 class ClientPermission(BasePermission):
     def has_permission(self, request, view):
         return hasattr(request.user, 'consumer')
+
+
+class PermsRequired(BasePermission):
+
+    def __init__(self, *perms):
+        self.perms = perms
+
+    def __call__(self):
+        return self
+
+    def has_permission(self, request, view):
+        user = request.user
+
+        if user.is_superuser:
+            return True
+
+        user_perms = user.get_all_permissions()
+        return True if user_perms & set(self.perms) else False

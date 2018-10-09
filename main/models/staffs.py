@@ -8,6 +8,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from main.common.perms import ALL_PERMS
+
 
 class StaffProfile(models.Model):
     SEX_CHOICE = (
@@ -31,7 +33,7 @@ class StaffProfile(models.Model):
         choices=SEX_CHOICE,
         default=10,
     )
-    belong_hotel = models.OneToOneField(
+    belong_hotel = models.ForeignKey(
         'main.Hotel',
         null=True,
         blank=True,
@@ -45,3 +47,4 @@ class StaffProfile(models.Model):
     class Meta:
         verbose_name = '职员信息'
         verbose_name_plural = verbose_name
+        permissions = ALL_PERMS

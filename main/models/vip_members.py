@@ -14,13 +14,18 @@ class VipSettings(models.Model):
     vip_name = models.CharField(
         '会员名称',
         max_length=10,
+        unique=True
     )
+
     hotel_discount = models.DecimalField(
         '酒店折扣',
         max_digits=5,
         decimal_places=2,
         help_text='酒店住宿折扣'
     )
+
+    def __unicode__(self):
+        return self.vip_name
 
     class Meta:
         verbose_name = '会员折扣配置'
@@ -34,7 +39,33 @@ class VipMember(models.Model):
         blank=True,
         null=True
     )
-    vip_level = models.CharField(
-        '会员等级',
-        max_length=20,
+    consumer = models.OneToOneField(
+        'main.Consumer',
+        verbose_name='对应用户'
     )
+    # 会员权益
+    vip_level = models.OneToOneField(
+        'main.VipSettings',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+
+    def make_vip_no(self):
+        return ''
+
+    def __unicode__(self):
+        return self.vip_no
+
+    class Meta:
+        verbose_name = '会员中心'
+        verbose_name_plural = verbose_name

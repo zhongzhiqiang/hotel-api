@@ -79,8 +79,8 @@ class ReceiveWXNotifyView(views.APIView):
     def handler_market(order_id, time_end, pay_money):
         market_order = MarketOrder.objects.filter(
             order_id=order_id, pay_money=pay_money).first()
-        if market_order and market_order.status == MarketOrderStatus.unpay:
-            market_order.status = MarketOrderStatus.wait_deliver
+        if market_order and market_order.order_status == MarketOrderStatus.unpay:
+            market_order.order_status = MarketOrderStatus.wait_deliver
             market_order.pay_time = datetime.datetime.strptime(
                 time_end, '%Y%m%d%H%M%S')
             market_order.save()
@@ -94,8 +94,8 @@ class ReceiveWXNotifyView(views.APIView):
     def handler_hotel(order_id, time_end, pay_money):
         hotel_order = HotelOrder.objects.filter(
             order_id=order_id, sale_price=pay_money).first()
-        if hotel_order and hotel_order.status == HotelOrderStatus.unpay:
-            hotel_order.status = HotelOrderStatus.check_to_be
+        if hotel_order and hotel_order.order_status == HotelOrderStatus.unpay:
+            hotel_order.order_status = HotelOrderStatus.check_to_be
             hotel_order.pay_time = datetime.datetime.strptime(
                 time_end, '%Y%m%d%H%M%S')
             hotel_order.save()

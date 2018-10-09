@@ -6,6 +6,8 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 
+import itertools
+
 
 permission = [
     {
@@ -40,3 +42,6 @@ permission = [
         "codename": "staff"
     }
 ]
+
+ALL_PERMS = list(itertools.chain.from_iterable([
+    [(perm['codename'], perm['name']) for perm in permission]]))

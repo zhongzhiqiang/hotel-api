@@ -24,6 +24,8 @@ class HotelOrderCommentViews(mixins.ListModelMixin,
         更新评论的显示
     retrieve:
         评论详情
+    list:
+        返回所有用户评论
     """
 
     queryset = HotelOrderComment.objects.all()

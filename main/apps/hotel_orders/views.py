@@ -37,6 +37,17 @@ class HotelOrderViews(mixins.CreateModelMixin,
         "reserve_check_in_time": "string"  # 入住时间
     }
     ```
+    list:
+        返回所有当前用户订单
+        ORDER_STATUS = (
+        (10, '未支付'),
+        (20, '待发货'),
+        (30, '待收货'),
+        (40, '已完成'),
+        (50, '已取消'),
+        (60, '等待评价'),
+        (70, '评价完成')  # 评价完成后才有积分
+    )
     """
     queryset = HotelOrder.objects.all().order_by('-create_time')
     serializer_class = serializers.HotelOrderSerializer

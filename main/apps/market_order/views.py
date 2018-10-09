@@ -26,10 +26,15 @@ class MarketOrderViews(mixins.CreateModelMixin,
     list:
         返回当前用户的所有订单.
         ```
-        market_order_detail 字段传递:
-        [{"goods_name":"商品名称，从goods获取的goods_name"，
-        "sale_price": "销售价格 TODO 这里暂时前端传递。等带后续改进",
-        "nums"： "购买数量"}]
+        ORDER_STATUS = (
+        (10, '未支付'),
+        (20, '待发货'),
+        (30, '待收货'),
+        (40, '已完成'),
+        (50, '已取消'),
+        (60, '等待评价'),
+        (70, '评价完成')  # 评价完成后才有积分
+    )
         ```
     create:
         创建订单

@@ -48,7 +48,7 @@ class ConsumerSerializer(serializers.ModelSerializer):
             'recharge_balance',
             'free_balance'
         )
-        read_only_fields = ('is_distribution', 'sell_user', 'bonus')
+        read_only_fields = ('is_distribution', 'sell_user', 'bonus', 'free_balance', 'recharge_balance')
 
 
 class ConsumerBalanceSerializer(serializers.ModelSerializer):

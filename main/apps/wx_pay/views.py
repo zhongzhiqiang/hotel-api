@@ -20,7 +20,7 @@ from main.models import MarketOrder, HotelOrder, ConsumerBalance, RechargeInfo
 from main.apps.hotel_orders.serializers import HotelOrderSerializer
 from main.apps.market_order.serializers import MarketOrderSerializer
 
-logger = logging.getLogger("__name__")
+logger = logging.getLogger("django")
 
 
 class ReceiveWXNotifyView(views.APIView):

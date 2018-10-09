@@ -60,13 +60,16 @@ class ReceiveWXNotifyView(views.APIView):
         pay_money = Decimal(wx_return_data['total_fee']) / 100
         time_end = wx_return_data['time_end']
         logger.info("split order_id:{}".format(order_id))
+        try:
+            if order_id.startswith('market'):
+                return_code = self.handler_market(order_id, time_end, pay_money)
+            elif order_id.startswith('recharge'):
+                return_code = self.handler_recharge(order_id, time_end, pay_money)
+            else:
+                return_code = self.handler_hotel(order_id, time_end, pay_money)
+        except Exception:
+            return_code = WeiXinCode.fail
 
-        if order_id.startswith('market'):
-            return_code = self.handler_market(order_id, time_end, pay_money)
-        elif order_id.startswith('recharge'):
-            return_code = self.handler_recharge(order_id, time_end, pay_money)
-        else:
-            return_code = self.handler_hotel(order_id, time_end, pay_money)
         return_param.update({
             "return_code": return_code,
             "sign": wx_pay_server.get_sign(return_param)
@@ -105,7 +108,7 @@ class ReceiveWXNotifyView(views.APIView):
                 "consumer": hotel_order.consumer,
                 "balance_type": 20,
                 "message": "微信消费,预定房间:{},数量:{}".format(
-                    hotel_order.room_style.style_name, hotel_order.room_nums),
+                    hotel_order.hotelorderdetail.room_style.style_name, hotel_order.room_nums),
                 "cost_price": -hotel_order.sale_price,
                 "left_balance": hotel_order.consumer.balance,
             }

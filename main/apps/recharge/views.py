@@ -120,7 +120,7 @@ class RechargeAgainPayView(viewsets.GenericViewSet):
         self.perform_update(serializer)
         data = serializer.data
 
-        if data['recharge_status'] == 20:
+        if data['recharge_status'] in (20, 30):
             result = unifiedorder('曼嘉酒店-充值余额', data['order_id'], data['recharge_money'],
                                   self.request.user.consumer.openid, '充值余额')
             data.update(result)

@@ -96,6 +96,7 @@ class ReceiveWXNotifyView(views.APIView):
             order_id=order_id, sale_price=pay_money).first()
         if hotel_order and hotel_order.order_status == HotelOrderStatus.unpay:
             hotel_order.order_status = HotelOrderStatus.check_to_be
+
             hotel_order.pay_time = datetime.datetime.strptime(
                 time_end, '%Y%m%d%H%M%S')
             hotel_order.save()

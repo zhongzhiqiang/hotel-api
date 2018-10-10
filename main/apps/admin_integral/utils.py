@@ -6,14 +6,13 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 
-from main.models import IntegralSettings, IntegralDetail, Integral
+from main.models import IntegralDetail, Integral
 
 
 def get_integral(money):
-    integral_settings = IntegralSettings.objects.all().first()
-    if integral_settings:
-        return money * integral_settings.ratio
-    raise TypeError("未添加配置")
+
+    return int(money) * 1  # 1:1
+    # raise TypeError("未添加配置")
 
 
 def make_integral(consumer, integral, remark):

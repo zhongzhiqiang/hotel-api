@@ -11,7 +11,7 @@ from rest_framework import serializers
 from django.db.transaction import atomic
 
 from main.models import HotelOrder, HotelOrderDetail, Hotel, ConsumerBalance
-from main.common.defines import PayType
+from main.common.defines import PayType, HotelOrderStatus
 
 
 class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
@@ -192,6 +192,15 @@ class HotelOrderSerializer(serializers.ModelSerializer):
         source='get_pay_type_display',
         read_only=True,
     )
+
+    def update(self, instance, validated_data):
+        order_status = validated_data.get("order_status")
+        # 用户申请退款.
+        if order_status == HotelOrderStatus.refund_to_be and instance.order_status >= HotelOrderStatus.check_in:
+            raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
+
+        instance = super(HotelOrderSerializer, self).update(instance, validated_data)
+        return instance
 
     class Meta:
         model = HotelOrder

@@ -47,9 +47,9 @@ class HotelOrderViews(mixins.CreateModelMixin,
         (50, '待评价'),
         (60, '取消'),
         (70, '待退款'),
+        (75, '退款中'),
         (80, '已退款'),
         (90, '已过期')
-    )
     )
     """
     queryset = HotelOrder.objects.all().order_by('-create_time')

@@ -67,7 +67,17 @@ class Goods(models.Model):
         default=False,
         blank=True
     )
-
+    is_special = models.BooleanField(
+        '是否为会员',
+        help_text='是否为会员, 当此为True时，需要传递会员权益',
+        default=False
+    )
+    vip_info = models.OneToOneField(
+        'main.VipSettings',
+        null=True,
+        blank=True,
+        help_text='会员权益'
+    )
     # 商品实际所付等于
     need_integral = models.PositiveIntegerField(
         '所需积分',

@@ -24,6 +24,15 @@ class VipSettings(models.Model):
         help_text='酒店住宿折扣'
     )
 
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+
     def __unicode__(self):
         return self.vip_name
 

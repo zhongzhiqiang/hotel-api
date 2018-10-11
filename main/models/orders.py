@@ -30,7 +30,7 @@ class MarketOrder(models.Model):
 
     order_id = models.CharField(
         '订单号',
-        max_length=20,
+        max_length=30,
         blank=True,
         default='',
     )
@@ -197,7 +197,7 @@ class HotelOrder(models.Model):
     )
     order_id = models.CharField(
         '订单号',
-        max_length=20,
+        max_length=30,
         blank=True,
         null=True
     )
@@ -380,3 +380,135 @@ class HotelOrderRoomInfo(models.Model):
     class Meta:
         verbose_name = '入住信息'
         verbose_name_plural = verbose_name
+
+
+class HotelOrderRefund(models.Model):
+    REFUND_STATUS = (
+        (10, '等待到账'),
+        (20, '成功'),
+        (30, '退款失败')
+    )
+    REFUND_TYPE = (
+        (PayType.balance, '余额'),
+        (PayType.weixin, '微信支付')
+    )
+    hotel_order = models.OneToOneField(
+        'main.HotelOrder'
+    )
+    refund_status = models.IntegerField(
+        '退款状态',
+        choices=REFUND_STATUS,
+        default=10
+    )
+    refund_type = models.IntegerField(
+        '退款方式',
+        choices=REFUND_TYPE,
+        default=PayType.balance,
+    )
+    refund_order_id = models.CharField(
+        '退款订单号',
+        blank=True,
+        default='',
+        max_length=40
+    )
+    refund_money = models.DecimalField(
+        '退款金额',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    create_time = models.DateTimeField(
+        '开始退款时间',
+        auto_now_add=True
+    )
+    into_account = models.DateTimeField(
+        '到账时间',
+        null=True,
+        blank=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True
+    )
+
+    def make_refund_order_id(self):
+        return 'hotel%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+
+    def __unicode__(self):
+        return self.refund_order_id
+
+    class Meta:
+        verbose_name = '退款信息'
+        verbose_name_plural = verbose_name
+
+
+class MarketOrderRefund(models.Model):
+    REFUND_STATUS = (
+        (10, '等待到账'),
+        (20, '成功'),
+        (30, '退款失败')
+    )
+    REFUND_TYPE = (
+        (PayType.balance, '余额'),
+        (PayType.integral, '积分'),
+        (PayType.weixin, '微信支付')
+    )
+    hotel_order = models.OneToOneField(
+        'main.HotelOrder'
+    )
+    refund_status = models.IntegerField(
+        '退款状态',
+        choices=REFUND_STATUS,
+        default=10
+    )
+    refund_type = models.IntegerField(
+        '退款方式',
+        choices=REFUND_TYPE,
+        default=PayType.balance,
+    )
+    refund_order_id = models.CharField(
+        '退款订单号',
+        blank=True,
+        max_length=40,
+        default=''
+    )
+    refund_money = models.DecimalField(
+        '退款金额',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    create_time = models.DateTimeField(
+        '开始退款时间',
+        auto_now_add=True
+    )
+    into_account = models.DateTimeField(
+        '到账时间',
+        null=True,
+        blank=True
+    )
+    update_time = models.DateTimeField(
+        '更新时间',
+        auto_now=True
+    )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True
+    )
+
+    def make_refund_order_id(self):
+        return 'refund%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+
+    def __unicode__(self):
+        return self.refund_order_id
+
+    class Meta:
+        verbose_name = '退款信息'
+        verbose_name_plural = verbose_name
+        

@@ -41,6 +41,8 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
             "c"
         }
         ```
+    refund:
+        退款。
     """
 
     queryset = HotelOrder.objects.prefetch_related('hotelorderdetail')
@@ -56,3 +58,8 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
         if self.action == 'retrieve':
             return serializers.HotelOrderInfoSerializer
         return self.serializer_class
+
+    @detail_route(methods=['POST'])
+    def refund(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+

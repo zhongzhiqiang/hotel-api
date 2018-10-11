@@ -88,3 +88,4 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
                             'reserve_check_out_time', 'pay_time', 'consumer',
                             'user_remark', 'operator_name', 'contact_phone',
                             'contact_name')
+

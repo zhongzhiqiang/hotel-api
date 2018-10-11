@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings
+from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings, Integral
 
 
 class WeiXinCreateTokenSerializer(serializers.Serializer):
@@ -20,6 +20,12 @@ class WeiXinDataDecrypt(serializers.Serializer):
     iv = serializers.CharField(help_text='向量')
 
 
+class IntegralSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Integral
+        fields = "__all__"
+
+
 class ConsumerSerializer(serializers.ModelSerializer):
     sex_display = serializers.CharField(
         source='get_sex_display',
@@ -29,6 +35,7 @@ class ConsumerSerializer(serializers.ModelSerializer):
         source='sell_user.user_name',
         read_only=True
     )
+    integral = IntegralSerializer(read_only=True)
 
     class Meta:
         model = Consumer
@@ -46,7 +53,8 @@ class ConsumerSerializer(serializers.ModelSerializer):
             'sell_user_name',
             'balance',
             'recharge_balance',
-            'free_balance'
+            'free_balance',
+            'integral'
         )
         read_only_fields = ('is_distribution', 'sell_user', 'bonus', 'free_balance', 'recharge_balance')
 

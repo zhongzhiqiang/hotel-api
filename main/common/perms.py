@@ -21,7 +21,7 @@ permission = [
         "codename": "consumer"
     }, {
         "name": "权限中心",
-        "codename": "groups"
+        "codename": "role"
     }, {
         "name": "分销中心",
         "codename": "distribution",
@@ -40,6 +40,9 @@ permission = [
     }, {
         "name": "职员中心",
         "codename": "staff"
+    }, {
+        "name": "住宿订单",
+        "codename": "hotel_order"
     }
 ]
 

@@ -1,5 +1,5 @@
 # coding:utf-8
-# Time    : 2018/9/1 下午1:56
+# Time    : 2018/10/12 上午12:35
 # Author  : Zhongzq
 # Site    : 
 # File    : filter.py
@@ -11,13 +11,12 @@ import django_filters
 from main.models import Order
 
 
-class HotelOrderFilter(django_filters.rest_framework.FilterSet):
+class OrderFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = Order
         fields = {
             "order_status": ['exact', 'in'],
-            "sale_price": ['range'],
-            'reserve_check_in_time': ['range'],
-            'pay_time': ['range'],
-            'consumer__user_name': ['exact'],
+            "create_time": ['range'],
+            "pay_type": ['exact', 'in'],
+            "pay_time": ['range']
         }

@@ -10,7 +10,7 @@ import logging
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import HotelOrder, HotelOrderDetail
+from main.models import Order, HotelOrderDetail
 from main.apps.admin_integral.utils import get_integral, make_integral
 
 logger = logging.getLogger(__name__)

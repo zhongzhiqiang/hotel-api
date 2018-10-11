@@ -174,7 +174,8 @@ class HotelOrderDetailSerializer(serializers.ModelSerializer):
             'id',
             'room_style_name',
             'room_nums',
-            'room_style_image'
+            'room_style_image',
+            'room_price'
         )
 
 

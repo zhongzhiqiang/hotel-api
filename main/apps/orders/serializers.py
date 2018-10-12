@@ -233,6 +233,7 @@ class HotelOrderDetailSerializer(serializers.ModelSerializer):
             'reserve_check_out_time',
             'contact_name',
             'contact_phone',
+            'days'
         )
 
 

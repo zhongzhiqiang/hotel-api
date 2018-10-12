@@ -17,7 +17,10 @@ class GoodsSerializer(serializers.ModelSerializer):
             'id',
             "goods_name",
             'goods_price',
-            'goods_category'
+            'goods_category',
+            'cover_image',
+            'images',
+            'need_integral',
         )
 
 

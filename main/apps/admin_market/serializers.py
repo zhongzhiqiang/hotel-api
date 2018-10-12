@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Goods, GoodsCategory
+from main.models import Goods, GoodsCategory, VipSettings
 
 
 class GoodsCategorySerializer(serializers.ModelSerializer):
@@ -36,6 +36,12 @@ class CreateGoodsCategorySerializer(serializers.ModelSerializer):
         )
 
 
+class VIPInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VipSettings
+        fields = "__all__"
+
+
 class GoodsSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
         source='category.category_name',
@@ -46,6 +52,7 @@ class GoodsSerializer(serializers.ModelSerializer):
         source='operator_name.user_name',
         read_only=True
     )
+    vip_info = VIPInfoSerializer(read_only=True)
 
     class Meta:
         model = Goods
@@ -62,7 +69,9 @@ class GoodsSerializer(serializers.ModelSerializer):
             'operator_name',
             'is_promotion',
             'is_special',
-            'vip_info'
+            'vip_info',
+            'images',
+            'cover_image'
         )
 
 
@@ -93,5 +102,7 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
             'category_name',
             'is_promotion',
             'is_special',
-            'vip_info'
+            'vip_info',
+            'cover_image',
+            'images'
         )

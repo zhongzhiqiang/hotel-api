@@ -59,6 +59,9 @@ class GoodsView(mixins.CreateModelMixin,
         更新某个数据
     create:
         创建商品
+        ```
+        创建会员商品时,需要传递is_special字段为True，并且选择会员权益传递.
+        ```
     retrieve:
         返回单个商品。查询id为list返回的id
     """

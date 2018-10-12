@@ -102,3 +102,14 @@ class OrderSerializer(serializers.ModelSerializer):
             "refund_reason",
             "user_remark"
         )
+
+
+class RefundedSerializer(serializers.ModelSerializer):
+
+    def update(self, instance, validated_data):
+        # 进行退款操作
+        pass
+
+    class Meta:
+        model = Order
+        fields = "__all__"

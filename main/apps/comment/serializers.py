@@ -9,9 +9,21 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from main.models import HotelOrderComment, CommentReply
+from main.common.defines import OrderStatus
 
 
 class CreateHotelOrderCommentSerializer(serializers.ModelSerializer):
+
+    def validate(self, attrs):
+        consumer = self.context['request'].user.consumer
+        belong_order = attrs.get("belong_order")
+        if belong_order.order_status != OrderStatus.success:
+            raise serializers.ValidationError("当前订单暂时无法评论")
+
+        if belong_order.consumer != consumer:
+            raise serializers.ValidationError("无法评论其他用户订单")
+        return attrs
+
     class Meta:
         model = HotelOrderComment
         fields = (

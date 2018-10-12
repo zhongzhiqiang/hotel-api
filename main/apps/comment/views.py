@@ -23,9 +23,28 @@ class CommentViews(mixins.CreateModelMixin,
         返回评论详情
     create:
         创建一个评论
+        
+        COMMENT_LEVEL = (
+        (10, '一星'),
+        (20, '两星'),
+        (30, '三星'),
+        (40, '四星'),
+        (50, '五星')
+        ```
+        {
+            "content": "string",
+            "comment_level": "string",
+            "belong_order": "string"  # 对应订单的ID。最外层ID
+        }
+        ```
+    )
     """
     queryset = HotelOrderComment.objects.all().prefetch_related('commentreply')
     serializer_class = serializers.CreateHotelOrderCommentSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(consumer=self.request.user.consumer)
+
     def get_queryset(self):
+        # 返回当前用户的所有评论以及回复。
         return self.queryset.filer(commenter=self.request.user.consumer)

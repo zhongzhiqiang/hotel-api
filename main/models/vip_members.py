@@ -48,7 +48,8 @@ class VipMember(models.Model):
     vip_no = models.CharField(
         '会员卡号',
         max_length=32,
-        unique=True
+        unique=True,
+        default=''
     )
     consumer = models.OneToOneField(
         'main.Consumer',

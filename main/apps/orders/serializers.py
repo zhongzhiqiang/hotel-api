@@ -257,6 +257,7 @@ class OrderSerializer(serializers.ModelSerializer):
     )
     image = serializers.CharField(read_only=True)
 
+    @atomic
     def update(self, instance, validated_data):
         order_status = validated_data.get("order_status")
         # 用户申请退款.

@@ -72,6 +72,10 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         source='get_pay_type_display',
         read_only=True
     )
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True
+    )
 
     @staticmethod
     def charge_user_balance(hotel_detail, consumer, validated_data):
@@ -139,6 +143,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         # 第一判断支付类型。余额支付时，进行扣除余额并更改支付状态
         validated_data.update({"order_type": OrderType.hotel})
         hotel_order_detail = validated_data.pop("hotel_order_detail")
+        pay_info = None
         if validated_data.get("pay_type") == PayType.balance:
             if consumer.balance < validated_data['order_amount']:
                 validated_data.update({"order_status": OrderStatus.pre_pay})
@@ -179,6 +184,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             "order_amount",
             'num',
             'image',
+            'belong_hotel_name',
             'user_remark',
         )
         read_only_fields = (
@@ -226,14 +232,14 @@ class HotelOrderDetailSerializer(serializers.ModelSerializer):
             'reserve_check_in_time',
             'reserve_check_out_time',
             'contact_name',
-            'contact_phone'
+            'contact_phone',
         )
 
 
 class OrderSerializer(serializers.ModelSerializer):
     hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
     market_order_detail = MarketOrderDetailSerializer(read_only=True)
-    hotel_name = serializers.CharField(
+    belong_hotel_name = serializers.CharField(
         source='belong_hotel.name',
         read_only=True,
     )
@@ -249,6 +255,7 @@ class OrderSerializer(serializers.ModelSerializer):
         source='get_pay_type_display',
         read_only=True,
     )
+    image = serializers.CharField(read_only=True)
 
     def update(self, instance, validated_data):
         order_status = validated_data.get("order_status")
@@ -269,7 +276,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'order_type',
             'order_type_display',
             'belong_hotel',
-            'hotel_name',
+            'belong_hotel_name',
             'order_status',
             'order_status_display',
             'pay_type',
@@ -280,6 +287,12 @@ class OrderSerializer(serializers.ModelSerializer):
             'create_time',
             'refund_reason',
             'user_remark',
+            'image',
+        )
+        read_only_fields = (
+            'order_id',
+            'order_type',
+            'belong_hotel'
         )
 
 

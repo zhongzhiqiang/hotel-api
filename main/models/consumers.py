@@ -60,11 +60,6 @@ class Consumer(models.Model):
         default=False,
         blank=True
     )
-    is_vip = models.BooleanField(
-        '是否为会员',
-        default=False,
-        blank=True
-    )
     sell_user = models.ForeignKey(
         'main.Consumer',
         on_delete=models.SET_NULL,
@@ -104,6 +99,18 @@ class Consumer(models.Model):
     @property
     def order_count(self):
         return self.order_set.count()
+
+    @property
+    def is_vip(self):
+        if hasattr(self, 'vipmember'):
+            return True
+        return False
+
+    @property
+    def discount(self):
+        if hasattr(self, 'vipmember'):
+            return self.vipmember.discount
+        return 1
 
     def __unicode__(self):
         return self.user.username

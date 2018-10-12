@@ -37,7 +37,7 @@ class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
 
         unit_price = room_style.price
         if consumer.is_vip:
-            unit_price = unit_price * consumer.vipmember.discount
+            unit_price = unit_price * consumer.discount
 
         attrs.update({"room_price": unit_price})
 

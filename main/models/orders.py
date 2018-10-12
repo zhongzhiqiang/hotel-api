@@ -19,7 +19,8 @@ class Order(models.Model):
         (OrderStatus.prp_refund, '等待退款'),
         (OrderStatus.refund_ing, '退款中'),
         (OrderStatus.refunded, '退款完成'),
-        (OrderStatus.pasted, '已过期')
+        (OrderStatus.pasted, '已过期'),
+        (OrderStatus.deleted, '已删除')
     )
     PAY_TYPE = (
         (PayType.integral, '积分'),
@@ -33,10 +34,12 @@ class Order(models.Model):
     order_type = models.IntegerField(
         '订单类型',
         choices=ORDER_TYPE,
+        db_index=True,
     )
     order_id = models.CharField(
         '订单号',
         max_length=30,
+        db_index=True,
         blank=True,
         default='',
     )
@@ -44,6 +47,7 @@ class Order(models.Model):
         'main.Hotel',
         null=True,
         blank=True,
+        db_index=True,
         on_delete=models.SET_NULL,
         help_text='只有当订单类型为住宿时才会有此字段'
     )
@@ -52,7 +56,8 @@ class Order(models.Model):
         '订单状态',
         choices=ORDER_STATUS,
         default=10,
-        blank=True
+        blank=True,
+        db_index=True
     )
     create_time = models.DateTimeField(
         '创建时间',
@@ -62,6 +67,7 @@ class Order(models.Model):
         '支付方式',
         choices=PAY_TYPE,
         default=PayType.weixin,
+        db_index=True,
         help_text='默认微信支付'
     )
     pay_time = models.DateTimeField(
@@ -127,9 +133,17 @@ class Order(models.Model):
         default=''
     )
 
+    @property
+    def image(self):
+        # TODO 商场订单没有照片
+        if self.order_type == OrderType.market:
+            return ''
+        else:
+            return self.hotel_order_detail.image
+
     def make_order_id(self):
         """创建订单号"""
-        return 'hotel%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+        return '%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 
     def __unicode__(self):
         return '%s, %s' % (self.get_order_type_display(), self.order_id)
@@ -177,7 +191,7 @@ class MarketOrderDetail(models.Model):
         default=''
     )
     consignee_address = models.CharField(
-        '收货人地址',
+        '收货地址',
         max_length=200,
         default=''
     )
@@ -190,6 +204,10 @@ class MarketOrderDetail(models.Model):
     @property
     def order_goods_price(self):
         return self.sale_price * self.nums
+
+    @property
+    def goods_name(self):
+        return self.goods.goods_name
 
     def __unicode__(self):
         if self.market_order:
@@ -228,11 +246,13 @@ class HotelOrderDetail(models.Model):
 
     reserve_check_in_time = models.DateTimeField(
         '预定入住时间',
-        help_text='用户预定时间，12点以后'
+        help_text='用户预定时间，12点以后',
+        null=True,
     )
     reserve_check_out_time = models.DateTimeField(
         '预定退房时间',
-        help_text='用户预定时间'
+        help_text='用户预定时间',
+        null=True
     )
     contact_name = models.CharField(
         '联系人',
@@ -248,6 +268,10 @@ class HotelOrderDetail(models.Model):
     @property
     def room_style_name(self):
         return self.room_style.style_name
+
+    @property
+    def image(self):
+        return self.room_style.cover_image
 
     @property
     def days(self):

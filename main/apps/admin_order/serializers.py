@@ -10,28 +10,58 @@ import logging
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import Order, HotelOrderDetail
+from main.models import Order, HotelOrderDetail, OrderPay
 from main.apps.admin_integral.utils import get_integral, make_integral
+from main.common.defines import OrderStatus
 
 logger = logging.getLogger(__name__)
 
 
 class HotelOrderDetailSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = HotelOrderDetail
         fields = (
             'id',
-            'belong_order',
             'room_style',
-            'room_nums'
+            'room_nums',
+            'room_price',
+            "reserve_check_in_time",
+            "reserve_check_out_time",
+            "contact_name",
+            "contact_phone",
+            "room_style_name",
+            "days"
+        )
+
+
+class OrderPaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderPay
+        fields = (
+            "id",
+            "wx_order_id",
+            "free_money",
+            "integral",
+            "money",
+            "create_time"
         )
 
 
 class HotelOrderInfoSerializer(serializers.ModelSerializer):
-    hotelorderdetail = HotelOrderDetailSerializer(read_only=True)
+    hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
+    order_pay = OrderPaySerializer(read_only=True)
 
     order_status_display = serializers.CharField(
         source='get_order_status_display',
+        read_only=True
+    )
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True
+    )
+    pay_type_display = serializers.CharField(
+        source='get_pay_type_display',
         read_only=True
     )
 
@@ -51,41 +81,54 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         order_status = validated_data.get("order_status")
 
-        if order_status == 40 and instance.order_status < 40:
+        # 生成积分是，当用户入住完成时
+        if order_status == OrderStatus.success and instance.order_status == OrderStatus.check_in:
             try:
                 self.make_integral(instance)
             except Exception as e:
                 logger.warning("make integral error:{}".format(e), exc_info=True)
                 raise serializers.ValidationError("生成积分失败")
-            validated_data.update({"order_status": 50})
+            validated_data.update({"order_status": OrderStatus.success})
         instance = super(HotelOrderInfoSerializer, self).update(instance, validated_data)
         return instance
 
     class Meta:
-        model = HotelOrder
+        model = Order
         fields = (
-            'id',
-            'belong_hotel',
-            'order_id',
-            'order_status',
-            'order_status_display',
-            'room_style_num',
-            'sale_price',
-            'reserve_check_in_time',
-            'reserve_check_out_time',
-            'pay_time',
-            'create_time',
-            'consumer',
-            'user_remark',
-            'operator_name',
-            'flow_remark',
-            'hotelorderdetail',
-            'contact_name',
-            'contact_phone'
+            "id",
+            'hotel_order_detail',
+            'order_pay',
+            "order_id",
+            "belong_hotel",
+            "belong_hotel_name",
+            "order_status",
+            "order_status_display",
+            "create_time",
+            "pay_type",
+            "pay_type_display",
+            "pay_time",
+            "num",
+            "order_amount",
+            "integral",
+            "consumer",
+            "operator_name",
+            "operator_time",
+            "refund_reason",
+            "user_remark",
+            "operator_remark"
         )
-        read_only_fields = ('belong_hotel', 'order_id', 'room_style_num',
-                            'sale_price', 'reserve_check_in_time',
-                            'reserve_check_out_time', 'pay_time', 'consumer',
-                            'user_remark', 'operator_name', 'contact_phone',
-                            'contact_name')
+        read_only_fields = (
+            "order_id",
+            "belong_hotel",
+            "pay_type",
+            "pay_time",
+            "num",
+            "order_amount",
+            "integral",
+            "consumer",
+            "operator_name",
+            "operator_time",
+            "refund_reason",
+            "user_remark"
+        )
 

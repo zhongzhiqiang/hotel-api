@@ -16,9 +16,14 @@ def create_balance_info(user, integral, integral_type, remark):
         "integral_type": integral_type,
         "remark": remark,
     }
-    pass
 
 
-def create_integral_info():
-    pass
-
+def create_integral_info(consumer, integral, integral_type, remark):
+    params = {
+        "consumer": consumer,
+        "integral": integral,
+        "remark": remark,
+        "integral_type": integral_type,
+        "left_integral": consumer.integral
+    }
+    IntegralDetail.objects.create(**params)

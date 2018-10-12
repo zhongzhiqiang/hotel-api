@@ -16,8 +16,7 @@ class HotelOrderFilter(django_filters.rest_framework.FilterSet):
         model = Order
         fields = {
             "order_status": ['exact', 'in'],
-            "sale_price": ['range'],
-            'reserve_check_in_time': ['range'],
+            "order_amount": ['in'],
             'pay_time': ['range'],
             'consumer__user_name': ['exact'],
         }

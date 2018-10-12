@@ -1,5 +1,5 @@
 # coding:utf-8
-# Time    : 2018/9/8 下午9:03
+# Time    : 2018/9/9 下午9:32
 # Author  : Zhongzq
 # Site    : 
 # File    : urls.py
@@ -8,11 +8,9 @@ from __future__ import unicode_literals
 
 from rest_framework import routers
 
-from main.apps.market_order import views
-
-
+from main.apps.orders import views
 router = routers.DefaultRouter()
 
-router.register('market_order', views.MarketOrderViews, base_name='market_order')
-
+router.register('order', views.OrderViews, base_name='order')
+router.register('pay_again', views.OrderPayView, base_name='order_pay')
 urlpatterns = router.urls

@@ -6,6 +6,9 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 
+from datetime import datetime
+import uuid
+
 from django.db import models
 
 
@@ -44,9 +47,8 @@ class VipSettings(models.Model):
 class VipMember(models.Model):
     vip_no = models.CharField(
         '会员卡号',
-        max_length=20,
-        blank=True,
-        null=True
+        max_length=32,
+        unique=True
     )
     consumer = models.OneToOneField(
         'main.Consumer',
@@ -69,8 +71,15 @@ class VipMember(models.Model):
         auto_now=True
     )
 
-    def make_vip_no(self):
-        return ''
+    @classmethod
+    def make_vip_no(cls):
+        order_time = datetime.now().strftime("%Y%m%d")
+        return_order_id = uuid.uuid1().get_hex().upper()[:24]
+        return order_time + return_order_id
+
+    @property
+    def discount(self):
+        return self.vip_level.hotel_discount
 
     def __unicode__(self):
         return self.vip_no

@@ -24,7 +24,7 @@ class HotelOrderComment(models.Model):
         (50, '五星')
     )
     belong_order = models.OneToOneField(
-        'main.HotelOrder',
+        'main.Order',
         verbose_name='关联订单',
     )
 

@@ -10,9 +10,9 @@ from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
-from main.models import HotelOrder, HotelOrderRoomInfo
+from main.models import Order
 from main.apps.admin_order import serializers, filters
-
+from main.common.defines import OrderType
 
 class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
                               mixins.RetrieveModelMixin,
@@ -45,7 +45,7 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
         退款。
     """
 
-    queryset = HotelOrder.objects.prefetch_related('hotelorderdetail')
+    queryset = Order.objects.filter(order_type=OrderType.hotel).prefetch_related('hotel_order_detail', 'order_pay')
     serializer_class = serializers.HotelOrderInfoSerializer
     filter_class = filters.HotelOrderFilter
 

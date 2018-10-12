@@ -5,3 +5,42 @@
 # File    : serializers.py
 # Software: PyCharm
 from __future__ import unicode_literals
+
+from rest_framework import serializers
+
+from main.models import VipMember, VipSettings
+
+
+class VipSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VipSettings
+        fields = (
+            'id',
+            'vip_name',
+            'hotel_discount',
+            'operator_name',
+        )
+        read_only_fields = ('operator_name', )
+
+
+class VipMemberSerializer(serializers.ModelSerializer):
+    vipsettings = VipSettingsSerializer(read_only=True)
+
+    consumer_name = serializers.CharField(
+        source='consumer.user_name',
+        read_only=True,
+    )
+    consumer_url = serializers.HyperlinkedIdentityField(view_name='consumer-detail')
+
+    class Meta:
+        model = VipMember
+        fields = (
+            'id',
+            'vip_no',
+            'consumer',
+            'vip_level',
+            'consumer_name',
+            'consumer_url',
+            'vipsettings',
+            'create_time',
+        )

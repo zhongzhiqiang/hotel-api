@@ -72,6 +72,14 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    def validate(self, attrs):
+        is_special = attrs.get("is_special")
+        vip_info = attrs.get("vip_info")
+
+        if is_special and not vip_info:
+            raise serializers.ValidationError("请选择会员权益")
+        return attrs
+
     class Meta:
         model = Goods
         fields = (
@@ -83,5 +91,7 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
             'is_integral',
             'need_integral',
             'category_name',
-            'is_promotion'
+            'is_promotion',
+            'is_special',
+            'vip_info'
         )

@@ -388,6 +388,15 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
 
         return recharge_balance, free_balance
 
+    @classmethod
+    def create_vip(cls, consumer, vip_level):
+        params = {
+            "consumer": consumer,
+            "vip_level": vip_level,
+            "vip_no": VipMember.make_vip_no()
+        }
+        VipMember.objects.create(**params)
+
     @atomic
     def update(self, instance, validated_data):
         pay_type = validated_data.get("pay_type") or instance.pay_type
@@ -421,7 +430,11 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
                 pay_info = {
                     "integral": instance.integral
                 }
+
         instance = super(OrderPayAgainSerializer, self).update(instance, validated_data)
+
+        if instance.order_type == OrderType.market and instance.market_order_detail.is_special:
+            self.create_vip(instance.consumer, instance.market_order_detail.vip_info)
 
         if pay_info:
             pay_info.update({"order": instance})

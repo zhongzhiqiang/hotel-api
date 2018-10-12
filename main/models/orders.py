@@ -211,6 +211,15 @@ class MarketOrderDetail(models.Model):
     def goods_name(self):
         return self.goods.goods_name
 
+    @property
+    def is_special(self):
+        return self.goods.is_special
+
+    @property
+    def vip_info(self):
+        if hasattr(self.goods, 'vip_info'):
+            return self.goods.vip_info
+        return None
     def __unicode__(self):
         if self.market_order:
             return '%s, %s' % (self.market_order.order_id, self.goods.goods_name)

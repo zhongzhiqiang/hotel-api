@@ -35,6 +35,12 @@ class VipSettings(models.Model):
         '更新时间',
         auto_now=True
     )
+    operator_name = models.ForeignKey(
+        'main.StaffProfile',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
 
     def __unicode__(self):
         return self.vip_name

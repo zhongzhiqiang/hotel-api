@@ -75,18 +75,18 @@ class OrderViews(mixins.CreateModelMixin,
         (55, '退款中'),
         (69, '已退款'),
         (65, '已过期')
-    )
-    {
-    "market_order_detail": {
+        )
+        {
+        "market_order_detail": {
         "goods": "",  # 购买商品
         "nums": "",  # 购买数量
         "consignee_name": # 收货人姓名
         "consignee_address": "收货人地址",
         "consignee_phone": "收货人电话"
-    },
-    "pay_type": "string",  # 支付方式
-    "user_remark": "string",  # 用户备注
-    }
+        },
+        "pay_type": "string",  # 支付方式
+        "user_remark": "string",  # 用户备注
+        }
     ```
 
     """
@@ -104,6 +104,9 @@ class OrderViews(mixins.CreateModelMixin,
     def get_serializer_class(self):
         if self.action == 'create':
             return serializers.CreateHotelOrderSerializer
+        elif self.action == 'market_order_create':
+            return serializers.CreateMarketOrderSerializer
+
         return self.serializer_class
 
     def create(self, request, *args, **kwargs):

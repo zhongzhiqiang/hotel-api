@@ -77,6 +77,11 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
+
     @staticmethod
     def charge_user_balance(hotel_detail, consumer, validated_data):
         # 扣除用户余额。首先扣去充值金额
@@ -177,6 +182,8 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             'belong_hotel',
             'order_id',
             'order_status',
+            'order_type',
+            'order_type_display',
             'order_status_display',
             "create_time",
             "pay_type",
@@ -190,6 +197,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'order_id',
             'order_status',
+            'order_type',
             'order_amount',
             'num',
             'image'
@@ -519,6 +527,10 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         source='get_pay_type_display',
         read_only=True
     )
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
 
     def validate(self, attrs):
         order_detail = attrs['market_order_detail']
@@ -656,6 +668,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'order_status',
             'order_status_display',
             'pay_type',
+            'order_type',
+            'order_type_display',
             'pay_type_display',
             'pay_time',
             'num',
@@ -670,6 +684,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'order_amount',
             'pay_integral',
             'consumer',
+            'order_type',
             'num',
             "order_status",
             "pay_time",

@@ -60,7 +60,9 @@ class GoodsSerializer(serializers.ModelSerializer):
             'create_time',
             'update_time',
             'operator_name',
-            'is_promotion'
+            'is_promotion',
+            'is_special',
+            'vip_info'
         )
 
 

@@ -8,12 +8,12 @@ from __future__ import unicode_literals
 
 import django_filters
 
-from main.models import HotelOrder
+from main.models import Order
 
 
 class HotelOrderFilter(django_filters.rest_framework.FilterSet):
     class Meta:
-        model = HotelOrder
+        model = Order
         fields = {
             "order_status": ['in', 'exact'],
             "pay_type": ['in', 'exact'],

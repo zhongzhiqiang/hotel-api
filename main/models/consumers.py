@@ -103,30 +103,13 @@ class Consumer(models.Model):
 
     @property
     def order_count(self):
-        return self.hotelorder_set.count()
+        return self.order_set.count()
 
     def __unicode__(self):
         return self.user.username
 
     class Meta:
         verbose_name = '客户信息'
-        verbose_name_plural = verbose_name
-
-
-class ConsumerVipInfo(models.Model):
-    consumer = models.OneToOneField(
-        'main.Consumer',
-        related_name='vip_info'
-    )
-    vip_start_time = models.DateTimeField(
-        '会员有效期',
-    )
-    vip_end_time = models.DateTimeField(
-        '会员失效期'
-    )
-
-    class Meta:
-        verbose_name = '客户会员系统'
         verbose_name_plural = verbose_name
 
 

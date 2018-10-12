@@ -61,7 +61,6 @@ class Goods(models.Model):
         default=False,
         blank=True
     )
-
     is_promotion = models.BooleanField(
         '是否促销',
         default=False,

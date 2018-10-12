@@ -14,25 +14,28 @@ class PayType(object):
     weixin = 30
 
 
-class MarketOrderStatus(object):
-    unpay = 10
-    wait_deliver = 20  # 等待发货
-    take_delivery = 30  # 等待收货
-    success = 40
-    cancel = 50
-
-
 class WeiXinCode(object):
     success = 'SUCCESS'
     fail = 'FAIL'
 
 
-class HotelOrderStatus(object):
-    unpay = 10
-    check_to_be = 20
+class OrderStatus(object):
+    pre_pay = 10
+    deliver = 15
+    take_deliver = 20
+    to_check_in = 25
     check_in = 30
-    success = 40
-    appraise = 50
-    canceled = 60
-    refund_to_be = 70
-    refunded = 80
+    success = 35  # 成功未评价
+    finish = 40  # 结束
+    canceled = 45
+
+    prp_refund = 50
+    refund_ing = 55
+    refunded = 60
+    pasted = 65
+    deleted = 70
+
+
+class OrderType(object):
+    market = 10
+    hotel = 20

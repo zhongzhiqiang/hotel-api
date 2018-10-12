@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
 
 from main.models import VipMember, VipSettings
-from main.apps.admin_vip import serializers
+from main.apps.admin_vip import serializers, filters
 
 
 class VipMemberViews(mixins.ListModelMixin,
@@ -21,8 +21,9 @@ class VipMemberViews(mixins.ListModelMixin,
     retrieve:
         返回会员用户的详情
     """
-    queryset = VipMember.objects.all()
+    queryset = VipMember.objects.all().order_by('-create_time')
     serializer_class = serializers.VipMemberSerializer
+    filter_class = filters.VipMemberFilter
 
 
 class VipSettingsViews(mixins.CreateModelMixin,

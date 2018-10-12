@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from main.modelfields.JsonFields import JSONField
+
 
 class GoodsCategory(models.Model):
 
@@ -95,6 +97,17 @@ class Goods(models.Model):
     update_time = models.DateTimeField(
         '更新时间',
         auto_now=True
+    )
+    cover_image = models.CharField(
+        '封面图',
+        max_length=100,
+        default=''
+    )
+    images = JSONField(
+        '所有图片',
+        default=[],
+        blank=True,
+        null=True
     )
     operator_name = models.ForeignKey(
         'main.StaffProfile',

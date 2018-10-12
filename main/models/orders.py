@@ -139,7 +139,7 @@ class Order(models.Model):
     def image(self):
         # TODO 商场订单没有照片
         if self.order_type == OrderType.market:
-            return ''
+            return self.market_order_detail.image
         else:
             return self.hotel_order_detail.image
 
@@ -212,6 +212,10 @@ class MarketOrderDetail(models.Model):
         return self.goods.goods_name
 
     @property
+    def image(self):
+        return self.goods.cover_image
+
+    @property
     def is_special(self):
         return self.goods.is_special
 
@@ -220,6 +224,7 @@ class MarketOrderDetail(models.Model):
         if hasattr(self.goods, 'vip_info'):
             return self.goods.vip_info
         return None
+
     def __unicode__(self):
         if self.market_order:
             return '%s, %s' % (self.market_order.order_id, self.goods.goods_name)

@@ -43,6 +43,9 @@ permission = [
     }, {
         "name": "住宿订单",
         "codename": "hotel_order"
+    }, {
+        "name": "会员中心",
+        "codename": "vip_info"
     }
 ]
 

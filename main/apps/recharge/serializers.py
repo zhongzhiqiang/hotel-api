@@ -49,7 +49,8 @@ class CreateRechargeSerializer(serializers.ModelSerializer):
             'order_id',
             "recharge_money",
             "free_money",
-            'recharge_settings_id'
+            'recharge_settings_id',
+            'balance'
         )
         read_only_fields = (
             'free_money',
@@ -76,7 +77,8 @@ class RechargeSerializer(serializers.ModelSerializer):
             "update_time",
             "pay_time",
             "recharge_status",
-            'recharge_status_display'
+            'recharge_status_display',
+            'balance'
         )
         read_only_fields = ("order_id", "recharge_money", "free_money", "pay_time")
 
@@ -107,6 +109,7 @@ class RechargePayAgainSerializer(serializers.ModelSerializer):
             "pay_time",
             "recharge_status",
             'recharge_status_display',
+            'balance'
         )
         read_only_fields = ("order_id", "recharge_money", "free_money", "pay_time", 'recharge_status')
 
@@ -140,5 +143,6 @@ class RechargeCancelSerializer(serializers.ModelSerializer):
             "pay_time",
             "recharge_status",
             'recharge_status_display',
+            'balance'
         )
         read_only_fields = ("order_id", "recharge_money", "free_money", "pay_time")

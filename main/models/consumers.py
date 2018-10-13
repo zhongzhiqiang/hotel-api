@@ -228,6 +228,10 @@ class RechargeInfo(models.Model):
         auto_now=True
     )
 
+    @property
+    def balance(self):
+        return self.recharge_money + self.free_money
+
     def make_order_id(self):
         return 'recharge%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
 

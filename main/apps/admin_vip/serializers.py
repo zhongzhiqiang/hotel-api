@@ -43,6 +43,7 @@ class VipMemberSerializer(serializers.ModelSerializer):
             'id',
             'vip_no',
             'consumer',
+            'consumer_id',
             'vip_level',
             'consumer_name',
             'consumer_url',

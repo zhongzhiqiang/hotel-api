@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings, Integral
+from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings, Integral, VipMember
 
 
 class WeiXinCreateTokenSerializer(serializers.Serializer):
@@ -114,3 +114,22 @@ class RechargeSettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = RechargeSettings
         fields = "__all__"
+
+
+class VipMemberSerializer(serializers.ModelSerializer):
+
+    vip_name = serializers.CharField(
+        source='vip_level.vip_name',
+        read_only=True
+    )
+
+    class Meta:
+        model = VipMember
+        fields = (
+            'id',
+            'vip_no',
+            'vip_level',
+            'create_time',
+            'discount',
+            'vip_name'
+        )

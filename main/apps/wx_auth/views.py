@@ -18,7 +18,7 @@ from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt.settings import api_settings
 
 from main.apps.wx_auth import serializers
-from main.models import Consumer, ConsumerBalance
+from main.models import Consumer, ConsumerBalance, VipMember
 
 APP_ID = 'wx310b2c1f223f61c8'
 APP_SECRET = 'af6d4f4c7c5fb0489deed97610e3064c'
@@ -99,6 +99,8 @@ class UserCenterView(mixins.UpdateModelMixin,
         解密用户用户，传递解密数据以及向量
     balance_info:
         返回用户的消费记录以及充值记录
+    vip_info:
+        返回当前用户的会员信息
     """
     queryset = Consumer.objects.all()
     serializer_class = serializers.ConsumerSerializer
@@ -106,6 +108,8 @@ class UserCenterView(mixins.UpdateModelMixin,
     def get_serializer_class(self):
         if self.action == 'balance_info':
             return serializers.ConsumerBalanceSerializer
+        elif self.action == 'vip_info':
+            return serializers.VipMemberSerializer
         return self.serializer_class
 
     def get_queryset(self):
@@ -114,6 +118,8 @@ class UserCenterView(mixins.UpdateModelMixin,
             queryset = queryset.filter(user=self.request.user).first()
         elif self.action == 'balance_info':
             queryset = ConsumerBalance.objects.filter(consumer=self.request.user.consumer)
+        elif self.action == 'vip_info':
+            queryset = VipMember.objects.filter(consumer=self.request.user.consumer).first()
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -149,4 +155,10 @@ class UserCenterView(mixins.UpdateModelMixin,
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['GET'])
+    def vip_info(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset)
         return Response(serializer.data)

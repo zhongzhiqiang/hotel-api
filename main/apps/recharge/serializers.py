@@ -23,17 +23,19 @@ class RechargeSettingsSerializer(serializers.ModelSerializer):
 
 class CreateRechargeSerializer(serializers.ModelSerializer):
 
+    recharge_settings_id = serializers.CharField(required=True, write_only=True)
+
     def validate(self, attrs):
-        recharge_money = attrs.get("recharge_money")
-        setting = RechargeSettings.objects.filter(
-            recharge_price=recharge_money, is_active=True).first()
+        recharge_settings_id = attrs.pop("recharge_settings_id")
+        setting = RechargeSettings.objects.filter(id=recharge_settings_id, is_active=True).first()
         if not setting:
             raise serializers.ValidationError("充值金额有误,请重新输入")
-        attrs.update({"free_money": setting.free_balance})
+        attrs.update({"free_money": setting.free_balance, "recharge_money": setting.recharge_price})
         return attrs
 
     @transaction.atomic
     def create(self, validated_data):
+        validated_data.pop("recharge_settings_id", '')
         validated_data.update({"recharge_status": 30})
         instance = super(CreateRechargeSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
@@ -46,11 +48,13 @@ class CreateRechargeSerializer(serializers.ModelSerializer):
             "id",
             'order_id',
             "recharge_money",
-            "free_money"
+            "free_money",
+            'recharge_settings_id'
         )
         read_only_fields = (
             'free_money',
-            "order_id"
+            "order_id",
+            "recharge_money"
         )
 
 

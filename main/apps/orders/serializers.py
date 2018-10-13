@@ -145,6 +145,10 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
     @atomic
     def create(self, validated_data):
         consumer = self.context['request'].user.consumer
+        # 这里判断用户是否还有未支付的订单。如果有返回无法下单.
+        order = Order.objects.filter(consumer=consumer, order_type=OrderType.hotel, order_status=OrderStatus.pre_pay).first()
+        if order:
+            raise serializers.ValidationError({"non_field_errors": ['已有未支付订单,无法在创建']})
         # 第一判断支付类型。余额支付时，进行扣除余额并更改支付状态
         validated_data.update({"order_type": OrderType.hotel})
         hotel_order_detail = validated_data.pop("hotel_order_detail")
@@ -612,6 +616,11 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         # 步骤3。余额兑换
         # 步骤4。微信支付
         consumer = self.context['request'].user.consumer
+        order = Order.objects.filter(consumer=consumer, order_type=OrderType.market,
+                                     order_status=OrderStatus.pre_pay).first()
+        if order:
+            raise serializers.ValidationError({"non_field_errors": ['已有未支付订单,无法在创建']})
+
         order_pay_params = {}
         if validated_data['pay_type'] == PayType.integral:
             if consumer.integral < validated_data['integral']:

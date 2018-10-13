@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType, IntegralDetail
+from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType, IntegralDetail, ConsumerBalance
 from main.common.defines import OrderStatus
 
 
@@ -139,7 +139,17 @@ class RefundedSerializer(serializers.ModelSerializer):
                 "refunded_free_money": self.instance.order_pay.free_money
             }
             # 用户余额明细
-            # 退回余额。第一
+            balance_info = {
+                "consumer": instance.consumer,
+                "balance_type": 10,
+                "message": "增加,商品退款:{},商品名称:{}".format(instance.order_amount, instance.market_order_detail.goods_name),
+                "cost_price": instance.order_amount,
+                "left_balance": instance.consumer.balance + instance.order_amount
+            }
+            # 退回余额。
+            instance.consumer.recharge_balance = instance.consumer.recharge_balance  + instance.order_pay.money
+            instance.consumer.free_balance = instance.consumer.free_balance + instance.order_pay.free_money
+            instance.consumer.save()
         else:
             pass
 

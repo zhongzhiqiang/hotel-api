@@ -129,7 +129,7 @@ class Consumer(models.Model):
 class ConsumerBalance(models.Model):
     # 用户消费记录
     BalanceType = (
-        (10, '充值'),
+        (10, '增加'),
         (20, '消费'),
     )
     consumer = models.ForeignKey(
@@ -199,12 +199,12 @@ class RechargeInfo(models.Model):
     )
     recharge_money = models.DecimalField(
         '充值金额',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
     free_money = models.DecimalField(
         '赠送金额',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
         default=0,
     )

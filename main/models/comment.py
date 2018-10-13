@@ -17,11 +17,11 @@ class HotelOrderComment(models.Model):
     )
 
     COMMENT_LEVEL = (
-        (10, '一星'),
-        (20, '两星'),
-        (30, '三星'),
-        (40, '四星'),
-        (50, '五星')
+        (10, '一分'),
+        (20, '两分'),
+        (30, '三分'),
+        (40, '四分'),
+        (50, '五分')
     )
     belong_order = models.OneToOneField(
         'main.Order',
@@ -77,6 +77,7 @@ class HotelOrderComment(models.Model):
 class CommentReply(models.Model):
     comment = models.OneToOneField(
         'main.HotelOrderComment',
+        related_name='comment_reply'
     )
 
     reply_staff = models.ForeignKey(

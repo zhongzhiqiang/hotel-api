@@ -13,12 +13,12 @@ class RechargeSettings(models.Model):
 
     free_balance = models.DecimalField(
         '赠送余额',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
     recharge_price = models.DecimalField(
         '充值金额',
-        max_digits=5,
+        max_digits=10,
         decimal_places=2,
     )
 

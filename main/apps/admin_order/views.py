@@ -14,6 +14,7 @@ from main.models import Order
 from main.apps.admin_order import serializers, filters
 from main.common.defines import OrderType
 
+
 class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
                               mixins.RetrieveModelMixin,
                               mixins.ListModelMixin,
@@ -21,6 +22,18 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
     """
     list:
         返回所有订单信息
+        ORDER_STATUS = (
+        (10, '待支付'),
+        (25, '待入住'),
+        (30, '入住中'),
+        (35, '完成待评价'),
+        (40, '完成并且已评价'),
+        (45, '取消'),
+        (50, '待退款'),
+        (55, '退款中'),
+        (69, '已退款'),
+        (65, '已过期')
+        )
     partial_update:
         更新部分字段
     update:

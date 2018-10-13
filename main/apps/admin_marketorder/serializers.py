@@ -120,6 +120,8 @@ class RefundedSerializer(serializers.ModelSerializer):
                 "order": instance,
                 "refunded_integral": self.instance.order_pay.integral
             }
+            # 用户积分增加上来
+            validated_data.update({"order_status": OrderStatus.refunded})
         elif self.instance.pay_type == PayType.balance:
             # 将余额退回相应的地方。并把状态更改为已退款
             params = {

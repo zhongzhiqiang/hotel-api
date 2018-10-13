@@ -24,6 +24,32 @@ class RechargeSettingsViews(mixins.ListModelMixin,
     queryset = RechargeSettings.objects.filter(is_active=True)
     serializer_class = serializers.RechargeSettingsSerializer
 
+    def get_paginated_response(self, data, meta={}):
+        """
+        Return a paginated style `Response` object for the given output data.
+        """
+        assert self.paginator is not None
+        return self.paginator.get_paginated_response(data, meta)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        self.meta = {
+            "balance": self.request.user.consumer.balance,
+            "free_balance": self.request.user.consumer.free_balance,
+            "recharge_balance": self.request.user.consumer.recharge_balance
+        }
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+
+            return self.get_paginated_response(serializer.data, self.meta)
+
+        serializer = self.get_serializer(queryset, many=True)
+        ret = {'meta': self.meta, "results": serializer.data}
+        return Response(ret)
+
 
 class RechargeViews(mixins.CreateModelMixin,
                     mixins.UpdateModelMixin,

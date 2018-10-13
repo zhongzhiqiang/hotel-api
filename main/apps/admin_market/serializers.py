@@ -53,6 +53,7 @@ class GoodsSerializer(serializers.ModelSerializer):
         read_only=True
     )
     vip_info = VIPInfoSerializer(read_only=True)
+    images = serializers.ListField(child=serializers.CharField())
 
     class Meta:
         model = Goods
@@ -80,6 +81,8 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
         source='category.category_name',
         read_only=True
     )
+
+    images = serializers.ListField(child=serializers.CharField())
 
     def validate(self, attrs):
         is_special = attrs.get("is_special")

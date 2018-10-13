@@ -33,6 +33,10 @@ class StaffProfileSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField(
         source='user.is_active',
     )
+    username = serializers.CharField(
+        source='user.username',
+        read_only=True
+    )
 
     def get_groups(self, obj):
         groups = [group.name for group in list(obj.user.groups.all())]
@@ -50,7 +54,8 @@ class StaffProfileSerializer(serializers.ModelSerializer):
             "belong_hotel",
             "belong_hotel_name",
             'date_joined',
-            'is_active'
+            'is_active',
+            'username'
         )
 
 

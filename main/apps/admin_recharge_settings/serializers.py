@@ -7,6 +7,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from main.models import RechargeSettings, RechargeInfo
 
@@ -28,6 +29,13 @@ class RechargeSettingsSerializer(serializers.ModelSerializer):
         model = RechargeSettings
         fields = "__all__"
         read_only_fields = ("operator_name", )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=RechargeSettings.objects.all(),
+                fields=('free_balance', 'recharge_price'),
+                message='已有相同配置'
+            )
+        ]
 
 
 class RechargeInfoSerializer(serializers.ModelSerializer):

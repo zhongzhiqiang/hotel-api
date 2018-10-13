@@ -47,3 +47,4 @@ class RechargeSettings(models.Model):
     class Meta:
         verbose_name = '充值配置'
         verbose_name_plural = verbose_name
+

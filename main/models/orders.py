@@ -384,6 +384,13 @@ class OrderRefunded(models.Model):
         auto_now_add=True
     )
 
+    def __unicode__(self):
+        return self.refunded_order_id
+
+    def make_order_id(self):
+        """创建订单号"""
+        return 'refunded%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+
     class Meta:
         verbose_name = '退款信息'
         verbose_name_plural = verbose_name

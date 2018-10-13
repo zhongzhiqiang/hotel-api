@@ -25,6 +25,14 @@ class RechargeSettingsSerializer(serializers.ModelSerializer):
     #     if min_price > max_price:
     #         raise serializers.ValidationError("请最大金额必须大于最小金额")
 
+    def create(self, validated_data):
+        count = RechargeSettings.objects.all().count()
+        if count >= 6:
+            raise serializers.ValidationError({"non_field_errors": ['充值优惠已经有6个']})
+
+        instance = super(RechargeSettingsSerializer, self).create(validated_data)
+        return instance
+
     class Meta:
         model = RechargeSettings
         fields = "__all__"

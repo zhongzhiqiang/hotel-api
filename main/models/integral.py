@@ -82,11 +82,12 @@ class GrowthValueSettings(models.Model):
         verbose_name_plural = verbose_name
 
 
-class Integral(models.Model):
+class IntegralInfo(models.Model):
     user = models.OneToOneField(
         'main.Consumer',
         verbose_name='用户',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='integral_info'
     )
     integral = models.PositiveIntegerField(
         '总积分',

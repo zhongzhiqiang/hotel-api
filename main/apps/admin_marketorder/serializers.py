@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType
+from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType, IntegralDetail
 from main.common.defines import OrderStatus
 
 
@@ -121,6 +121,15 @@ class RefundedSerializer(serializers.ModelSerializer):
                 "refunded_integral": self.instance.order_pay.integral
             }
             # 用户积分增加上来
+            integral_param = {
+                "consumer": instance.consumer,
+                "integral": "",
+                "integral_type": 10,
+                "remark": "增加,商品退款:{},商品名称:{}".format(instance.integral, instance.market_order_detail.goods_name)
+            }
+            IntegralDetail.objects.create(**integral_param)
+            instance.consumer.integral_info.integral += instance.integral
+            instance.consumer.integral_info.save()
             validated_data.update({"order_status": OrderStatus.refunded})
         elif self.instance.pay_type == PayType.balance:
             # 将余额退回相应的地方。并把状态更改为已退款
@@ -129,6 +138,8 @@ class RefundedSerializer(serializers.ModelSerializer):
                 "refunded_money": self.instance.order_pay.money,
                 "refunded_free_money": self.instance.order_pay.free_money
             }
+            # 用户余额明细
+            # 退回余额。第一
         else:
             pass
 

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 
-from main.models import GrowthValueSettings, Integral, IntegralDetail, IntegralSettings
+from main.models import GrowthValueSettings, IntegralInfo, IntegralDetail, IntegralSettings
 from main.apps.admin_integral import serializers, filters
 
 
@@ -84,7 +84,7 @@ class UserIntegralView(mixins.ListModelMixin,
     retrieve:
         返回用户的积分详情数据。查询id为list返回的id
     """
-    queryset = Integral.objects.all()
+    queryset = IntegralInfo.objects.all()
     serializer_class = serializers.IntegralSerializers
     filter_class = filters.IntegralDetailFilter
 

@@ -34,8 +34,12 @@ class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
 
         #  这里计算价格
         consumer = self.context['request'].user.consumer
-
+        now = datetime.datetime.now()
         unit_price = room_style.price
+        # # TODO。特交房处理
+        # if room_style.is_promotion and room_style.promotion_start < now < room_style.promotion_end:
+        #     unit_price = room_style.promotion_price
+
         if consumer.is_vip:
             unit_price = unit_price * consumer.discount
 
@@ -370,8 +374,8 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
     @staticmethod
     def integral_buy(consumer, instance, remark):
         left_integral = consumer.integral - instance.integral
-        consumer.integral = left_integral
-        consumer.save()
+        consumer.integral_info.integral = left_integral
+        consumer.integral_info.save()
         create_integral_info(consumer, instance.integral, 20, remark)
 
     @staticmethod

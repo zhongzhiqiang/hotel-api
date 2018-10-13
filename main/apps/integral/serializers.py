@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import IntegralDetail, Integral
+from main.models import IntegralDetail, IntegralInfo
 
 
 class IntegralDetailSerializer(serializers.ModelSerializer):
@@ -19,5 +19,5 @@ class IntegralDetailSerializer(serializers.ModelSerializer):
 
 class IntegralSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Integral
+        model = IntegralInfo
         fields = "__all__"

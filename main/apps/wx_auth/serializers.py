@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings, Integral, VipMember
+from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings, IntegralInfo, VipMember
 
 
 class WeiXinCreateTokenSerializer(serializers.Serializer):
@@ -22,7 +22,7 @@ class WeiXinDataDecrypt(serializers.Serializer):
 
 class IntegralSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Integral
+        model = IntegralInfo
         fields = "__all__"
 
 

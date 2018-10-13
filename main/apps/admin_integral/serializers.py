@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Integral, IntegralSettings, GrowthValueSettings, IntegralDetail
+from main.models import IntegralInfo, IntegralSettings, GrowthValueSettings, IntegralDetail
 
 
 class IntegralSerializers(serializers.ModelSerializer):
     class Meta:
-        model = Integral
+        model = IntegralInfo
         fields = "__all__"
 
 

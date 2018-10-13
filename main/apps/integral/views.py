@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import list_route
 
 from main.apps.integral import serializers
-from main.models import Integral, IntegralDetail
+from main.models import IntegralInfo, IntegralDetail
 
 
 class UserIntegralView(mixins.ListModelMixin,
@@ -23,7 +23,7 @@ class UserIntegralView(mixins.ListModelMixin,
         返回当前用户的积分详情
     """
 
-    queryset = Integral.objects.all()
+    queryset = IntegralInfo.objects.all()
     serializer_class = serializers.IntegralSerializer
 
     def get_queryset(self):

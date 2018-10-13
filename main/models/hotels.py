@@ -150,6 +150,27 @@ class RoomStyles(models.Model):
         default=True,
         blank=True
     )
+    # is_promotion = models.BooleanField(
+    #     '是否促销',
+    #     default=False,
+    #     blank=True
+    # )
+    # promotion_price = models.DecimalField(
+    #     '促销价格',
+    #     decimal_places=2,
+    #     max_digits=10,
+    #     default=0
+    # )
+    # promotion_start = models.DateTimeField(
+    #     '促销开始时间',
+    #     blank=True,
+    #     null=True
+    # )
+    # promotion_end = models.DateTimeField(
+    #     '促销结束时间',
+    #     blank=True,
+    #     null=True
+    # )
     update_time = models.DateTimeField(
         '更新时间',
         auto_now=True

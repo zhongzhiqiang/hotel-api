@@ -11,7 +11,17 @@ from django.db import transaction
 from main.models import RechargeSettings, RechargeInfo
 
 
+class FormatDecimalField(serializers.DecimalField):
+    def to_representation(self, value):
+        value = '{:g}'.format(float(value))
+        return value
+
+
 class RechargeSettingsSerializer(serializers.ModelSerializer):
+
+    free_balance = FormatDecimalField(max_digits=10, decimal_places=2)
+    recharge_price = FormatDecimalField(max_digits=10, decimal_places=2)
+
     class Meta:
         model = RechargeSettings
         fields = (

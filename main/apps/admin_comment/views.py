@@ -45,6 +45,6 @@ class HotelOrderCommentViews(mixins.ListModelMixin,
 
     def get_queryset(self):
         if self.action == 'create':
-            return CommentReply.objects.all().prefetch_related('commentreply')
+            return CommentReply.objects.all().prefetch_related('comment_reply')
         return self.queryset
 

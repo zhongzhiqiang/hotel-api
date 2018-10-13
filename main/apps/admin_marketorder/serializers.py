@@ -7,8 +7,10 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from django.db import transaction
 
-from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded
+from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType
+from main.common.defines import OrderStatus
 
 
 class MarketOrderDetailSerializer(serializers.ModelSerializer):
@@ -106,9 +108,21 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class RefundedSerializer(serializers.ModelSerializer):
 
+    @transaction.atomic
     def update(self, instance, validated_data):
-        # 进行退款操作
-        pass
+        # 进行退款操作, 创建退款信息
+        order_status = validated_data.get("order_status")
+        if self.instance.order_status != OrderStatus.prp_refund:
+            raise serializers.ValidationError({"non_field_errors": ['当前订单状态无法操作退款']})
+
+        if self.instance.pay_type == PayType.integral:
+            # 将积分退回.并把状态更改为已退款
+            pass
+        elif self.instance.pay_type == PayType.balance:
+            # 将余额退回相应的地方。并把状态更改为已退款
+            pass
+        else:
+            pass
 
     class Meta:
         model = Order

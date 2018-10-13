@@ -129,10 +129,15 @@ class RoomStyleSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'style_name',
+            'belong_hotel',
+            'price',
             'room_profile',
             'room_count',
             'is_active',
             'images',
+            'cover_image',
+            'update_time',
+            'operator_name',
         )
 
 

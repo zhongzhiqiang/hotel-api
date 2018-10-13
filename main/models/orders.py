@@ -383,6 +383,11 @@ class OrderRefunded(models.Model):
         '创建时间',
         auto_now_add=True
     )
+    refunded_account = models.DateTimeField(
+        '退款到账时间',
+        null=True,
+        blank=True
+    )
 
     def __unicode__(self):
         return self.refunded_order_id

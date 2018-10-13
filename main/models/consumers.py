@@ -114,8 +114,8 @@ class Consumer(models.Model):
 
     @property
     def integral(self):
-        if hasattr(self, 'integral'):
-            return self.integral.integral
+        if hasattr(self, 'integral_info'):
+            return self.integral_info.integral
         return 0
 
     def __unicode__(self):

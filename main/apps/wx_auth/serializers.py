@@ -35,7 +35,7 @@ class ConsumerSerializer(serializers.ModelSerializer):
         source='sell_user.user_name',
         read_only=True
     )
-    integral = IntegralSerializer(read_only=True)
+    integral_info = IntegralSerializer(read_only=True)
 
     class Meta:
         model = Consumer
@@ -54,7 +54,8 @@ class ConsumerSerializer(serializers.ModelSerializer):
             'balance',
             'recharge_balance',
             'free_balance',
-            'integral'
+            'integral',
+            'integral_info'
         )
         read_only_fields = ('is_distribution', 'sell_user', 'bonus', 'free_balance', 'recharge_balance')
 

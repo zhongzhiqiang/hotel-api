@@ -115,7 +115,7 @@ class UserCenterView(mixins.UpdateModelMixin,
     def get_queryset(self):
         queryset = super(UserCenterView, self).get_queryset()
         if self.action == 'list':
-            queryset = queryset.filter(user=self.request.user).first()
+            queryset = queryset.filter(user=self.request.user).prefetch_related('integral_info').first()
         elif self.action == 'balance_info':
             queryset = ConsumerBalance.objects.filter(consumer=self.request.user.consumer)
         elif self.action == 'vip_info':

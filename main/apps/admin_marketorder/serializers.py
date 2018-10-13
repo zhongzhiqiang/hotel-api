@@ -5,6 +5,7 @@
 # File    : serializers.py
 # Software: PyCharm
 from __future__ import unicode_literals
+import datetime
 
 from rest_framework import serializers
 from django.db import transaction
@@ -118,12 +119,13 @@ class RefundedSerializer(serializers.ModelSerializer):
             # 将积分退回.并把状态更改为已退款
             params = {
                 "order": instance,
-                "refunded_integral": self.instance.order_pay.integral
+                "refunded_integral": self.instance.integral,
+                "refunded_account": datetime.datetime.now()
             }
             # 用户积分增加上来
             integral_param = {
                 "consumer": instance.consumer,
-                "integral": "",
+                "integral": self.instance.integral,
                 "integral_type": 10,
                 "remark": "增加,商品退款:{},商品名称:{}".format(instance.integral, instance.market_order_detail.goods_name)
             }
@@ -136,7 +138,8 @@ class RefundedSerializer(serializers.ModelSerializer):
             params = {
                 "order": instance,
                 "refunded_money": self.instance.order_pay.money,
-                "refunded_free_money": self.instance.order_pay.free_money
+                "refunded_free_money": self.instance.order_pay.free_money,
+                "refunded_account": datetime.datetime.now()
             }
             # 用户余额明细
             balance_info = {
@@ -146,12 +149,15 @@ class RefundedSerializer(serializers.ModelSerializer):
                 "cost_price": instance.order_amount,
                 "left_balance": instance.consumer.balance + instance.order_amount
             }
+            ConsumerBalance.objects.create(**balance_info)
             # 退回余额。
-            instance.consumer.recharge_balance = instance.consumer.recharge_balance  + instance.order_pay.money
+            instance.consumer.recharge_balance = instance.consumer.recharge_balance + instance.order_pay.money
             instance.consumer.free_balance = instance.consumer.free_balance + instance.order_pay.free_money
             instance.consumer.save()
         else:
-            pass
+            params = {
+                "order": instance,
+            }
 
     class Meta:
         model = Order

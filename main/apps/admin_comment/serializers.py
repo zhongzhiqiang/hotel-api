@@ -72,7 +72,7 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    commentreply = ReplaySerializer()
+    comment_reply = ReplaySerializer()
 
     class Meta:
         model = HotelOrderComment
@@ -87,6 +87,6 @@ class CommentSerializer(serializers.ModelSerializer):
             'comment_level',
             'comment_level_display',
             'create_time',
-            'commentreply'
+            'comment_reply'
         )
 

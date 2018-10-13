@@ -112,6 +112,12 @@ class Consumer(models.Model):
             return self.vipmember.discount
         return 1
 
+    @property
+    def integral(self):
+        if hasattr(self, 'integral'):
+            return self.integral.integral
+        return 0
+
     def __unicode__(self):
         return self.user.username
 

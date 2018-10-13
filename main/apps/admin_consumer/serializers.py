@@ -30,6 +30,8 @@ class ConsumerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consumer
         fields = (
+            'id',
+            'user_id',
             "phone",
             "user_name",
             'user_account',
@@ -39,5 +41,8 @@ class ConsumerSerializer(serializers.ModelSerializer):
             'is_distribution',
             'sell_user_name',
             'user_account',
-            'bonus'
+            'bonus',
+            'is_vip',
+            'discount',
+            'integral'
         )

@@ -32,6 +32,11 @@ class VipMemberSerializer(serializers.ModelSerializer):
     )
     consumer_url = serializers.HyperlinkedIdentityField(view_name='consumer-detail')
 
+    vip_level_name = serializers.CharField(
+        source='vip_level.vip_name',
+        read_only=True,
+    )
+
     class Meta:
         model = VipMember
         fields = (
@@ -43,4 +48,6 @@ class VipMemberSerializer(serializers.ModelSerializer):
             'consumer_url',
             'vipsettings',
             'create_time',
+            'discount',
+            'vip_level_name'
         )

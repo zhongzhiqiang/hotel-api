@@ -71,6 +71,14 @@ class CommentSerializer(serializers.ModelSerializer):
         source='get_comment_level_display',
         read_only=True
     )
+    belong_order_type_display = serializers.CharField(
+        source='belong_order.get_order_type_display',
+        read_only=True
+    )
+    belong_order_type = serializers.CharField(
+        source='belong_order.order_type',
+        read_only=True
+    )
 
     comment_reply = ReplaySerializer()
 
@@ -80,6 +88,8 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'belong_order',
             'comment_show',
+            'belong_order_type',
+            'belong_order_type_display',
             'comment_show_display',
             'commenter',
             'commenter_name',

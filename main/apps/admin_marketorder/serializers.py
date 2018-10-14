@@ -112,6 +112,7 @@ class RefundedSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         # 进行退款操作, 创建退款信息
+
         if self.instance.order_status != OrderStatus.prp_refund:
             raise serializers.ValidationError({"non_field_errors": ['当前订单状态无法操作退款']})
 
@@ -154,10 +155,17 @@ class RefundedSerializer(serializers.ModelSerializer):
             instance.consumer.recharge_balance = instance.consumer.recharge_balance + instance.order_pay.money
             instance.consumer.free_balance = instance.consumer.free_balance + instance.order_pay.free_money
             instance.consumer.save()
+            validated_data.update({"order_status": OrderStatus.refunded})
         else:
             params = {
                 "order": instance,
+                "refunded_money": instance.order_amount
             }
+        order_refunded = OrderRefunded.objects.create(**params)
+        order_refunded.refunded_order_id = order_refunded.make_order_id()
+        order_refunded.save()
+        instance = super(RefundedSerializer, self).update(instance, validated_data)
+        return instance
 
     class Meta:
         model = Order

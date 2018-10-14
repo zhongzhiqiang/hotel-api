@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from main.models import Hotel, RoomStyles, Rooms
 from main.common.gaode import GaoDeMap
-
+from main.common.seriliazer_fields import ImageField, TagsField
 
 class HotelSerializers(serializers.ModelSerializer):
 
@@ -53,7 +53,7 @@ class AddressSerializers(serializers.Serializer):
 
 class CreateHotelSerializers(serializers.ModelSerializer):
 
-    tags = serializers.ListField()
+    tags = serializers.ListField(child=serializers.CharField(max_length=20))
     images = serializers.ListField()
 
     def validate(self, attrs):
@@ -96,6 +96,7 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
         read_only=True
     )
     images = serializers.ListField(child=serializers.CharField(max_length=300))
+    tags = serializers.ListField(child=serializers.CharField(max_length=20))
 
     def validate_images(self, attr):
         if isinstance(attr, list):
@@ -118,12 +119,13 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
             'cover_image',
             'is_active',
             'room_count',
+            'tags'
         )
 
 
 class RoomStyleSerializer(serializers.ModelSerializer):
     images = serializers.ListField(child=serializers.CharField(max_length=300), read_only=False)
-
+    tags = serializers.ListField(child=serializers.CharField(max_length=20))
     class Meta:
         model = RoomStyles
         fields = (

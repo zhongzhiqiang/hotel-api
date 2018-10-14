@@ -3,20 +3,7 @@
 from rest_framework import serializers
 
 from main.models import Hotel, RoomStyles, CommentReply, HotelOrderComment
-
-
-class ImageField(serializers.CharField):
-    def to_representation(self, value):
-        if isinstance(value, basestring):
-            return eval(value)
-        return value
-
-
-class TagsField(serializers.CharField):
-    def to_representation(self, value):
-        if isinstance(value, basestring):
-            return eval(value)
-        return value
+from main.common.seriliazer_fields import ImageField, TagsField
 
 
 class HotelSerializers(serializers.ModelSerializer):
@@ -51,7 +38,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
         read_only=True
     )
     images = ImageField()
-    tags = serializers.CharField(read_only=True)
+    tags = TagsField()
 
     class Meta:
         model = RoomStyles
@@ -66,12 +53,12 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'room_profile',
             'cover_image',
             'tags',
-            'vip_price'
         )
 
 
 class HotelDetailSerializer(serializers.ModelSerializer):
     room_styles = RoomStyleSerializer(many=True)
+    tags = TagsField()
 
     class Meta:
         model = Hotel

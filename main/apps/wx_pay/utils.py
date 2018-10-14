@@ -34,6 +34,27 @@ def unifiedorder(body, out_trade_no, total_fee, openid, detail):
     return result
 
 
+def unified_refunded(out_trade_no, out_refund_no, total_fee, refund_fee):
+    """
+    :param out_trade_no: 退款订单，为微信支付时下发的订单号
+    :param out_refund_no:  退款订单号，内部生成的退款订单号唯一
+    :param totel_fee: 订单总额
+    :param refund_fee: 退款订单总额
+    :return: 
+    """
+    total_fee = int(float(total_fee) * 100)
+    refund_fee = int(float(refund_fee) * 100)
+    kwargs = {
+        "out_refund_no": out_refund_no,
+        "total_fee": total_fee,
+        "refund_fee": refund_fee,
+        "out_trade_no": out_trade_no
+    }
+    wx_pay = WXAppPay(WXConfig.APP_ID, WXConfig.MCH_ID, partner_key=WXConfig.KEY)
+    result = wx_pay.refund(**kwargs)
+    return result
+
+
 class WeixinHelper(object):
     @classmethod
     def checkSignature(cls, signature, timestamp, nonce):

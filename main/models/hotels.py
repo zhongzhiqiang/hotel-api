@@ -150,6 +150,10 @@ class RoomStyles(models.Model):
         default=True,
         blank=True
     )
+    tags = JSONField(
+        '标签',
+        default=[],
+    )
     # is_promotion = models.BooleanField(
     #     '是否促销',
     #     default=False,

@@ -140,6 +140,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'cover_image',
             'update_time',
             'operator_name',
+            'tags'
         )
 
 

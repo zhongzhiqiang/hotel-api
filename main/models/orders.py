@@ -156,7 +156,8 @@ class Order(models.Model):
 
 
 class MarketOrderDetail(models.Model):
-    market_order = models.OneToOneField(
+    # 商场订单详细与商品为一对多关系
+    market_order = models.ForeignKey(
         'main.Order',
         verbose_name='商场订单',
         related_name='market_order_detail',
@@ -186,21 +187,6 @@ class MarketOrderDetail(models.Model):
     nums = models.PositiveIntegerField(
         '购买数量',
         default=0,
-    )
-    consignee_name = models.CharField(
-        '收货人姓名',
-        max_length=50,
-        default=''
-    )
-    consignee_address = models.CharField(
-        '收货地址',
-        max_length=200,
-        default=''
-    )
-    consignee_phone = models.CharField(
-        '收货人电话',
-        max_length=15,
-        default=''
     )
 
     @property
@@ -232,6 +218,38 @@ class MarketOrderDetail(models.Model):
 
     class Meta:
         verbose_name = '商场订单明细'
+        verbose_name_plural = verbose_name
+
+
+class MarketOrderContact(models.Model):
+    # 商场订单的收货人
+    order = models.OneToOneField(
+        'main.Order',
+        blank=True,
+        null=True,
+        related_name='market_order_contact'
+    )
+    consignee_name = models.CharField(
+        '收货人姓名',
+        max_length=50,
+        default=''
+    )
+    consignee_address = models.CharField(
+        '收货地址',
+        max_length=200,
+        default=''
+    )
+    consignee_phone = models.CharField(
+        '收货人电话',
+        max_length=15,
+        default=''
+    )
+
+    def __unicode__(self):
+        return "%s, %s" % (self.order.order_id, self.consignee_name)
+
+    class Meta:
+        verbose_name = '商场订单收货人'
         verbose_name_plural = verbose_name
 
 

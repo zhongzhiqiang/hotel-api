@@ -59,6 +59,7 @@ class RoomStyleSerializer(serializers.ModelSerializer):
 class HotelDetailSerializer(serializers.ModelSerializer):
     room_styles = RoomStyleSerializer(many=True)
     tags = TagsField()
+    images = ImageField()
 
     class Meta:
         model = Hotel
@@ -77,7 +78,8 @@ class HotelDetailSerializer(serializers.ModelSerializer):
             'min_price',
             'tel',
             'room_styles',
-            'tags'
+            'tags',
+            'images'
         )
 
 

@@ -11,7 +11,8 @@ import datetime
 from rest_framework import serializers
 from django.db.transaction import atomic
 
-from main.models import Order, HotelOrderDetail, ConsumerBalance, OrderType, MarketOrderDetail, VipMember, OrderPay, IntegralDetail
+from main.models import (Order, HotelOrderDetail, ConsumerBalance, OrderType, MarketOrderDetail, VipMember, OrderPay,
+                         IntegralDetail, MarketOrderContact)
 from main.common.defines import PayType, OrderStatus
 from main.common.utils import create_integral_info
 
@@ -220,10 +221,7 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods',
             'integral',
             'sale_price',
-            'nums',
-            'consignee_name',
-            'consignee_address',
-            'consignee_phone'
+            'nums'
         )
 
 
@@ -482,6 +480,12 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         )
 
 
+class CreateMarketOrderContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketOrderContact
+        fields = "__all__"
+
+
 class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
 
     goods_name = serializers.CharField(
@@ -497,15 +501,6 @@ class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
         if goods.is_special:
             return attrs
 
-        if not attrs.get("consignee_name"):
-            raise serializers.ValidationError("请填写收货人姓名")
-
-        if not attrs.get("consignee_address"):
-            raise serializers.ValidationError("请传递收货地址")
-
-        if not attrs.get("consignee_phone"):
-            raise serializers.ValidationError("请传递收货人电话")
-
         return attrs
 
     class Meta:
@@ -517,16 +512,13 @@ class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
             'sale_price',
             'goods_name',
             'integral',
-            'consignee_name',
-            'consignee_address',
-            'consignee_phone'
         )
         read_only_fields = ('sale_price', 'integral')
 
 
 class CreateMarketOrderSerializer(serializers.ModelSerializer):
-    market_order_detail = CreateMarketOrderDetailSerializer(required=True)
-
+    market_order_detail = CreateMarketOrderDetailSerializer(required=True, many=True)
+    market_order_contact = CreateMarketOrderContactSerializer(required=True)
     order_status_display = serializers.CharField(
         source='get_order_status_display',
         read_only=True
@@ -541,30 +533,29 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, attrs):
-        order_detail = attrs['market_order_detail']
-        goods = order_detail['goods']
+        market_order_detail_list = attrs['market_order_detail']
 
-        pay_type = attrs.get("pay_type") or PayType.weixin
-        if pay_type == PayType.integral and not goods.is_integral:
-            raise serializers.ValidationError("当前商品不支持积分兑换")
+        # 循环遍历。计算
+        # for market_order_detail in market_order_detail_list:
+
+        pay_type = attrs.get("pay_type")
+        import ipdb
+        ipdb.set_trace()
 
         unit_integral = 0  # 积分单价
         unit_price = 0  # 商品单价
         need_price = 0  # 当前用户需要支付金额
         need_integral = 0  # 当前用户需要花费金额
 
-        if pay_type == PayType.integral:
-            unit_integral = goods.need_integral
-            need_integral = unit_integral * order_detail['nums']
-        elif pay_type == PayType.balance:
-            unit_price = goods.goods_price
-            need_price = unit_price * order_detail['nums']
-        else:
-            unit_price = goods.goods_price
-            need_price = unit_price * order_detail['nums']
-
-        attrs.update({"integral": need_integral, "order_amount": need_price, "num": order_detail['nums']})
-        order_detail.update({"sale_price": unit_price, "integral": unit_integral})
+        # if pay_type == PayType.balance:
+        #     unit_price = goods.goods_price
+        #     need_price = unit_price * order_detail['nums']
+        # else:
+        #     unit_price = goods.goods_price
+        #     need_price = unit_price * order_detail['nums']
+        #
+        # attrs.update({"integral": need_integral, "order_amount": need_price, "num": order_detail['nums']})
+        # order_detail.update({"sale_price": unit_price, "integral": unit_integral})
         return attrs
 
     @staticmethod
@@ -691,6 +682,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'user_remark',
             'consumer',
             'market_order_detail',
+            'market_order_contact'
         )
         read_only_fields = (
             'order_id',

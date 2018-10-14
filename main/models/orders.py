@@ -342,7 +342,8 @@ class OrderPay(models.Model):
     )
     integral = models.PositiveIntegerField(
         '支付积分',
-        default=0
+        default=0,
+        blank=True
     )
 
     money = models.DecimalField(

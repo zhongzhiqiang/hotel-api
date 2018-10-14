@@ -221,8 +221,15 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods',
             'integral',
             'sale_price',
-            'nums'
+            'nums',
+            'image'
         )
+
+
+class MarketOrderContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketOrderContact
+        fields = "__all__"
 
 
 class HotelOrderDetailSerializer(serializers.ModelSerializer):
@@ -247,13 +254,16 @@ class HotelOrderDetailSerializer(serializers.ModelSerializer):
             'reserve_check_out_time',
             'contact_name',
             'contact_phone',
-            'days'
+            'days',
+            'image'
         )
 
 
 class OrderSerializer(serializers.ModelSerializer):
     hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
-    market_order_detail = MarketOrderDetailSerializer(read_only=True)
+    market_order_detail = MarketOrderDetailSerializer(many=True)
+    market_order_contact = MarketOrderContactSerializer(read_only=True)
+
     belong_hotel_name = serializers.CharField(
         source='belong_hotel.name',
         read_only=True,
@@ -270,7 +280,6 @@ class OrderSerializer(serializers.ModelSerializer):
         source='get_pay_type_display',
         read_only=True,
     )
-    image = serializers.CharField(read_only=True)
 
     @atomic
     def update(self, instance, validated_data):
@@ -304,6 +313,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'refund_reason',
             'user_remark',
             'image',
+            'market_order_contact'
         )
         read_only_fields = (
             'order_id',
@@ -534,32 +544,35 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         market_order_detail_list = attrs['market_order_detail']
+        consumer = self.context['request'].user.consumer
 
         # 循环遍历。计算
         need_integral = 0  # 需要的积分
         need_price = 0  # 需要的金钱
-
+        nums = 0
         for market_order_detail in market_order_detail_list:
             goods = market_order_detail['goods']
+            nums += market_order_detail['nums']
+            if goods.is_integral:
+                need_integral += (goods.need_integral * market_order_detail['nums'])
+                market_order_detail.update({"integral": goods.need_integral})
+
+            if not goods.is_integral:
+                need_price += (goods.goods_price * market_order_detail['nums'])
+                market_order_detail.update({"sale_price": goods.goods_price})
+
+        # 这里判断是否有积分商品
+        if consumer.integral < need_integral:
+            raise serializers.ValidationError("积分不足, 无法支付")
 
         pay_type = attrs.get("pay_type")
-        import ipdb
-        ipdb.set_trace()
 
-        unit_integral = 0  # 积分单价
-        unit_price = 0  # 商品单价
-        need_price = 0  # 当前用户需要支付金额
-        need_integral = 0  # 当前用户需要花费金额
+        if pay_type == PayType.balance:
+            if consumer.balance < need_price:
+                raise serializers.ValidationError("余额不足,请充值后在支付")
 
-        # if pay_type == PayType.balance:
-        #     unit_price = goods.goods_price
-        #     need_price = unit_price * order_detail['nums']
-        # else:
-        #     unit_price = goods.goods_price
-        #     need_price = unit_price * order_detail['nums']
-        #
-        # attrs.update({"integral": need_integral, "order_amount": need_price, "num": order_detail['nums']})
-        # order_detail.update({"sale_price": unit_price, "integral": unit_integral})
+        attrs.update({"integral": need_integral, "order_amount": need_price, "num": nums})
+
         return attrs
 
     @staticmethod

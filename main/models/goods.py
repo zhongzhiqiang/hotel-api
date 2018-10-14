@@ -56,10 +56,11 @@ class Goods(models.Model):
     goods_price = models.DecimalField(
         '商品价格',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0,
     )
     is_integral = models.BooleanField(
-        '是否可以积分兑换',
+        '是否为积分兑换',
         default=False,
         blank=True
     )

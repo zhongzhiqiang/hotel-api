@@ -62,6 +62,11 @@ class OrderViews(mixins.CreateModelMixin,
     market_order_create:
         创建商场订单
         ```
+        PAY_TYPE = (
+        (20, '余额'),
+        (30, '微信支付')
+    )
+    
         ORDER_STATUS = (
         (10, '待支付'),
         (15, '待发货'),
@@ -77,15 +82,17 @@ class OrderViews(mixins.CreateModelMixin,
         (65, '已过期')
         )
         {
-        "market_order_detail": {
+        "market_order_detail": [{
         "goods": "",  # 购买商品
-        "nums": "",  # 购买数量
-        "consignee_name": # 收货人姓名
-        "consignee_address": "收货人地址",
-        "consignee_phone": "收货人电话"
-        },
+        "nums": "",  # 购买数量 
+        }],
         "pay_type": "string",  # 支付方式
         "user_remark": "string",  # 用户备注
+        "market_order_contact": {
+            "consignee_name": # 收货人姓名
+            "consignee_address": "收货人地址",
+            "consignee_phone": "收货人电话"  
+        }
         }
     ```
 

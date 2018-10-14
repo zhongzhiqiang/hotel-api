@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from main.models import Goods, GoodsCategory, VipSettings
 
@@ -90,6 +91,17 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
 
         if is_special and not vip_info:
             raise serializers.ValidationError("请选择会员权益")
+
+        is_integral = attrs.get("is_integral")
+        need_integral = attrs.get("need_integral")
+        goods_price = attrs.get("goods_price")
+
+        if is_integral and not need_integral:
+            raise serializers.ValidationError("请传递需要兑换积分")
+
+        if not is_integral and not goods_price:
+            raise serializers.ValidationError("请传递商品单价")
+
         return attrs
 
     class Meta:
@@ -109,3 +121,10 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
             'cover_image',
             'images'
         )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Goods.objects.all(),
+                fields=('is_integral', 'goods_name'),
+                message='已有商品相同配置'
+            )
+        ]

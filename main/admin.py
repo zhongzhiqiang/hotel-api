@@ -4,16 +4,24 @@ import inspect
 from django.contrib import admin
 from main import models
 
-admin.site.register(models.Goods)
-admin.site.register(models.GoodsCategory)
-admin.site.register(models.Hotel)
-admin.site.register(models.Consumer)
-admin.site.register(models.IntegralDetail)
-admin.site.register(models.IntegralSettings)
-admin.site.register(models.GrowthValueSettings)
-admin.site.register(models.RoomStyles)
-admin.site.register(models.Rooms)
-admin.site.register(models.HotelOrderDetail)
+
+class HotelOrderInline(admin.TabularInline):
+    model = models.HotelOrderDetail
+
+
+class MarketOrderInline(admin.TabularInline):
+    model = models.MarketOrderDetail
+
+
+class MarketOrderContactInline(admin.TabularInline):
+    model = models.MarketOrderContact
+
+
+class OrderAdmin(admin.ModelAdmin):
+    inlines = [HotelOrderInline, MarketOrderContactInline, MarketOrderInline]
+
+
+admin.site.register(models.Order, OrderAdmin)
 
 
 for attr in dir(models):

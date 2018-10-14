@@ -10,7 +10,7 @@ import datetime
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType, IntegralDetail, ConsumerBalance
+from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType, IntegralDetail, ConsumerBalance, MarketOrderContact
 from main.common.defines import OrderStatus
 
 
@@ -28,11 +28,9 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods_name',
             'sale_price',
             'integral',
+            'image',
             "nums",
-            "consignee_name",
-            "consignee_address",
-            "consignee_phone",
-            "order_goods_price"
+            'single_goods_amount'
         )
 
 
@@ -49,9 +47,17 @@ class OrderRefundedSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MarketOrderContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketOrderContact
+        fields = "__all__"
+
+
 class OrderSerializer(serializers.ModelSerializer):
-    market_order_detail = MarketOrderDetailSerializer(read_only=True)
+    market_order_detail = MarketOrderDetailSerializer(many=True)
     order_refunded = OrderRefundedSerializer(read_only=True)
+    market_order_contact = MarketOrderContactSerializer()
+
     order_pay = OrderPaySerializer(read_only=True)
     order_status_display = serializers.CharField(
         source='get_order_status_display',
@@ -89,7 +95,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "operator_time",
             "operator_remark",
             "refund_reason",
-            "user_remark"
+            "user_remark",
+            'market_order_contact'
         )
         read_only_fields = (
             "pay_type",
@@ -103,7 +110,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "operator_name",
             "operator_time",
             "refund_reason",
-            "user_remark"
+            "user_remark",
+            'market_order_contact'
         )
 
 
@@ -116,6 +124,7 @@ class RefundedSerializer(serializers.ModelSerializer):
         if self.instance.order_status != OrderStatus.prp_refund:
             raise serializers.ValidationError({"non_field_errors": ['当前订单状态无法操作退款']})
 
+        # 根据订单类型来退款。。如果是商场订单。每个都要去扣除
         if self.instance.pay_type == PayType.integral:
             # 将积分退回.并把状态更改为已退款
             params = {

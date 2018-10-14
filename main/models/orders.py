@@ -190,7 +190,7 @@ class MarketOrderDetail(models.Model):
     )
 
     @property
-    def order_goods_price(self):
+    def single_goods_amount(self):
         return self.sale_price * self.nums
 
     @property

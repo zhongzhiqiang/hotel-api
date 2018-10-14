@@ -94,6 +94,8 @@ class Order(models.Model):
     integral = models.PositiveIntegerField(
         '积分总额',
         default=0,
+        blank=True,
+        null=True,
         help_text='只有当支付方式为积分时才会有这个字段'
     )
     consumer = models.ForeignKey(
@@ -182,6 +184,7 @@ class MarketOrderDetail(models.Model):
         '兑换积分单价',
         blank=True,
         default=0,
+        null=True
     )
 
     nums = models.PositiveIntegerField(
@@ -343,7 +346,7 @@ class OrderPay(models.Model):
     integral = models.PositiveIntegerField(
         '支付积分',
         default=0,
-        blank=True
+        blank=True,
     )
 
     money = models.DecimalField(

@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
 
 from main.models import HotelOrderComment, CommentReply
-from main.apps.admin_comment import serializers
+from main.apps.admin_comment import serializers, filters
 
 
 class HotelOrderCommentViews(mixins.ListModelMixin,
@@ -37,6 +37,9 @@ class HotelOrderCommentViews(mixins.ListModelMixin,
         (10, '评论人可见'),
         (20, '所有人可见')
         )
+        belong_order__order_type = (
+        (10, '商场订单'),(20, '住宿订单')
+        )
 
         COMMENT_LEVEL = (
         (10, '一分'),
@@ -48,8 +51,9 @@ class HotelOrderCommentViews(mixins.ListModelMixin,
         ```
     """
 
-    queryset = HotelOrderComment.objects.all()
+    queryset = HotelOrderComment.objects.all().order_by('-create_time')
     serializer_class = serializers.CommentSerializer
+    filter_class = filters.OrderCommentFilter
 
     def perform_create(self, serializer):
         if hasattr(self.request.user, 'staffprofile'):

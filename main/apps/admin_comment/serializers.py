@@ -7,11 +7,21 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-
+from django.db import transaction
 from main.models import HotelOrderComment, CommentReply
 
 
 class CreateReplySerializer(serializers.ModelSerializer):
+
+    @transaction.atomic
+    def create(self, validated_data):
+        comment = validated_data.get("comment")
+        if comment:
+            comment.is_reply = True
+            comment.save()
+        instance = super(CreateReplySerializer, self).create(validated_data)
+
+        return instance
 
     class Meta:
         model = CommentReply
@@ -97,6 +107,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'comment_level',
             'comment_level_display',
             'create_time',
+            'is_reply',
             'comment_reply'
         )
 

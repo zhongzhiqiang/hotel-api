@@ -536,7 +536,11 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         market_order_detail_list = attrs['market_order_detail']
 
         # 循环遍历。计算
-        # for market_order_detail in market_order_detail_list:
+        need_integral = 0  # 需要的积分
+        need_price = 0  # 需要的金钱
+
+        for market_order_detail in market_order_detail_list:
+            goods = market_order_detail['goods']
 
         pay_type = attrs.get("pay_type")
         import ipdb

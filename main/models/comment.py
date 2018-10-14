@@ -65,6 +65,11 @@ class HotelOrderComment(models.Model):
         blank=True,
         default=''
     )
+    is_reply = models.BooleanField(
+        '是否回复',
+        default=False,
+        blank=True
+    )
 
     def __unicode__(self):
         return "%s, %s" % (self.belong_order.id, self.comment_level)

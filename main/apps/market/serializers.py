@@ -3,6 +3,7 @@
 from rest_framework import serializers
 
 from main.models import GoodsCategory, Goods, HotelOrderComment, CommentReply
+from main.common.seriliazer_fields import ImageField
 
 
 class GoodsSerializer(serializers.ModelSerializer):
@@ -10,6 +11,7 @@ class GoodsSerializer(serializers.ModelSerializer):
         source='category.category_name',
         read_only=True
     )
+    images = ImageField()
 
     class Meta:
         model = Goods

@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
-from main.sched import celery_config
+from main.schedul import celery_config
 
 from celery import (
     Celery,

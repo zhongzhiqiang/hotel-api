@@ -196,7 +196,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         order_refunded.save()
         instance = super(HotelOrderRefundedSerializer, self).update(instance, validated_data)
         return instance
-    
+
     class Meta:
         model = Order
         fields = (

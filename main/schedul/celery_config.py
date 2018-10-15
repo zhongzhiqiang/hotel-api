@@ -19,17 +19,5 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 CELERY_TASK_RESULT_EXPIRES = 60 * 60
 
 CELERY_IMPORTS = (
-    'main.schdule.beat_task',
-    'main.schdule.tasks'
+    'main.schedul.tasks',
 )
-
-CELERYBEAT_SCHEDULE = {
-    "beat_cancel_order": {
-        "task": "beat_cancel_order",
-        "schedule": crontab(minute=0),    # 每个小时0分执行一次任务
-    },
-    "beat_sync_price": {
-        "task": "beat_sync_price",
-        "schedule": crontab(minute='*/20')  # 每20分钟执行一次
-    }
-}

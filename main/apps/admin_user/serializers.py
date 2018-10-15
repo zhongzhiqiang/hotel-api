@@ -89,7 +89,7 @@ class CreateStaffProfileSerializer(serializers.ModelSerializer):
 
         if user:
             remark = '已存在用户:{}'.format(username)
-            raise serializers.ValidationError({"non_field_errors": [remark])
+            raise serializers.ValidationError({"non_field_errors": [remark]})
 
         try:
             kwargs = {

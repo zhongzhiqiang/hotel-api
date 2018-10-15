@@ -7,6 +7,7 @@ from main.models import Hotel, RoomStyles, Rooms
 from main.common.gaode import GaoDeMap
 from main.common.seriliazer_fields import ImageField, TagsField
 
+
 class HotelSerializers(serializers.ModelSerializer):
 
     address = serializers.CharField(read_only=True)
@@ -124,8 +125,9 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
 
 
 class RoomStyleSerializer(serializers.ModelSerializer):
-    images = serializers.ListField(child=serializers.CharField(max_length=300), read_only=False)
-    tags = serializers.ListField(child=serializers.CharField(max_length=20))
+    images = ImageField()
+    tags = TagsField()
+
     class Meta:
         model = RoomStyles
         fields = (

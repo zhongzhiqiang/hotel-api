@@ -16,7 +16,7 @@ from django.http import HttpResponse
 
 from main.apps.wx_pay.utils import WxpayServerPub
 from main.common.defines import WeiXinCode, OrderStatus, OrderType, PayType
-from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay
+from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay, IntegralDetail
 from main.apps.orders import serializers
 
 logger = logging.getLogger("django")
@@ -101,6 +101,20 @@ class ReceiveWXNotifyView(views.APIView):
             ConsumerBalance(**params).save()
             return_code = WeiXinCode.success
         elif hotel_order and hotel_order.order_status == OrderStatus.pre_pay and hotel_order.order_type == OrderType.market:
+
+            # 这里要处理积分判断兑换的问题。并生成积分的扣除
+            if hotel_order.integral:
+                # 这里扣去积分
+                hotel_order.consumer.integral_info.integral = hotel_order.consumer.integral - hotel_order.integral
+                hotel_order.consumer.integral_info.save()
+                integral = {
+                    "consumer": hotel_order.consumer,
+                    "integral": -hotel_order.integral,
+                    "integral_type": 20,
+                    "remark": "商品消费,购买商品:{}".format(hotel_order.integral),
+                    "left_integral": hotel_order.consumer.integral,
+                }
+                IntegralDetail.objects.create(**integral)
             hotel_order.order_status = OrderStatus.deliver
             hotel_order.pay_time = datetime.datetime.strptime(
                 time_end, '%Y%m%d%H%M%S')
@@ -124,6 +138,7 @@ class ReceiveWXNotifyView(views.APIView):
                 "wx_order_id": wx_return_data.get('transaction_id'),
                 "order": hotel_order,
                 "money": pay_money,
+                "integral": hotel_order.integral
             }
             OrderPay.objects.create(**pay_info)
         return return_code

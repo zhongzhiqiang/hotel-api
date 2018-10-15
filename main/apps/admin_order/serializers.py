@@ -6,13 +6,14 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 import logging
+import datetime
 
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import Order, HotelOrderDetail, OrderPay
+from main.models import Order, HotelOrderDetail, OrderPay, OrderRefunded, ConsumerBalance
 from main.apps.admin_integral.utils import get_integral, make_integral
-from main.common.defines import OrderStatus
+from main.common.defines import OrderStatus, PayType
 
 logger = logging.getLogger(__name__)
 
@@ -132,3 +133,72 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
             "user_remark"
         )
 
+
+class HotelOrderRefundedSerializer(serializers.ModelSerializer):
+
+    refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=True,
+                                              error_messages='请正确传递退款金额')
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # 住宿退款。
+        consumer = instance.consumer
+        # 如果支付类型为余额支付。返回给余额
+        pay_type = instance.pay_type
+        refunded_money = validated_data.pop('refunded_money')
+        if pay_type == PayType.balance:
+            order_pay = instance.order_pay
+
+            # 首先退免费余额
+            free_money = refunded_money - order_pay.free_money
+            re_recharge_money = 0
+            if refunded_money > 0:
+                # 表示还要退会充值余额
+                re_free_money = order_pay.free_money
+                re_recharge_money = free_money
+
+                recharge_money = free_money
+                consumer.free_balance = consumer.free_balance + order_pay.free_money
+                consumer.recharge_balance = consumer.recharge_balance + recharge_money
+                consumer.save()
+            else:
+                re_free_money = refunded_money
+                # 表示不用退充值余额。
+                consumer.free_balance = consumer.free_balance + refunded_money
+                consumer.save()
+                # 生成余额详情
+            balance_detail = {
+                "consumer": consumer,
+                "balance_type": 10,
+                "message": "退款, 住宿订单退款:{}".format(refunded_money),
+                "cost_price": refunded_money,
+                "left_balance": consumer.balance
+            }
+            ConsumerBalance.objects.create(**balance_detail)
+            refunded_info = {
+                "order": instance,
+                "refunded_money": re_recharge_money,
+                "refunded_free_money": re_free_money,
+                "refunded_account": datetime.datetime.now()
+            }
+            validated_data.update({"order_status": OrderStatus.refunded})
+        else:
+            # 创建退款信息
+            refunded_info = {
+                "order": instance,
+                "refunded_money": refunded_money,
+            }
+            validated_data.update({"order_status": OrderStatus.refund_ing})
+
+        order_refunded = OrderRefunded(**refunded_info)
+        order_refunded.save()
+        order_refunded.refunded_order_id = order_refunded.make_order_id()
+        order_refunded.save()
+
+
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'refunded_money'
+        )

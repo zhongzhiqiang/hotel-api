@@ -89,7 +89,7 @@ class CreateStaffProfileSerializer(serializers.ModelSerializer):
 
         if user:
             remark = '已存在用户:{}'.format(username)
-            raise serializers.ValidationError(remark)
+            raise serializers.ValidationError({"non_field_errors": [remark])
 
         try:
             kwargs = {
@@ -101,7 +101,7 @@ class CreateStaffProfileSerializer(serializers.ModelSerializer):
             user.save()
         except Exception as e:
             logger.error("创建用户失败:{},{}".format(username, e))
-            raise serializers.ValidationError("创建用户失败")
+            raise serializers.ValidationError({"non_field_errors": ["创建用户失败"]})
         validated_data.update({"user": user, "belong_hotel": hotel})
         instance = super(CreateStaffProfileSerializer, self).create(validated_data)
         return instance

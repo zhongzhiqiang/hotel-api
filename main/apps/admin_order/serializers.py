@@ -136,8 +136,8 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
 
 class HotelOrderRefundedSerializer(serializers.ModelSerializer):
 
-    refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=True,
-                                              error_messages='请正确传递退款金额')
+    refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=True)
+
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -194,8 +194,9 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         order_refunded.save()
         order_refunded.refunded_order_id = order_refunded.make_order_id()
         order_refunded.save()
-
-
+        instance = super(HotelOrderRefundedSerializer, self).update(instance, validated_data)
+        return instance
+    
     class Meta:
         model = Order
         fields = (

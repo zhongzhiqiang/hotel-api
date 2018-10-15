@@ -421,3 +421,28 @@ class OrderRefunded(models.Model):
     class Meta:
         verbose_name = '退款信息'
         verbose_name_plural = verbose_name
+
+
+class Cart(models.Model):
+
+    consumer = models.ForeignKey(
+        "main.Consumer",
+        null=True,
+        blank=True
+    )
+    goods = models.OneToOneField(
+        "main.Goods",
+        verbose_name='商品'
+    )
+
+    nums = models.PositiveIntegerField(
+        "商品数量",
+        default=0
+    )
+
+    def __unicode__(self):
+        return "购物车-{}, {}".format(self.consumer, self.goods)
+
+    class Meta:
+        verbose_name = '购物车'
+        verbose_name_plural = verbose_name

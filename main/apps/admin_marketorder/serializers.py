@@ -81,6 +81,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'order_pay',
             'market_order_detail',
             "order_refunded",
+            "order_status",
             "order_status_display",
             "pay_type",
             "pay_type_display",

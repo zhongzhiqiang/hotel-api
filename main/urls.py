@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^user/', include('main.apps.orders.urls')),
     url(r'^user/', include('main.apps.recharge.urls')),
     url(r'^user/', include('main.apps.comment.urls')),
+    url(r'^user/', include('main.apps.cart.urls')),
     url(r'^admin/', include('main.apps.admin_market.urls')),
     url(r'^admin/', include('main.apps.admin_hotels.urls')),
     url(r'^admin/', include('main.apps.admin_integral.urls')),

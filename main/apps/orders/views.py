@@ -36,7 +36,7 @@ class OrderViews(mixins.CreateModelMixin,
         (45, '取消'),
         (50, '待退款'),
         (55, '退款中'),
-        (69, '已退款'),
+        (60, '已退款'),
         (65, '已过期')
     )
     PAY_TYPE = (

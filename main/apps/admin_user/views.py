@@ -56,10 +56,9 @@ class AdminUserViews(mixins.CreateModelMixin,
     def assign_role(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
-    # def perform_create(self, serializer):
-    #     if self.request.user.is_superuser:
-    #         belong_hotel = self.request.user.staffprofile.belong_hotel
-    #         serializer.save(belong_hotel=belong_hotel)
-    #     else:
-    #         belong_hotel = self.request.user.staffprofile.belong_hotel
-    #         serializer.save(belong_hotel=belong_hotel)
+    def perform_create(self, serializer):
+        if self.request.user.is_superuser:
+            serializer.save()
+        else:
+            belong_hotel = self.request.user.staffprofile.belong_hotel
+            serializer.save(belong_hotel=belong_hotel)

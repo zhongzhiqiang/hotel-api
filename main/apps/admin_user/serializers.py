@@ -75,15 +75,18 @@ class CreateStaffProfileSerializer(serializers.ModelSerializer):
 
     @atomic
     def create(self, validated_data):
-        hotel = validated_data.pop('belong_hotel')
+        hotel = validated_data.get('belong_hotel', None)
 
         user = self.context['request'].user
+        if user.is_superuser and not hotel:
+            raise serializers.ValidationError({"non_field_errors": ["请传递所需宾馆"]})
         if user.is_superuser is False and user.staffprofile and user.staffprofile.belong_hotel != hotel:
-            raise serializers.ValidationError({"belong_hotel": "选择宾馆错误,当前用户只能够创建所属宾馆"})
+            raise serializers.ValidationError({"non_field_errors": ["选择宾馆错误,当前用户只能够创建所属宾馆"]})
         username = validated_data.pop('user', {}).get("username")
         password = validated_data.pop('password')
 
         user = User.objects.filter(username=username).first()
+
         if user:
             remark = '已存在用户:{}'.format(username)
             raise serializers.ValidationError(remark)

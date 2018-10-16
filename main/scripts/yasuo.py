@@ -27,9 +27,9 @@ for image in images_list:
             content = generate_thumb(f, (200, 200))
 
             os.remove(p)
-            name, b = image.image.name.rsplit('.')
-            new_name = THUMB_SUFFIX % (name, 200, 200, b)
+            print 1
             image.image.storage.save(image.image.name, content)
+            print 2
     except:
-        pass
+        print 3
 

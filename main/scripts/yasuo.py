@@ -21,13 +21,15 @@ images_list = Images.objects.all()
 
 for image in images_list:
     p = image.image.path
+    print p
+    try:
+        with open(p) as f:
+            content = generate_thumb(f, (200, 200))
 
-    with open(p) as f:
-        content = generate_thumb(f, (200, 200))
+            name, b = image.image.name.rsplit('.')
+            new_name = THUMB_SUFFIX % (name, 200, 200, b)
 
-        name, b = image.image.name.rsplit('.')
-        new_name = THUMB_SUFFIX % (name, 200, 200, b)
-
-        image.image.storage.save(new_name, content)
-
-
+            image.image.storage.save(new_name, content)
+    except:
+        pass
+    

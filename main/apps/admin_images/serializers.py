@@ -17,21 +17,36 @@ class ImageSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    images_thumbnail = serializers.SerializerMethodField()
+
+    def get_images_thumbnail(self, data):
+        request = self.context['request']
+
+        return request.build_absolute_uri(data.image.url_200x200)
+
     class Meta:
         model = Images
         fields = (
             'id',
             'image',
             'operator_name',
-            'create_time'
+            'create_time',
+            'images_thumbnail'
         )
 
 
 class CreateImageSerializer(serializers.ModelSerializer):
+    images_thumbnail = serializers.SerializerMethodField(read_only=True)
+
+    def get_images_thumbnail(self, data):
+        request = self.context['request']
+
+        return request.build_absolute_uri(data.image.url_200x200)
 
     class Meta:
         model = Images
         fields = (
             'id',
             'image',
+            'images_thumbnail'
         )

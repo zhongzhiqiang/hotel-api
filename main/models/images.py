@@ -2,11 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django_thumbs.db.models import ImageWithThumbsField
 
 
 class Images(models.Model):
-    image = models.ImageField(
+    image = ImageWithThumbsField(
         '图片',
+        sizes=((125, 125), (200, 200))
     )
     create_time = models.DateTimeField(
         '创建时间',

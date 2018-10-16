@@ -14,7 +14,7 @@ django.setup()
 
 from main.models import Images
 
-from django_thumbs.db.models import generate_thumb
+from main.modelfields.CompressionImageField import generate_thumb
 
 THUMB_SUFFIX = '%s.%sx%s.%s'
 images_list = Images.objects.all()
@@ -26,10 +26,10 @@ for image in images_list:
         with open(p) as f:
             content = generate_thumb(f, (200, 200))
 
+            os.remove(p)
             name, b = image.image.name.rsplit('.')
             new_name = THUMB_SUFFIX % (name, 200, 200, b)
-
-            image.image.storage.save(new_name, content)
+            image.image.storage.save(image.image.name, content)
     except:
         pass
-    
+

@@ -21,7 +21,7 @@ def beat_cancel_task():
     order_list = Order.objects.filter(order_status=OrderStatus.pre_pay)
 
     for order in order_list:
-        minutes = order.create_time - datetime.datetime.now()
+        minutes = datetime.datetime.now() - order.create_time
         if minutes > datetime.timedelta(minutes=20):
             order.order_status = OrderStatus.pasted
             order.save()

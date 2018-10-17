@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import datetime
 
 from main.schedul.celery_app import app
-from main.models import Order, IntegralDetail
+from main.models import Order
 from main.apps.admin_integral.utils import make_integral, get_integral
 from main.common.defines import OrderStatus
 
@@ -21,7 +21,7 @@ def cancel_task(order_id):
     if not order:
         return ''
 
-    minutes = order.create_time - datetime.datetime.now()
+    minutes = datetime.datetime.now() - order.create_time
     if minutes > datetime.timedelta(minutes=20):
         order.order_status = OrderStatus.pasted
         order.save()

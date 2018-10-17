@@ -25,6 +25,3 @@ def beat_cancel_task():
         if minutes > datetime.timedelta(minutes=20):
             order.order_status = OrderStatus.pasted
             order.save()
-        else:
-            # 再继续延迟执行
-            cancel_task.apply_async(args=(order.order_id, ), countdown=minutes.total_seconds())

@@ -4,7 +4,6 @@
 # Site    : 
 # File    : serializers.py
 # Software: PyCharm
-from __future__ import unicode_literals
 import logging
 import datetime
 
@@ -324,7 +323,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class OrderPayAgainSerializer(serializers.ModelSerializer):
     hotel_order_detail = CreateHotelOrderDetailSerializer(read_only=True)
-    market_order_detail = MarketOrderDetailSerializer(read_only=True)
+    market_order_detail = MarketOrderDetailSerializer(read_only=True, many=True)
 
     @staticmethod
     def hotel_charge_user_balance(instance, consumer):
@@ -427,6 +426,8 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         pay_type = validated_data.get("pay_type") or instance.pay_type
         consumer = self.context['request'].user.consumer
         pay_info = None
+        # 重新支付需要判断用户类型。
+
         if pay_type == PayType.balance and instance.order_type == OrderType.hotel:
             if consumer.balance > instance.order_amount:
                 validated_data.update({"order_status": OrderStatus.to_check_in})
@@ -437,6 +438,10 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
                     "money": recharge_balance,
                 }
         elif pay_type == PayType.balance and instance.order_type == OrderType.market:
+            # 首先判断是否有积分
+            if consumer.integral < instance.integral:
+                raise serializers.ValidationError({"non_fields_error": ['用户积分不足']})
+
             if consumer.balance > instance.order_amount:
                 validated_data.update({"order_status": OrderStatus.deliver})
                 validated_data.update({"pay_time": datetime.datetime.now()})
@@ -445,16 +450,9 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
                     "free_money": free_balance,
                     "money": recharge_balance,
                 }
-        elif pay_type == PayType.integral and instance.order_type == OrderType.market:
-            if consumer.integral > instance.integral:
-                validated_data.update({"order_status": OrderStatus.deliver})
-                validated_data.update({"pay_time": datetime.datetime.now()})
-                remark = "积分消费:购买商品:{},数量:{},单价:{}".format(
-                    instance.market_order_detail.goods_name, instance.num, instance.market_order_detail.integral)
-                self.integral_buy(consumer, instance, remark)
-                pay_info = {
-                    "integral": instance.integral
-                }
+                if instance.integral > 0:
+                    self.integral_buy(consumer, instance, '消费,购买商品')
+                    pay_info.update({"integral": instance.integral})
 
         instance = super(OrderPayAgainSerializer, self).update(instance, validated_data)
 
@@ -522,8 +520,9 @@ class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
             'sale_price',
             'goods_name',
             'integral',
+            'is_integral'
         )
-        read_only_fields = ('sale_price', 'integral')
+        read_only_fields = ('sale_price', 'integral', 'is_integral')
 
 
 class CreateMarketOrderSerializer(serializers.ModelSerializer):
@@ -571,19 +570,30 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             if consumer.balance < need_price:
                 raise serializers.ValidationError("余额不足,请充值后在支付")
 
+        # 这里判断用户是否已有会员。如果有会员只不能够购买相同权限的会员
+
         attrs.update({"integral": need_integral, "order_amount": need_price, "num": nums})
 
         return attrs
 
-    @staticmethod
-    def integral_buy(consumer, validated_data):
-        # 创建积分消费记录
-        left_integral = consumer.integral - validated_data['pay_integral']
-        consumer.integral = left_integral
-        consumer.save()
+    def integral_buy(self, consumer, validated_data, market_order_detail):
+        # 减去用户积分
+        left_integral = consumer.integral - validated_data['integral']
+        consumer.integral_info.integral = left_integral
+        consumer.integral_info.save()
 
-    @staticmethod
-    def balance_buy(consumer, validated_data, market_order_detail):
+        # 创建用户积分
+        goods_name, num = self.get_goods_name(market_order_detail, 'integral')
+        params = {
+            "consumer": consumer,
+            "integral": -validated_data['integral'],
+            "integral_type": 20,
+            "remark": u'积分购买商品:{}, 数量:{}'.format(goods_name, num),
+            "left_integral": consumer.integral
+        }
+        IntegralDetail.objects.create(**params)
+
+    def balance_buy(self, consumer, validated_data, market_order_detail):
         left_balance = consumer.recharge_balance - validated_data['order_amount']
         free_balance = 0
         if left_balance < 0:
@@ -596,12 +606,11 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             consumer.recharge_balance = left_balance
             recharge_balance = validated_data['order_amount']
         consumer.save()
-
+        goods_name, num = self.get_goods_name(market_order_detail, 'market')
         params = {
             "consumer": consumer,
             "balance_type": 20,
-            "message": "余额消费,购买商品:{},数量:{}".format(
-                market_order_detail['goods'].goods_name, market_order_detail['nums']),
+            "message": u"余额消费,购买商品,商品名称:{}, 数量:{}".format(goods_name, num),
             "cost_price": -validated_data['order_amount'],
             "left_balance": consumer.balance,
         }
@@ -618,44 +627,60 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         }
         VipMember.objects.create(**params)
 
+    @staticmethod
+    def get_goods_name(market_order_detail, goods_type):
+        goods_name = u''
+        num = 0
+        if goods_type == 'integral':
+            for market in market_order_detail:
+                if market['goods'].is_integral:
+                    num += market['nums']
+                    if goods_name:
+                        goods_name = goods_name + u',' + market['goods'].goods_name
+                    else:
+                        goods_name = market['goods'].goods_name
+        else:
+            for market in market_order_detail:
+                if not market['goods'].is_integral:
+                    num += market['nums']
+                    if goods_name:
+                        goods_name = goods_name + u',' + market['goods'].goods_name
+                    else:
+                        goods_name = market['goods'].goods_name
+
+        return goods_name, num
+
     @atomic
     def create(self, validated_data):
         market_order_detail = validated_data.pop('market_order_detail', None)
-
+        market_order_contact = validated_data.pop('market_order_contact', None)
         # 这里需要计算出本次订单的金额以及积分
-        # 步骤1。判断支付类型，
-        # 步骤2。积分兑换。
+        # 步骤1。判断支付类型
         # 步骤3。余额兑换
         # 步骤4。微信支付
         consumer = self.context['request'].user.consumer
         order = Order.objects.filter(consumer=consumer, order_type=OrderType.market,
                                      order_status=OrderStatus.pre_pay).first()
+
+        order_pay_params = None
+
         if order:
             raise serializers.ValidationError({"non_field_errors": ['已有未支付订单,无法在创建']})
 
-        order_pay_params = {}
-        if validated_data['pay_type'] == PayType.integral:
-            if consumer.integral < validated_data['integral']:
-                validated_data.update({"order_status": OrderStatus.pre_pay})
-            else:
-                self.integral_buy(consumer, validated_data)
-                validated_data.update({"order_status": OrderStatus.deliver})
-                validated_data.update({"pay_time": datetime.datetime.now()})
-
-                order_pay_params = {
-                    "integral": validated_data['integral']
-                }
-
-        elif validated_data['pay_type'] == PayType.balance:
+        if validated_data['pay_type'] == PayType.balance:
 
             if consumer.balance > validated_data['order_amount']:
                 recharge, free = self.balance_buy(consumer, validated_data, market_order_detail)
                 order_pay_params = {
                     "money": recharge,
-                    "free_money": free
+                    "free_money": free,
+                    "integral": validated_data['integral']
                 }
                 validated_data.update({"order_status": OrderStatus.deliver})
                 validated_data.update({"pay_time": datetime.datetime.now()})
+                if validated_data['integral']:
+                    # 创建积分消费记录
+                    self.integral_buy(consumer, validated_data, market_order_detail)
             else:
                 validated_data.update({"order_status": OrderStatus.pre_pay})
         else:
@@ -663,22 +688,28 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
 
         validated_data.update({"order_type": OrderType.market})
         # 这里是当用户余额支付成功，并且商品是会员。直接开通会员, 并把状态变更为已完成
-        if market_order_detail['goods'].is_special and validated_data['order_status'] != OrderStatus.pre_pay:
-            validated_data.update({"order_status": OrderStatus.success})
-            # 这里创建会员
-            level = market_order_detail['goods'].vip_info
-            self.create_vip(consumer, level)
+        # 这里需要循环创建
+        if validated_data['order_status'] != OrderStatus.pre_pay:
+            for detail in market_order_detail:
+                if detail['goods'].is_special:
+                    validated_data.update({"order_status": OrderStatus.success})
+                    level = detail['goods'].vip_info
+                    self.create_vip(consumer, level)
 
         instance = super(CreateMarketOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
         instance.save()
+
         if order_pay_params:
             # 创建一条支付信息。只有当成功支付时，才会有支付信息
             order_pay_params.update({"order": instance})
             OrderPay.objects.create(**order_pay_params)
-        market_order_detail.update({"market_order": instance})
-        MarketOrderDetail.objects.create(**market_order_detail)
 
+        for market_order in market_order_detail:
+            market_order.update({"market_order": instance})
+            MarketOrderDetail.objects.create(**market_order)
+        market_order_contact.update({"order": instance})
+        MarketOrderContact.objects.create(**market_order_contact)
         return instance
 
     class Meta:
@@ -704,7 +735,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'order_id',
             'order_amount',
-            'pay_integral',
+            'integral',
             'consumer',
             'order_type',
             'num',

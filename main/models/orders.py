@@ -145,6 +145,10 @@ class Order(models.Model):
         else:
             return self.hotel_order_detail.image
 
+    @property
+    def goods_names(self):
+        return self.market_order_detail.all().values_list('goods.goods_name', flat=True)
+
     def make_order_id(self):
         """创建订单号"""
         return '%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
@@ -213,6 +217,10 @@ class MarketOrderDetail(models.Model):
         if hasattr(self.goods, 'vip_info'):
             return self.goods.vip_info
         return None
+
+    @property
+    def is_integral(self):
+        return self.goods.is_integral
 
     def __unicode__(self):
         if self.market_order:

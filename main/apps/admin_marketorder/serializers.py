@@ -112,7 +112,9 @@ class OrderSerializer(serializers.ModelSerializer):
             "operator_time",
             "refund_reason",
             "user_remark",
-            'market_order_contact'
+            'market_order_contact',
+            'market_order_detail',
+            'order_refunded'
         )
 
 

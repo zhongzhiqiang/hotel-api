@@ -20,4 +20,12 @@ CELERY_TASK_RESULT_EXPIRES = 60 * 60
 
 CELERY_IMPORTS = (
     'main.schedul.tasks',
+    'main.schedul.beat_tasks'
 )
+
+CELERYBEAT_SCHEDULE = {
+    "beat_cancel_order": {
+        "task": "beat_cancel_task",
+        "schedule": crontab(minute='*/20'),    # 每个小时0分执行一次任务
+    }
+}

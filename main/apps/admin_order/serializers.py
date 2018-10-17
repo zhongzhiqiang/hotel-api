@@ -138,7 +138,6 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
 
     refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=True)
 
-
     @transaction.atomic
     def update(self, instance, validated_data):
         # 住宿退款。

@@ -24,8 +24,41 @@ services:
       - "9101:9001"
     environment:
       - PYTHONPATH=/code
-      - HOTEL_API_SETTINGS=main.config.product
+      - HOTEL_API_SETTINGS=main.config.local
     network_mode: bridge
     sysctls:
       net.core.somaxconn: 16384
     restart: always
+    external_links:
+      - redis:redis
+
+  celery_test:
+    image: hub.gaoshiwang.cn/hotel_api:latest
+    command: supervisord -c /code/deploy/celery_supervisord.conf
+    volumes:
+      - .:/code
+      - ./docker_local:/data
+    environment:
+      - PYTHONPATH=/code
+      - HOTEL_API_SETTINGS=main.config.local
+    network_mode: bridge
+    sysctls:
+      net.core.somaxconn: 16384
+    restart: always
+    external_links:
+      - redis:redis
+  celery_pro:
+    image: hub.gaoshiwang.cn/hotel_api:latest
+    command: supervisord -c /code/deploy/celery_supervisord.conf
+    volumes:
+      - .:/code
+      - /data/hotel_api:/data
+    environment:
+      - PYTHONPATH=/code
+      - HOTEL_API_SETTINGS=main.config.local
+    network_mode: bridge
+    sysctls:
+      net.core.somaxconn: 16384
+    restart: always
+    external_links:
+      - redis:redis

@@ -15,6 +15,8 @@ from main.models import (Order, HotelOrderDetail, ConsumerBalance, OrderType, Ma
 from main.common.defines import PayType, OrderStatus
 from main.common.utils import create_integral_info
 
+from main.schedul.tasks import cancel_task
+from main.common.constant import CANCEl_TIME
 logger = logging.getLogger('django')
 
 
@@ -180,6 +182,8 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             OrderPay.objects.create(**pay_info)
         hotel_order_detail.update({"hotel_order": instance})
         HotelOrderDetail.objects.create(**hotel_order_detail)
+        cancel_task.apply_async(args=(instance.order_id, ), countdown=CANCEl_TIME)
+
         return instance
 
     class Meta:
@@ -712,6 +716,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             MarketOrderDetail.objects.create(**market_order)
         market_order_contact.update({"order": instance})
         MarketOrderContact.objects.create(**market_order_contact)
+
+        cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)
         return instance
 
     class Meta:

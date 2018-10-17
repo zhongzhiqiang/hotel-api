@@ -20,6 +20,14 @@ class DistributionApplyView(mixins.CreateModelMixin,
     """
         create:
             申请成为分销人员
+            ```
+                APPLY_STATUS = (
+        (10, '提交成功'),
+        (20, '拒绝'),
+        (30, '完成'),
+        (40, '撤回申请'),
+    )
+            ```
         list:
             返回分销申请列表
         retrieve:

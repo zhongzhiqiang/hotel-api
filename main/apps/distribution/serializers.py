@@ -32,6 +32,17 @@ class ApplySerializer(serializers.ModelSerializer):
 
 
 class CreateApplySerializer(serializers.ModelSerializer):
+
+    def validate(self, attrs):
+        consumer = self.context['request'].user.consumer
+        dist = DistributionApply.objects.filter(consumer=consumer, apply_status=20).first()
+        if dist:
+            raise serializers.ValidationError("已有申请")
+        dist = DistributionApply.objects.filter(consumer=consumer, apply_status=30).first()
+        if dist:
+            raise serializers.ValidationError("已经成功申请")
+        return attrs
+
     class Meta:
         model = DistributionApply
         fields = (

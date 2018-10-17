@@ -244,9 +244,9 @@ class DistributionApply(models.Model):
 
     APPLY_STATUS = (
         (10, '提交成功'),
-        (20, '受理中'),
-        (30, '受理完成'),
-        (40, '撤回申请')
+        (20, '拒绝'),
+        (30, '完成'),
+        (40, '撤回申请'),
     )
 
     consumer = models.ForeignKey(

@@ -6,31 +6,34 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 import datetime
+import logging
 
 from main.schedul.celery_app import app
 from main.models import Order
 from main.apps.admin_integral.utils import make_integral, get_integral
 from main.common.defines import OrderStatus
 
+logger = logging.getLogger('django')
 
-@app.task()
+
+@app.task(name='cancel_task')
 def cancel_task(order_id):
     # 利用延时任务，来判断是否超过20分钟。如果超过20分就取消订单。
     #
+    logger.info("start cancel task:{}".format(order_id))
     order = Order.objects.filter(order_id=order_id, order_status=OrderStatus.pre_pay).first()
     if not order:
         return ''
 
     minutes = datetime.datetime.now() - order.create_time
     if minutes > datetime.timedelta(minutes=20):
+        logger.warning("cancel task:{} success".format(order_id))
         order.order_status = OrderStatus.pasted
         order.save()
-    else:
-        # 再继续延迟执行
-        cancel_task.apply_async(args=(order_id, ), countdown=minutes.total_seconds())
+    logger.info("end cancel task:{} finish".format(order_id))
 
 
-@app.task()
+@app.task(name='make_integral_task')
 def make_integral_task(order_id):
     # 3天后生成积分.
     order = Order.objects.get(order_id=order_id)

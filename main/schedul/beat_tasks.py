@@ -14,7 +14,7 @@ from main.common.defines import OrderStatus
 from main.schedul.tasks import cancel_task
 
 
-@app.task()
+@app.task(name='beat_cancel_task')
 def beat_cancel_task():
     # 利用延时任务，来判断是否超过20分钟。如果超过20分就取消订单。
     #

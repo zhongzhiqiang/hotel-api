@@ -182,7 +182,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             OrderPay.objects.create(**pay_info)
         hotel_order_detail.update({"hotel_order": instance})
         HotelOrderDetail.objects.create(**hotel_order_detail)
-        # cancel_task.apply_async(args=(instance.order_id, ), countdown=CANCEl_TIME)
+        cancel_task.apply_async(args=(instance.order_id, ), countdown=CANCEl_TIME)
 
         return instance
 
@@ -734,8 +734,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         market_order_contact.update({"order": instance})
         MarketOrderContact.objects.create(**market_order_contact)
 
-
-        # cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)
+        cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)
         return instance
 
     class Meta:

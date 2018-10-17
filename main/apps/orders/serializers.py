@@ -182,7 +182,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             OrderPay.objects.create(**pay_info)
         hotel_order_detail.update({"hotel_order": instance})
         HotelOrderDetail.objects.create(**hotel_order_detail)
-        cancel_task.apply_async(args=(instance.order_id, ), countdown=CANCEl_TIME)
+        # cancel_task.apply_async(args=(instance.order_id, ), countdown=CANCEl_TIME)
 
         return instance
 
@@ -556,9 +556,14 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         need_integral = 0  # 需要的积分
         need_price = 0  # 需要的金钱
         nums = 0
+        vip_count = 0  # 购买的会员数量
+        vip_obj = None
         for market_order_detail in market_order_detail_list:
             goods = market_order_detail['goods']
             nums += market_order_detail['nums']
+            if goods.is_special:
+                vip_count += 1
+                vip_obj = market_order_detail
             if goods.is_integral:
                 need_integral += (goods.need_integral * market_order_detail['nums'])
                 market_order_detail.update({"integral": goods.need_integral})
@@ -566,6 +571,20 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             if not goods.is_integral:
                 need_price += (goods.goods_price * market_order_detail['nums'])
                 market_order_detail.update({"sale_price": goods.goods_price})
+
+        # 这里判断会员类型的数量
+        if vip_count > 1:
+            raise serializers.ValidationError("只能够购买一个会员类型")
+
+        if vip_obj and vip_obj['nums'] != 1:
+            raise serializers.ValidationError("会员只能够购买一个")
+
+        # if hasattr(consumer, 'vipmember'):
+        #     if vip_obj and vip_obj['goods'].vip_info.vip_weight < consumer.vipmember.vip_level.vip_weight:
+        #         raise serializers.ValidationError("只能够购买比当前会员等级高的会员类型")
+
+        if vip_count == 1 and len(market_order_detail_list) > 1:
+            raise serializers.ValidationError("会员不能够与其他商品购买")
 
         # 这里判断是否有积分商品
         if consumer.integral < need_integral:
@@ -576,8 +595,6 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         if pay_type == PayType.balance:
             if consumer.balance < need_price:
                 raise serializers.ValidationError("余额不足,请充值后在支付")
-
-        # 这里判断用户是否已有会员。如果有会员只不能够购买相同权限的会员
 
         attrs.update({"integral": need_integral, "order_amount": need_price, "num": nums})
 
@@ -717,7 +734,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         market_order_contact.update({"order": instance})
         MarketOrderContact.objects.create(**market_order_contact)
 
-        cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)
+
+        # cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)
         return instance
 
     class Meta:

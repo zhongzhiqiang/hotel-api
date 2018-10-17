@@ -427,7 +427,6 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         consumer = self.context['request'].user.consumer
         pay_info = None
         # 重新支付需要判断用户类型。
-
         if pay_type == PayType.balance and instance.order_type == OrderType.hotel:
             if consumer.balance > instance.order_amount:
                 validated_data.update({"order_status": OrderStatus.to_check_in})
@@ -456,8 +455,10 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
 
         instance = super(OrderPayAgainSerializer, self).update(instance, validated_data)
 
-        if instance.order_type == OrderType.market and instance.market_order_detail.is_special:
-            self.create_vip(instance.consumer, instance.market_order_detail.vip_info)
+        if instance.order_type == OrderType.market:
+            for market_order in instance.market_order_detail.all():
+                if market_order.is_special:
+                    self.create_vip(instance.consumer, instance.market_order_detail.vip_info)
 
         if pay_info:
             pay_info.update({"order": instance})

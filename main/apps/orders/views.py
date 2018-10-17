@@ -12,7 +12,7 @@ from rest_framework.decorators import detail_route, list_route
 
 from main.apps.orders import serializers, filters
 from main.models import Order
-from main.common.defines import PayType
+from main.common.defines import PayType, OrderType
 from main.apps.wx_pay.utils import unifiedorder
 
 
@@ -140,9 +140,9 @@ class OrderViews(mixins.CreateModelMixin,
 
         data = serializer.data
         if data['pay_type'] == PayType.weixin:
-            detail = data['market_order_detail']['goods_name']
+
             result = unifiedorder('曼嘉尔酒店-商场', data['order_id'], data['order_amount'], self.request.user.consumer.openid,
-                                  detail)
+                                  '购买商品')
             data.update(result)
         if data['pay_type'] != PayType.weixin and data['order_status'] == 10:
             data.update({"error_message": "余额不足或积分不足,请更换支付方式或者充值"})
@@ -174,10 +174,14 @@ class OrderPayView(viewsets.GenericViewSet):
         self.perform_update(serializer)
         data = serializer.data
         # 支付方式为30，并且状态为10时，重新生成支付信息
-        if data['pay_type'] == PayType.weixin and data['order_status'] == 10:
-            detail = data['hotelorderdetail']['room_style_name']
-            result = unifiedorder('曼嘉酒店-住宿', data['order_id'], data['sale_price'], self.request.user.consumer.openid,
+        if data['pay_type'] == PayType.weixin and data['order_status'] == 10 and data['order_type'] == OrderType.hotel:
+            detail = data['hotel_order_detail']['room_style_name']
+            result = unifiedorder('曼嘉酒店-住宿', data['order_id'], data['order_amount'], self.request.user.consumer.openid,
                                   detail)
+            data.update(result)
+        elif data['pay_type'] == PayType.weixin and data['order_status'] == 10 and data['order_type'] == OrderType.market:
+            result = unifiedorder('曼嘉酒店-商场', data['order_id'], data['order_amount'], self.request.user.consumer.openid,
+                                  '购买商品')
             data.update(result)
 
         if data['pay_type'] != PayType.weixin and data['order_status'] == 10:

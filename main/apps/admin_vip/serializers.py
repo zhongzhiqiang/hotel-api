@@ -7,7 +7,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-
+from rest_framework.validators import UniqueValidator
 from main.models import VipMember, VipSettings
 
 
@@ -19,8 +19,21 @@ class VipSettingsSerializer(serializers.ModelSerializer):
             'vip_name',
             'hotel_discount',
             'operator_name',
+            'vip_weight'
         )
         read_only_fields = ('operator_name', )
+        extra_kwargs = {
+            'vip_weight': {
+                'validators': [
+                    UniqueValidator(VipSettings.objects.all(), message=u'已有该权重'),
+                ],
+                'error_messages': {
+                    'null': u'请填写权重',
+                    'blank': u'请填写权重',
+                    'required': u'请填写权重',
+                }
+            },
+        }
 
 
 class VipMemberSerializer(serializers.ModelSerializer):

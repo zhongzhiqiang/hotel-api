@@ -19,7 +19,11 @@ class VipSettings(models.Model):
         max_length=10,
         unique=True
     )
-
+    vip_weight = models.IntegerField(
+        '会员权重',
+        help_text='当前用户权重,值越大,优惠折扣更大',
+        default=0,
+    )
     hotel_discount = models.DecimalField(
         '酒店折扣',
         max_digits=5,

@@ -37,6 +37,8 @@ class MarketOrderView(mixins.UpdateModelMixin,
         更新状态。
     retrieve:
         详情
+    market_refunded:
+        商场订单退款.不需要传递任何参数。
     """
     serializer_class = serializers.OrderSerializer
     queryset = Order.objects.filter(

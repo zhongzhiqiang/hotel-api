@@ -7,14 +7,9 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from django.db import transaction
 
 from main.models import Cart
-
-
-class CartListSerializers(serializers.ListSerializer):
-    def create(self, validated_data):
-        cart_list = [Cart(**item) for item in validated_data]
-        return Cart.objects.bulk_create(cart_list)
 
 
 class CartSerializers(serializers.ModelSerializer):
@@ -40,9 +35,21 @@ class CartSerializers(serializers.ModelSerializer):
 
         return attrs
 
+    @transaction.atomic
+    def create(self, validated_data):
+        consumer = self.context['request'].user.consumer
+        goods = validated_data.get('goods')
+        instance = Cart.objects.filter(consumer=consumer, goods=goods).first()
+        if instance:
+            instance.nums = instance.nums + validated_data['nums']
+            instance.save()
+        else:
+            instance = super(CartSerializers, self).create(validated_data)
+
+        return instance
+
     class Meta:
         model = Cart
-        list_serializer_class = CartListSerializers
         fields = (
             'id',
             'goods',

@@ -438,7 +438,7 @@ class Cart(models.Model):
         null=True,
         blank=True
     )
-    goods = models.OneToOneField(
+    goods = models.ForeignKey(
         "main.Goods",
         verbose_name='商品'
     )

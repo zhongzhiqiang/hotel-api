@@ -414,6 +414,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
 
     @classmethod
     def create_vip(cls, consumer, vip_level):
+        # 这里应该是判断用户是否有会员，如果有会员就更新.
         params = {
             "consumer": consumer,
             "vip_level": vip_level,
@@ -452,6 +453,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
                 if instance.integral > 0:
                     self.integral_buy(consumer, instance, '消费,购买商品')
                     pay_info.update({"integral": instance.integral})
+            # TODO 这里需要把购物车的相应商品给删除
 
         instance = super(OrderPayAgainSerializer, self).update(instance, validated_data)
 
@@ -669,7 +671,6 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"non_field_errors": ['已有未支付订单,无法在创建']})
 
         if validated_data['pay_type'] == PayType.balance:
-
             if consumer.balance > validated_data['order_amount']:
                 recharge, free = self.balance_buy(consumer, validated_data, market_order_detail)
                 order_pay_params = {

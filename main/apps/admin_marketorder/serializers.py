@@ -118,6 +118,57 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class RefundedSerializer(serializers.ModelSerializer):
 
+    @staticmethod
+    def get_goods_name(instance, goods_type):
+        goods_name = ''
+        if goods_type == 'integral':
+            for mark_order in instance.market_order_detail.all():
+                if mark_order.is_integral:
+                    if goods_name:
+                        goods_name = goods_name + ',' + mark_order.goods_name
+
+                    else:
+                        goods_name = mark_order.goods_name
+        else:
+            for mark_order in instance.market_order_detail.all():
+                if not mark_order.is_integral:
+                    if goods_name:
+                        goods_name = goods_name + ',' + mark_order.goods_name
+
+                    else:
+                        goods_name = mark_order.goods_name
+        return goods_name
+
+    def increase_integral(self, instance):
+        # 用户积分增加上来
+        goods_name = self.get_goods_name(instance, 'integral')
+        integral_param = {
+            "consumer": instance.consumer,
+            "integral": instance.integral,
+            "integral_type": 10,
+            "remark": "增加,商品退款:{},商品名称:{}".format(instance.integral, goods_name)
+        }
+        IntegralDetail.objects.create(**integral_param)
+        instance.consumer.integral_info.integral += instance.integral
+        instance.consumer.integral_info.save()
+
+    def increase_balance(self, instance):
+        # 退换余额
+        goods_name = self.get_goods_name(instance, 'money')
+        # 用户余额明细
+        balance_info = {
+            "consumer": instance.consumer,
+            "balance_type": 10,
+            "message": "增加,商品退款:{},商品名称:{}".format(instance.order_amount, goods_name),
+            "cost_price": instance.order_amount,
+            "left_balance": instance.consumer.balance + instance.order_amount
+        }
+        ConsumerBalance.objects.create(**balance_info)
+        # 退回余额。
+        instance.consumer.recharge_balance = instance.consumer.recharge_balance + instance.order_pay.money
+        instance.consumer.free_balance = instance.consumer.free_balance + instance.order_pay.free_money
+        instance.consumer.save()
+
     @transaction.atomic
     def update(self, instance, validated_data):
         # 进行退款操作, 创建退款信息
@@ -126,45 +177,19 @@ class RefundedSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"non_field_errors": ['当前订单状态无法操作退款']})
 
         # 根据订单类型来退款。。如果是商场订单。每个都要去扣除
-        if self.instance.pay_type == PayType.integral:
-            # 将积分退回.并把状态更改为已退款
-            params = {
-                "order": instance,
-                "refunded_integral": self.instance.integral,
-                "refunded_account": datetime.datetime.now()
-            }
-            # 用户积分增加上来
-            integral_param = {
-                "consumer": instance.consumer,
-                "integral": self.instance.integral,
-                "integral_type": 10,
-                "remark": "增加,商品退款:{},商品名称:{}".format(instance.integral, instance.market_order_detail.goods_name)
-            }
-            IntegralDetail.objects.create(**integral_param)
-            instance.consumer.integral_info.integral += instance.integral
-            instance.consumer.integral_info.save()
-            validated_data.update({"order_status": OrderStatus.refunded})
-        elif self.instance.pay_type == PayType.balance:
+        if self.instance.pay_type == PayType.balance:
             # 将余额退回相应的地方。并把状态更改为已退款
             params = {
                 "order": instance,
                 "refunded_money": self.instance.order_pay.money,
                 "refunded_free_money": self.instance.order_pay.free_money,
-                "refunded_account": datetime.datetime.now()
+                "refunded_account": datetime.datetime.now(),
+                "refunded_integral": self.instance.integral,
             }
-            # 用户余额明细
-            balance_info = {
-                "consumer": instance.consumer,
-                "balance_type": 10,
-                "message": "增加,商品退款:{},商品名称:{}".format(instance.order_amount, instance.market_order_detail.goods_name),
-                "cost_price": instance.order_amount,
-                "left_balance": instance.consumer.balance + instance.order_amount
-            }
-            ConsumerBalance.objects.create(**balance_info)
-            # 退回余额。
-            instance.consumer.recharge_balance = instance.consumer.recharge_balance + instance.order_pay.money
-            instance.consumer.free_balance = instance.consumer.free_balance + instance.order_pay.free_money
-            instance.consumer.save()
+            if self.instance.integral:
+                self.increase_integral(instance)
+            self.increase_balance(instance)
+
             validated_data.update({"order_status": OrderStatus.refunded})
         else:
             params = {

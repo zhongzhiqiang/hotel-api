@@ -24,7 +24,7 @@ CELERY_IMPORTS = (
 )
 
 CELERYBEAT_SCHEDULE = {
-    "beat_cancel_order": {
+    "beat_cancel_task": {
         "task": "beat_cancel_task",
         "schedule": crontab(minute='*/20'),    # 每个小时0分执行一次任务
     }

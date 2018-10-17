@@ -59,6 +59,10 @@ class OrderViews(mixins.CreateModelMixin,
     ```
     list:
         返回所有当前用户订单
+        order_express = {
+        "express_id": "快递单号",
+        "express_name: "快递名称"
+        }
     market_order_create:
         创建商场订单
         ```

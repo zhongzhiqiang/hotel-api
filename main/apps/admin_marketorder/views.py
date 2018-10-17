@@ -35,8 +35,20 @@ class MarketOrderView(mixins.UpdateModelMixin,
         ```
     update:
         更新状态。
+        ```
+        order_express = {
+        "express_id": "快递单号",
+        "express_name": "快递名称",
+        }
+        ```
     retrieve:
         详情
+        ```
+         order_express = {
+        "express_id": "快递单号",
+        "express_name": "快递名称",
+        }
+        ```
     market_refunded:
         商场订单退款.不需要传递任何参数。
     """

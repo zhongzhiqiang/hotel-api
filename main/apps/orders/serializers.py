@@ -11,7 +11,7 @@ from rest_framework import serializers
 from django.db.transaction import atomic
 
 from main.models import (Order, HotelOrderDetail, ConsumerBalance, OrderType, MarketOrderDetail, VipMember, OrderPay,
-                         IntegralDetail, MarketOrderContact)
+                         IntegralDetail, MarketOrderContact, MarketOrderExpress)
 from main.common.defines import PayType, OrderStatus
 from main.common.utils import create_integral_info
 
@@ -19,6 +19,11 @@ from main.schedul.tasks import cancel_task
 from main.common.constant import CANCEl_TIME
 logger = logging.getLogger('django')
 
+
+class MarketOrderExpressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketOrderExpress
+        fields = "__all__"
 
 class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
     room_style_name = serializers.CharField(
@@ -266,7 +271,7 @@ class OrderSerializer(serializers.ModelSerializer):
     hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
     market_order_detail = MarketOrderDetailSerializer(many=True)
     market_order_contact = MarketOrderContactSerializer(read_only=True)
-
+    order_express = MarketOrderExpressSerializer(read_only=True)
     belong_hotel_name = serializers.CharField(
         source='belong_hotel.name',
         read_only=True,
@@ -316,7 +321,8 @@ class OrderSerializer(serializers.ModelSerializer):
             'refund_reason',
             'user_remark',
             'image',
-            'market_order_contact'
+            'market_order_contact',
+            'order_express'
         )
         read_only_fields = (
             'order_id',
@@ -579,9 +585,9 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         if vip_obj and vip_obj['nums'] != 1:
             raise serializers.ValidationError("会员只能够购买一个")
 
-        # if hasattr(consumer, 'vipmember'):
-        #     if vip_obj and vip_obj['goods'].vip_info.vip_weight < consumer.vipmember.vip_level.vip_weight:
-        #         raise serializers.ValidationError("只能够购买比当前会员等级高的会员类型")
+        if hasattr(consumer, 'vipmember'):
+            if vip_obj and vip_obj['goods'].vip_info.vip_weight < consumer.vipmember.vip_level.vip_weight:
+                raise serializers.ValidationError("只能够购买比当前会员等级高的会员类型")
 
         if vip_count == 1 and len(market_order_detail_list) > 1:
             raise serializers.ValidationError("会员不能够与其他商品购买")

@@ -10,7 +10,8 @@ import datetime
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType, IntegralDetail, ConsumerBalance, MarketOrderContact
+from main.models import (Order, MarketOrderDetail, OrderPay, OrderRefunded, PayType, IntegralDetail,
+                         ConsumerBalance, MarketOrderContact, MarketOrderExpress)
 from main.common.defines import OrderStatus
 
 
@@ -53,10 +54,21 @@ class MarketOrderContactSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MarketOrderExpressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketOrderExpress
+        fields = (
+            "id",
+            "express_id",
+            "express_name"
+        )
+
+
 class OrderSerializer(serializers.ModelSerializer):
-    market_order_detail = MarketOrderDetailSerializer(many=True)
+    market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     order_refunded = OrderRefundedSerializer(read_only=True)
     market_order_contact = MarketOrderContactSerializer()
+    order_express = MarketOrderExpressSerializer()
 
     order_pay = OrderPaySerializer(read_only=True)
     order_status_display = serializers.CharField(
@@ -72,6 +84,15 @@ class OrderSerializer(serializers.ModelSerializer):
         allow_blank=True,
         read_only=True
     )
+
+    def validate(self, attrs):
+        order_status = attrs.get("order_status")
+        order_express = attrs.get("order_express")
+        # 当后端传递待收货
+        if order_status and order_status == OrderStatus.take_deliver:
+            if not order_express:
+                raise serializers.ValidationError("请传递信息")
+        return attrs
 
     class Meta:
         model = Order
@@ -97,7 +118,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "operator_remark",
             "refund_reason",
             "user_remark",
-            'market_order_contact'
+            'market_order_contact',
+            'order_express'
         )
         read_only_fields = (
             "pay_type",

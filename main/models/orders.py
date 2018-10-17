@@ -454,3 +454,27 @@ class Cart(models.Model):
     class Meta:
         verbose_name = '购物车'
         verbose_name_plural = verbose_name
+
+
+class MarketOrderExpress(models.Model):
+    order = models.OneToOneField(
+        'main.Order',
+        related_name='order_express',
+        verbose_name='订单'
+    )
+    express_id = models.CharField(
+        '快递单号',
+        max_length=100,
+    )
+    express_name = models.CharField(
+        '快递名称',
+        max_length=100
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+
+    class Meta:
+        verbose_name = '订单快递信息'
+        verbose_name_plural = verbose_name

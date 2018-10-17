@@ -204,4 +204,4 @@ class RefundedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = "__all__"
+        fields = ("id", 'operator_remark')

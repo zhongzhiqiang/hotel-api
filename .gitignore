@@ -112,4 +112,3 @@ main/config/dev.py
 /coverage/*
 /cover/
 /cover/*
-product.py

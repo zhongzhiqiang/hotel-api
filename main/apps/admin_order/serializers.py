@@ -18,6 +18,12 @@ from main.common.defines import OrderStatus, PayType
 logger = logging.getLogger(__name__)
 
 
+def increase_room_num(order):
+    room_style = order.hotel_order_detail.room_style
+    room_style.room_count = room_style.room_count + order.hotel_order_detail.room_nums
+    room_style.save()
+
+
 class HotelOrderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -89,6 +95,7 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
             except Exception as e:
                 logger.warning("make integral error:{}".format(e), exc_info=True)
                 raise serializers.ValidationError("生成积分失败")
+            increase_room_num(self.instance)
             validated_data.update({"order_status": OrderStatus.success})
         instance = super(HotelOrderInfoSerializer, self).update(instance, validated_data)
         return instance

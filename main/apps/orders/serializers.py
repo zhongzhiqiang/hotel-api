@@ -25,6 +25,7 @@ class MarketOrderExpressSerializer(serializers.ModelSerializer):
         model = MarketOrderExpress
         fields = "__all__"
 
+
 class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
     room_style_name = serializers.CharField(
         source='room_style.style_name',
@@ -121,9 +122,6 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         }
         balance_info = ConsumerBalance(**params)
         balance_info.save()
-        # 下单支付成功扣除房间数
-        hotel_detail['room_style'].room_count = hotel_detail['room_style'].room_count - hotel_detail['room_nums']
-        hotel_detail['room_style'].save()
         return recharge_balance, free_balance
 
     def validate(self, attrs):
@@ -153,6 +151,12 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         attrs.update({"num": num, "order_amount": order_amount})
         return attrs
 
+    @staticmethod
+    def reduce_room_num(hotel_detail):
+        # 下单支付成功扣除房间数
+        hotel_detail['room_style'].room_count = hotel_detail['room_style'].room_count - hotel_detail['room_nums']
+        hotel_detail['room_style'].save()
+
     @atomic
     def create(self, validated_data):
         consumer = self.context['request'].user.consumer
@@ -179,9 +183,14 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         else:
             validated_data.update({"order_status": OrderStatus.pre_pay})
 
+        # 创建订单
         instance = super(CreateHotelOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
         instance.save()
+
+        # 下单的时候, 将房间类型减去订单数量
+        self.reduce_room_num(hotel_order_detail)
+
         if pay_info:
             pay_info.update({"order": instance})
             OrderPay.objects.create(**pay_info)
@@ -296,6 +305,7 @@ class OrderSerializer(serializers.ModelSerializer):
         if order_status == OrderStatus.prp_refund and instance.order_status >= OrderStatus.check_in:
             raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
 
+        # 如果用户申请退款，将房间数直接减去。
         instance = super(OrderSerializer, self).update(instance, validated_data)
         return instance
 

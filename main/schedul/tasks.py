@@ -11,7 +11,8 @@ import logging
 from main.schedul.celery_app import app
 from main.models import Order
 from main.apps.admin_integral.utils import make_integral, get_integral
-from main.common.defines import OrderStatus
+from main.common.defines import OrderStatus, OrderType
+from main.schedul.beat_tasks import increase_room_num
 
 logger = logging.getLogger('django')
 
@@ -30,6 +31,9 @@ def cancel_task(order_id):
         logger.warning("cancel task:{} success".format(order_id))
         order.order_status = OrderStatus.pasted
         order.save()
+        if order.order_type == OrderType.hotel:
+            increase_room_num(order)
+
     logger.info("end cancel task:{} finish".format(order_id))
 
 

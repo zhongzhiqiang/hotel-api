@@ -11,7 +11,6 @@ from django.db import transaction
 from main.schedul.celery_app import app
 from main.models import Order
 from main.common.defines import OrderStatus, OrderType
-from main.schedul.tasks import cancel_task
 
 
 @transaction.atomic

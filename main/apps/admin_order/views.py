@@ -70,6 +70,8 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return serializers.HotelOrderInfoSerializer
+        elif self.action == 'refund':
+            return serializers.HotelOrderRefundedSerializer
         return self.serializer_class
 
     @detail_route(methods=['POST'])

@@ -816,12 +816,11 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
         room_style.save()
 
     def validate(self, attrs):
-        if attrs.get("order_status") != OrderStatus.prp_refund:
-            raise serializers.ValidationError("退款有误")
 
         if not attrs.get("refund_reason"):
             raise serializers.ValidationError("请传递退款原因")
 
+        attrs.update({"order_status": OrderStatus.prp_refund})
         return attrs
 
     @atomic

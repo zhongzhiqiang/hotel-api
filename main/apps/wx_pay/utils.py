@@ -34,7 +34,7 @@ def unifiedorder(body, out_trade_no, total_fee, openid, detail):
     return result
 
 
-def unified_refunded(out_trade_no, out_refund_no, total_fee, refund_fee):
+def unified_refunded(out_trade_no, out_refund_no, total_fee, refund_fee, op_user_id):
     """
     :param out_trade_no: 退款订单，为微信支付时下发的订单号
     :param out_refund_no:  退款订单号，内部生成的退款订单号唯一
@@ -48,6 +48,7 @@ def unified_refunded(out_trade_no, out_refund_no, total_fee, refund_fee):
         "out_refund_no": out_refund_no,
         "total_fee": total_fee,
         "refund_fee": refund_fee,
+        "op_user_id": op_user_id,
         "out_trade_no": out_trade_no
     }
     wx_pay = WXAppPay(WXConfig.APP_ID, WXConfig.MCH_ID, partner_key=WXConfig.KEY)

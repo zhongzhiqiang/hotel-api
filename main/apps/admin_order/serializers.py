@@ -14,6 +14,7 @@ from django.db import transaction
 from main.models import Order, HotelOrderDetail, OrderPay, OrderRefunded, ConsumerBalance
 from main.apps.admin_integral.utils import get_integral, make_integral
 from main.common.defines import OrderStatus, PayType
+from main.apps.wx_pay.utils import unified_refunded
 
 logger = logging.getLogger(__name__)
 
@@ -200,6 +201,14 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         order_refunded.save()
         order_refunded.refunded_order_id = order_refunded.make_order_id()
         order_refunded.save()
+
+        if instance.pay_type == PayType.weixin:
+            result = unified_refunded(instance.order_id,
+                                      order_refunded.refunded_order_id,
+                                      instance.order_amount,
+                                      order_refunded.refunded_money,
+                                      consumer.openid)
+            logger.info("refunded result:{}".format(result))
         instance = super(HotelOrderRefundedSerializer, self).update(instance, validated_data)
         return instance
 

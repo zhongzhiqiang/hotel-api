@@ -485,7 +485,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
 
         if pay_info:
             pay_info.update({"order": instance})
-            logger.info("create pay info :{}".format(pay_info))
+            # logger.info("create pay info :{}".format(pay_info))
             OrderPay.objects.create(**pay_info)
         return instance
 

@@ -13,7 +13,6 @@ from main.models import Cart
 
 
 class CartSerializers(serializers.ModelSerializer):
-
     goods_price = serializers.CharField(
         source='goods.goods_price',
         read_only=True
@@ -41,8 +40,9 @@ class CartSerializers(serializers.ModelSerializer):
         goods = validated_data.get('goods')
         instance = Cart.objects.filter(consumer=consumer, goods=goods).first()
         if instance:
-            instance.nums = instance.nums + validated_data['nums']
+            instance.nums = validated_data['nums']
             instance.save()
+            return instance
         else:
             instance = super(CartSerializers, self).create(validated_data)
 
@@ -58,5 +58,3 @@ class CartSerializers(serializers.ModelSerializer):
             'goods_integral',
             'is_integral'
         )
-
-

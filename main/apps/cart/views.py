@@ -6,7 +6,8 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, status
+from rest_framework.response import Response
 
 from main.apps.cart import serializers
 from main.models import Cart
@@ -14,7 +15,6 @@ from main.models import Cart
 
 class CartViews(mixins.CreateModelMixin,
                 mixins.ListModelMixin,
-                mixins.UpdateModelMixin,
                 viewsets.GenericViewSet):
     """
     create:
@@ -33,3 +33,19 @@ class CartViews(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         serializer.save(consumer=self.request.user.consumer)
+
+    def create(self, request, *args, **kwargs):
+        post_data = request.data
+        if post_data.get("nums") == 0:
+            cart = self.queryset.filter(goods__id=post_data.get("goods")).first()
+            if cart:
+                cart.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={"non_fields_error": "传递错误"})
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

@@ -4,6 +4,7 @@
 # Site    : 
 # File    : serializers.py
 # Software: PyCharm
+from __future__ import unicode_literals
 import logging
 import datetime
 
@@ -368,7 +369,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         params = {
             "consumer": consumer,
             "balance_type": 20,
-            "message": "余额消费,预定房间:{},数量:{}".format(hotel_detail.room_style.style_name, hotel_detail.room_nums),
+            "message": u"余额消费,预定房间:{},数量:{}".format(hotel_detail.room_style.style_name, hotel_detail.room_nums),
             "cost_price": -instance.order_amount,
             "left_balance": consumer.balance,
         }

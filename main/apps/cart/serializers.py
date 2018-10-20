@@ -26,6 +26,10 @@ class CartSerializers(serializers.ModelSerializer):
         source='goods.is_integral',
         read_only=True
     )
+    goods_name = serializers.CharField(
+        source='goods.goods_name',
+        read_only=True
+    )
 
     def validate(self, attrs):
         goods = attrs.get("goods")
@@ -56,5 +60,6 @@ class CartSerializers(serializers.ModelSerializer):
             'nums',
             'goods_price',
             'goods_integral',
-            'is_integral'
+            'is_integral',
+            'goods_name'
         )

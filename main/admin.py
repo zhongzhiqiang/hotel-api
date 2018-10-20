@@ -17,8 +17,12 @@ class MarketOrderContactInline(admin.TabularInline):
     model = models.MarketOrderContact
 
 
+class OrderPayInline(admin.TabularInline):
+    model = models.OrderPay
+
+
 class OrderAdmin(admin.ModelAdmin):
-    inlines = [HotelOrderInline, MarketOrderContactInline, MarketOrderInline]
+    inlines = [HotelOrderInline, MarketOrderContactInline, MarketOrderInline, OrderPayInline]
 
 
 admin.site.register(models.Order, OrderAdmin)

@@ -303,7 +303,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         order_status = validated_data.get("order_status")
         # 用户申请退款.
-        if order_status == OrderStatus.prp_refund and instance.order_status >= OrderStatus.check_in:
+        if order_status == OrderStatus.pre_refund and instance.order_status >= OrderStatus.check_in:
             raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
 
         # 如果用户申请退款，将房间数直接减去。
@@ -820,14 +820,14 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
         if not attrs.get("refund_reason"):
             raise serializers.ValidationError("请传递退款原因")
 
-        attrs.update({"order_status": OrderStatus.prp_refund})
+        attrs.update({"order_status": OrderStatus.pre_refund})
         return attrs
 
     @atomic
     def update(self, instance, validated_data):
         order_status = validated_data.get("order_status")
         # 用户申请退款.
-        if order_status == OrderStatus.prp_refund and instance.order_status >= OrderStatus.check_in:
+        if order_status == OrderStatus.pre_refund and instance.order_status >= OrderStatus.check_in:
             raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
         # 如果用户申请退款，将房间数直接减去。
         # 判断订单类型。如果是房间，则直接增加房子类型相应的数量

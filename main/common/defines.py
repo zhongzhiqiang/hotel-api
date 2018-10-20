@@ -17,6 +17,7 @@ class PayType(object):
 class WeiXinCode(object):
     success = 'SUCCESS'
     fail = 'FAIL'
+    error = "ERROR"
 
 
 class OrderStatus(object):
@@ -29,7 +30,7 @@ class OrderStatus(object):
     finish = 40  # 结束
     canceled = 45
 
-    prp_refund = 50
+    pre_refund = 50
     refund_ing = 55
     refunded = 60
     pasted = 65
@@ -39,3 +40,12 @@ class OrderStatus(object):
 class OrderType(object):
     market = 10
     hotel = 20
+
+
+class RefundedStatus(object):
+    refunded_ing = 10
+    success = 20
+    fail = 30
+    retry = 40
+    unknown = 50
+

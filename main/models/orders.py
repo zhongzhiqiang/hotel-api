@@ -1,11 +1,12 @@
 # coding:utf-8
 from __future__ import unicode_literals
 
+import uuid
 import datetime
 
 from django.db import models
 
-from main.common.defines import PayType, OrderStatus, OrderType
+from main.common.defines import PayType, OrderStatus, OrderType, RefundedStatus
 
 
 class Order(models.Model):
@@ -18,7 +19,7 @@ class Order(models.Model):
         (OrderStatus.success, '待评价'),
         (OrderStatus.canceled, '已取消'),
         (OrderStatus.finish, '已评价'),
-        (OrderStatus.prp_refund, '等待退款'),
+        (OrderStatus.pre_refund, '等待退款'),
         (OrderStatus.refund_ing, '退款中'),
         (OrderStatus.refunded, '退款完成'),
         (OrderStatus.pasted, '已过期'),
@@ -134,7 +135,8 @@ class Order(models.Model):
     operator_remark = models.CharField(
         '操作人员备注',
         max_length=200,
-        default=''
+        default='',
+        blank=True
     )
 
     @property
@@ -378,6 +380,15 @@ class OrderPay(models.Model):
 
 
 class OrderRefunded(models.Model):
+
+    WX_REFUND_STATUS = (
+        (RefundedStatus.refunded_ing, '退款中'),
+        (RefundedStatus.success, '成功'),
+        (RefundedStatus.fail, '失败'),
+        (RefundedStatus.retry, '重试'),
+        (RefundedStatus.unknown, '未知')
+    )
+
     order = models.OneToOneField(
         'main.Order',
         verbose_name='关联订单',
@@ -385,7 +396,17 @@ class OrderRefunded(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
-
+    refunded_status = models.IntegerField(
+        "退款状态",
+        default=RefundedStatus.unknown,
+        help_text='退款状态。微信可能会退款失败'
+    )
+    refunded_message = models.CharField(
+        "退款描述",
+        default='',
+        blank=True,
+        max_length=100
+    )
     refunded_order_id = models.CharField(
         '退款订单号',
         max_length=30,
@@ -422,9 +443,12 @@ class OrderRefunded(models.Model):
     def __unicode__(self):
         return self.refunded_order_id
 
-    def make_order_id(self):
+    @classmethod
+    def make_order_id(cls):
         """创建订单号"""
-        return 'refunded%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+        order_time = datetime.datetime.now().strftime("%Y%m%d")
+        return_order_id = uuid.uuid1().get_hex().upper()[:24]
+        return order_time + return_order_id
 
     class Meta:
         verbose_name = '退款信息'

@@ -61,12 +61,11 @@ class MarketOrderView(mixins.UpdateModelMixin,
         'order_pay', 'order_refunded', 'market_order_detail', 'market_order_detail__goods').order_by('-create_time')
     filter_class = filters.OrderFilter
 
+    def perform_update(self, serializer):
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
+        else:
+            serializer.save()
+
     def get_serializer_class(self):
-        if self.action == 'market_refunded':
-            return serializers.RefundedSerializer
         return self.serializer_class
-
-    @detail_route(methods=['POST'])
-    def market_refunded(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-

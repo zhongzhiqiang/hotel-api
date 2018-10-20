@@ -7,8 +7,6 @@
 from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets
-from rest_framework.response import Response
-from rest_framework.decorators import detail_route
 
 from main.models import Order
 from main.apps.admin_order import serializers, filters
@@ -65,16 +63,10 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return serializers.HotelOrderInfoSerializer
-        elif self.action == 'refund':
-            return serializers.HotelOrderRefundedSerializer
         return self.serializer_class
-
-    @detail_route(methods=['POST'])
-    def refund(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-

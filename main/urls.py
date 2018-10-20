@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^admin/', include('main.apps.admin_comment.urls')),
     url(r'^admin/', include('main.apps.admin_groups.urls')),
     url(r'^admin/', include('main.apps.admin_vip.urls')),
+    url(r'^admin/', include("main.apps.admin_refunded.urls")),
     url(r'^notify/$', views.ReceiveWXNotifyView.as_view()),
     url(r'^user/status_search/$', views.OrderStatusSearchView.as_view())
 ]

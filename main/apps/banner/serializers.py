@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from main.models import Banners
+from main.models import Banners, Notice
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -19,4 +19,13 @@ class BannerSerializer(serializers.ModelSerializer):
             'banner_title',
             'banner_images',
             'jump_url'
+        )
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notice
+        fields = (
+            "id",
+            "content"
         )

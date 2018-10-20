@@ -11,6 +11,6 @@ from rest_framework import routers
 from main.apps.admin_comment import views
 
 router = routers.DefaultRouter()
-router.register('comment_replay', views.HotelOrderCommentViews, base_name='comment_replay')
+router.register('comment_replay', views.HotelOrderCommentViews, base_name='admin_comment_replay')
 
 urlpatterns = router.urls

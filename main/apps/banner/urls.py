@@ -13,5 +13,6 @@ from main.apps.banner import views
 router = routers.DefaultRouter()
 
 router.register('banner', views.BannerViews, base_name='banner')
+router.register('notice', views.NoticeViews, base_name='notice')
 
 urlpatterns = router.urls

@@ -11,3 +11,4 @@ from .tags import *  # noqa
 from .recharge import *  # noqa
 from .comment import *  # noqa
 from .vip_members import *  # noqa
+from .notice import *  # noqa

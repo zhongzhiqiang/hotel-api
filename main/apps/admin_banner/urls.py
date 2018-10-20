@@ -12,6 +12,7 @@ from main.apps.admin_banner import views
 
 router = routers.DefaultRouter()
 
-router.register('banner', views.AdminBannerView, base_name='banner')
+router.register('banner', views.AdminBannerView, base_name='admin_banner')
+router.register('notice', views.AdminNoticeView, base_name='admin_notice')
 
 urlpatterns = router.urls

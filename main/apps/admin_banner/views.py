@@ -9,13 +9,14 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
 
 from main.apps.admin_banner import serializers, filters
-from main.models import Banners
+from main.models import Banners, Notice
 
 
 class AdminBannerView(mixins.CreateModelMixin,
                       mixins.UpdateModelMixin,
                       mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
+                      mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
     """
     create:
@@ -40,3 +41,24 @@ class AdminBannerView(mixins.CreateModelMixin,
     queryset = Banners.objects.all()
     serializer_class = serializers.BannerSerializer
     filter_class = filters.BannersFilter
+
+
+class AdminNoticeView(mixins.CreateModelMixin,
+                      mixins.UpdateModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet):
+
+    def perform_create(self, serializer):
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
+    def perform_update(self, serializer):
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
+        serializer.save()
+
+    queryset = Notice.objects.all()
+    serializer_class = serializers.NoticeSerializer

@@ -228,6 +228,7 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
                 order_refunded.refunded_status = RefundedStatus.success
                 order_refunded.refunded_message = "退款成功"
                 order_refunded.refunded_account = datetime.datetime.now()
+                validated_data.update({"order_status": OrderStatus.refunded})
             elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
                 order_refunded.refunded_status = RefundedStatus.fail
                 order_refunded.refunded_message = result.get("err_code_des") or ''
@@ -394,6 +395,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
                 order_refunded.refunded_status = RefundedStatus.success
                 order_refunded.refunded_message = "退款成功"
                 order_refunded.refunded_account = datetime.datetime.now()
+                validated_data.update({"order_status": OrderStatus.refunded})
             elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
                 order_refunded.refunded_status = RefundedStatus.fail
                 order_refunded.refunded_message = result.get("err_code_des") or ''
@@ -405,6 +407,226 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
 
             logger.info("refunded result:{}".format(result))
         instance = super(HotelOrderRefundedSerializer, self).update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = models.Order
+        fields = (
+            "id",
+            "order_refunded",
+            "order_pay",
+            "order_type",
+            "order_type_display",
+            "order_id",
+            "order_status",
+            "order_status_display",
+            "create_time",
+            "pay_time",
+            "pay_type",
+            "pay_type_display",
+            "num",
+            "order_amount",
+            "integral",
+            "consumer",
+            "consumer_name",
+            "operator_name",
+            "operator_time",
+            "user_remark",
+            "operator_remark",
+            "refunded_money",
+            "operator_name_display"
+        )
+        read_only_fields = (
+            "order_type",
+            "order_type_display",
+            "order_id",
+            "order_status",
+            "order_status_display",
+            "create_time",
+            "pay_time",
+            "pay_type",
+            "pay_type_display",
+            "num",
+            "order_amount",
+            "integral",
+            "consumer",
+            "consumer_name",
+            "operator_name",
+            "operator_time",
+            "user_remark"
+        )
+
+
+class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
+    market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
+    order_refunded = OrderRefundedSerializer(read_only=True)
+    market_order_contact = MarketOrderContactSerializer(read_only=True)
+    order_express = MarketOrderExpressSerializer(read_only=True)
+    order_pay = OrderPaySerializer(read_only=True)
+    order_type_display = serializers.CharField(
+        source="get_order_type_display",
+        read_only=True
+    )
+    order_status_display = serializers.CharField(
+        source="get_order_status_display",
+        read_only=True
+    )
+    pay_type_display = serializers.CharField(
+        source="get_pay_type_display",
+        read_only=True
+    )
+    consumer_name = serializers.CharField(
+        source="consumer.user_name",
+        read_only=True
+    )
+    operator_name_display = serializers.CharField(
+        source="operator_name.user_name",
+        read_only=True
+    )
+
+    def validate(self, attrs):
+        # 这里需要判断订单退款状态是否是在退款中并且退款信息为失败或者重试
+        if self.instance.order_status != OrderStatus.refund_ing and self.instance.order_refunded.refunded_status not in (RefundedStatus.retry, RefundedStatus.fail):
+            raise serializers.ValidationError("重复支付错误, 订单状态有误")
+
+        return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # 根据退款信息重新支付.只有微信支付的会出现问题
+        order_refunded = self.instance.order_refunded
+        consumer = instance.consumer
+        result = unified_refunded(instance.order_id,
+                                  order_refunded.refunded_order_id,
+                                  instance.order_amount,
+                                  order_refunded.refunded_money,
+                                  consumer.openid)
+        if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
+            order_refunded.refunded_status = RefundedStatus.success
+            order_refunded.refunded_message = "退款成功"
+            order_refunded.refunded_account = datetime.datetime.now()
+            validated_data.update({"order_status": OrderStatus.refunded})
+        elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
+            order_refunded.refunded_status = RefundedStatus.fail
+            order_refunded.refunded_message = result.get("err_code_des") or ''
+        else:
+            order_refunded.refunded_status = RefundedStatus.retry
+            order_refunded.refunded_message = result.get("return_msg") or ''
+
+        order_refunded.save()
+        logger.info("refunded result:{}".format(result))
+        instance = super(MarketOrderRetryRefundedSerializer, self).update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = models.Order
+        fields = (
+            "id",
+            "market_order_detail",
+            "order_refunded",
+            "market_order_contact",
+            "order_express",
+            "order_pay",
+            "order_type",
+            "order_type_display",
+            "order_id",
+            "order_status",
+            "order_status_display",
+            "create_time",
+            "pay_time",
+            "pay_type",
+            "pay_type_display",
+            "num",
+            "order_amount",
+            "integral",
+            "consumer",
+            "consumer_name",
+            "operator_name",
+            "operator_time",
+            "user_remark",
+            "operator_remark",
+            "operator_name_display"
+        )
+        read_only_fields = (
+            "order_type",
+            "order_type_display",
+            "order_id",
+            "order_status",
+            "order_status_display",
+            "create_time",
+            "pay_time",
+            "pay_type",
+            "pay_type_display",
+            "num",
+            "order_amount",
+            "integral",
+            "consumer",
+            "consumer_name",
+            "operator_name",
+            "operator_time",
+            "user_remark"
+        )
+
+
+class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
+    refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=True)
+    order_refunded = OrderRefundedSerializer(read_only=True)
+    order_pay = OrderPaySerializer(read_only=True)
+
+    pay_type_display = serializers.CharField(
+        source="get_pay_type_display",
+        read_only=True
+    )
+    order_status_display = serializers.CharField(
+        source='get_order_status_display',
+        read_only=True
+    )
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
+    consumer_name = serializers.CharField(
+        source="consumer.user_name",
+        read_only=True
+    )
+    operator_name_display = serializers.CharField(
+        source="operator_name.user_name",
+        read_only=True
+    )
+
+    def validate(self, attrs):
+        # 这里需要判断订单退款状态是否是在退款中并且退款信息为失败或者重试
+        if self.instance.order_status != OrderStatus.refund_ing and self.instance.order_refunded.refunded_status not in (
+        RefundedStatus.retry, RefundedStatus.fail):
+            raise serializers.ValidationError("重复支付错误, 订单状态有误")
+
+        return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # 根据退款信息重新支付.只有微信支付的会出现问题
+        order_refunded = self.instance.order_refunded
+        consumer = instance.consumer
+        result = unified_refunded(instance.order_id,
+                                  order_refunded.refunded_order_id,
+                                  instance.order_amount,
+                                  order_refunded.refunded_money,
+                                  consumer.openid)
+        if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
+            order_refunded.refunded_status = RefundedStatus.success
+            order_refunded.refunded_message = "退款成功"
+            order_refunded.refunded_account = datetime.datetime.now()
+            validated_data.update({"order_status": OrderStatus.refunded})
+        elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
+            order_refunded.refunded_status = RefundedStatus.fail
+            order_refunded.refunded_message = result.get("err_code_des") or ''
+        else:
+            order_refunded.refunded_status = RefundedStatus.retry
+            order_refunded.refunded_message = result.get("return_msg") or ''
+
+        order_refunded.save()
+        logger.info("refunded result:{}".format(result))
+        instance = super(MarketOrderRetryRefundedSerializer, self).update(instance, validated_data)
         return instance
 
     class Meta:

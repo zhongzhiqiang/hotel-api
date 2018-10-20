@@ -19,7 +19,7 @@ class CartViews(mixins.CreateModelMixin,
     """
     create:
         在自己的购物车新增一件商品
-        如果购物车有一样的商品会合并
+        如果购物车有一样的商品会合并.如果传递数字小于等于0 则会删除
     list:
         返回当前用户的购物车
     update:
@@ -36,7 +36,7 @@ class CartViews(mixins.CreateModelMixin,
 
     def create(self, request, *args, **kwargs):
         post_data = request.data
-        if post_data.get("nums") == 0:
+        if post_data.get("nums") <= 0:
             cart = self.queryset.filter(goods__id=post_data.get("goods")).first()
             if cart:
                 cart.delete()

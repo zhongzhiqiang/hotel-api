@@ -785,3 +785,95 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             "pay_time",
             "integral",
         )
+
+
+class RefundedOrderSerializer(serializers.ModelSerializer):
+    hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
+    market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
+    market_order_contact = MarketOrderContactSerializer(read_only=True)
+    order_express = MarketOrderExpressSerializer(read_only=True)
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True,
+    )
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
+    order_status_display = serializers.CharField(
+        source='get_order_status_display',
+        read_only=True,
+    )
+    pay_type_display = serializers.CharField(
+        source='get_pay_type_display',
+        read_only=True,
+    )
+
+    @staticmethod
+    def increase_room_num(order):
+        room_style = order.hotel_order_detail.room_style
+        room_style.room_count = room_style.room_count + order.hotel_order_detail.room_nums
+        room_style.save()
+
+    def validate(self, attrs):
+        if attrs.get("order_status") != OrderStatus.prp_refund:
+            raise serializers.ValidationError("退款有误")
+
+        if not attrs.get("refund_reason"):
+            raise serializers.ValidationError("请传递退款原因")
+
+        return attrs
+
+    @atomic
+    def update(self, instance, validated_data):
+        order_status = validated_data.get("order_status")
+        # 用户申请退款.
+        if order_status == OrderStatus.prp_refund and instance.order_status >= OrderStatus.check_in:
+            raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
+        # 如果用户申请退款，将房间数直接减去。
+        # 判断订单类型。如果是房间，则直接增加房子类型相应的数量
+        if instance.order_type == OrderType.hotel:
+            self.increase_room_num(instance)
+        instance = super(RefundedOrderSerializer, self).update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'hotel_order_detail',
+            'market_order_detail',
+            'order_id',
+            'order_type',
+            'order_type_display',
+            'belong_hotel',
+            'belong_hotel_name',
+            'order_status',
+            'order_status_display',
+            'pay_type',
+            'pay_type_display',
+            'num',
+            'order_amount',
+            'pay_time',
+            'create_time',
+            'refund_reason',
+            'user_remark',
+            'image',
+            'market_order_contact',
+            'order_express'
+        )
+        read_only_fields = (
+            'order_id',
+            'order_type',
+            'belong_hotel',
+            'hotel_order_detail',
+            'market_order_detail',
+            'belong_hotel',
+            'pay_type',
+            'num',
+            'order_amount',
+            'pay_time',
+            'user_remark',
+            'market_order_contact',
+            'order_express'
+        )

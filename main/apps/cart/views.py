@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import list_route
 
 from main.apps.cart import serializers
 from main.models import Cart
@@ -24,6 +25,8 @@ class CartViews(mixins.CreateModelMixin,
         返回当前用户的购物车
     update:
         更新购物车商品某个商品
+    empty_cart:
+        清空购物车。什么都不用传递。直接post
     """
     queryset = Cart.objects.all()
     serializer_class = serializers.CartSerializers
@@ -49,3 +52,8 @@ class CartViews(mixins.CreateModelMixin,
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @list_route(methods=["POST"])
+    def empty_cart(self, request, *args, **kwargs):
+        self.get_queryset().delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

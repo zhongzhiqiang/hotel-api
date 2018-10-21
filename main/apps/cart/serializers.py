@@ -22,8 +22,16 @@ class CartSerializers(serializers.ModelSerializer):
         source='goods.need_integral',
         read_only=True
     )
-    is_integral = serializers.CharField(
+    is_integral = serializers.BooleanField(
         source='goods.is_integral',
+        read_only=True
+    )
+    cart_id = serializers.CharField(
+        source='id',
+        read_only=True
+    )
+    id = serializers.CharField(
+        source='goods.id',
         read_only=True
     )
     goods_name = serializers.CharField(
@@ -56,6 +64,7 @@ class CartSerializers(serializers.ModelSerializer):
         model = Cart
         fields = (
             'id',
+            'cart_id',
             'goods',
             'nums',
             'goods_price',
@@ -63,3 +72,4 @@ class CartSerializers(serializers.ModelSerializer):
             'is_integral',
             'goods_name'
         )
+

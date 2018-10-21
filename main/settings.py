@@ -161,7 +161,7 @@ REST_FRAMEWORK = {
         '%Y-%m-%dT%H:%M:%S.%f',  # '2012-03-27T00:00:00.000'
         '%Y-%m-%dT%H:%M:%S.%fZ',  # '2012-03-27T00:00:00.000Z'
     ),
-    'DATETIME_FORMAT': "%Y年%m月%d日 %H时%M分%S秒",
+    'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
     'UNICODE_JSON': False
 }
 

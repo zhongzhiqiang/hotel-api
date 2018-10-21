@@ -11,6 +11,10 @@ class GoodsSerializer(serializers.ModelSerializer):
         source='category.category_name',
         read_only=True
     )
+    goods_integral = serializers.CharField(
+        source='need_integral',
+        read_only=True
+    )
     images = ImageField()
 
     class Meta:
@@ -23,6 +27,10 @@ class GoodsSerializer(serializers.ModelSerializer):
             'cover_image',
             'images',
             'need_integral',
+            'is_integral',
+            'goods_integral',
+            'is_promotion',
+            'is_special'
         )
 
 

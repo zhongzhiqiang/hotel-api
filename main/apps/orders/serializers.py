@@ -12,7 +12,7 @@ from rest_framework import serializers
 from django.db.transaction import atomic
 
 from main.models import (Order, HotelOrderDetail, ConsumerBalance, OrderType, MarketOrderDetail, VipMember, OrderPay,
-                         IntegralDetail, MarketOrderContact, MarketOrderExpress)
+                         IntegralDetail, MarketOrderContact, MarketOrderExpress, Cart)
 from main.common.defines import PayType, OrderStatus
 from main.common.utils import create_integral_info
 
@@ -566,10 +566,18 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, attrs):
-        market_order_detail_list = attrs['market_order_detail']
-        market_order_contact = attrs.get("market_order_contact")
+        market_order_detail_list = attrs['market_order_detail'] or []
+        market_order_contact = attrs.get("market_order_contact") or {}
         if not market_order_contact:
             raise serializers.ValidationError("请传递订单联系信息")
+
+        for k, v in market_order_contact.items():
+            if not v:
+                raise serializers.ValidationError("请传递完整传递联系")
+
+        if len(market_order_detail_list) < 1:
+            raise serializers.ValidationError("请传递商品信息")
+
         consumer = self.context['request'].user.consumer
 
         # 循环遍历。计算
@@ -754,6 +762,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         market_order_contact.update({"order": instance})
         MarketOrderContact.objects.create(**market_order_contact)
 
+        # 这里删除用户的购物车.
+        Cart.objects.filter(consumer=consumer).delete()
         cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)
         return instance
 

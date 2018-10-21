@@ -75,6 +75,7 @@ class CartSerializers(serializers.ModelSerializer):
             'goods_integral',
             'is_integral',
             'goods_name',
-            'cover_image'
+            'cover_image',
+            'is_special',
         )
 

@@ -95,7 +95,7 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         order_status = validated_data.get("order_status")
-
+        validated_data.update({"operator_time": datetime.datetime.now()})
         # 生成积分是，当用户入住完成时
         if order_status == OrderStatus.success and instance.order_status == OrderStatus.check_in:
             try:

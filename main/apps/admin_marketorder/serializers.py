@@ -94,6 +94,11 @@ class OrderSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("请传递信息")
         return attrs
 
+    def update(self, instance, validated_data):
+        validated_data.update({"operator_time": datetime.datetime.now()})
+        instance = super(OrderSerializer, self).update(instance, validated_data)
+        return instance
+
     class Meta:
         model = Order
         fields = (

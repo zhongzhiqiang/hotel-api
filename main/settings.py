@@ -1,3 +1,4 @@
+# coding:utf-8
 """
 Django settings for hotel-api project.
 
@@ -160,6 +161,8 @@ REST_FRAMEWORK = {
         '%Y-%m-%dT%H:%M:%S.%f',  # '2012-03-27T00:00:00.000'
         '%Y-%m-%dT%H:%M:%S.%fZ',  # '2012-03-27T00:00:00.000Z'
     ),
+    'DATETIME_FORMAT': "%Y年%m月%d日 %H时%M分%S秒",
+    'UNICODE_JSON': False
 }
 
 # jwt auth settings

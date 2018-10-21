@@ -317,6 +317,10 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         source="operator_name.user_name",
         read_only=True
     )
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True
+    )
 
     def validate(self, attrs):
         if self.instance.order_status != OrderStatus.pre_refund:
@@ -365,6 +369,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         # 住宿退款。
+        validated_data.update({"operator_time": datetime.datetime.now()})
         consumer = instance.consumer
         # 如果支付类型为余额支付。返回给余额
         pay_type = instance.pay_type
@@ -414,6 +419,8 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "order_refunded",
+            'belong_hotel_name',
+            'belong_hotel',
             "order_pay",
             "order_type",
             "order_type_display",
@@ -494,6 +501,7 @@ class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         # 根据退款信息重新支付.只有微信支付的会出现问题
+        validated_data.update({"operator_time": datetime.datetime.now()})
         order_refunded = self.instance.order_refunded
         consumer = instance.consumer
         result = unified_refunded(instance.order_id,
@@ -593,6 +601,10 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
         source="operator_name.user_name",
         read_only=True
     )
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True
+    )
 
     def validate(self, attrs):
         # 这里需要判断订单退款状态是否是在退款中并且退款信息为失败或者重试
@@ -605,6 +617,7 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         # 根据退款信息重新支付.只有微信支付的会出现问题
+        validated_data.update({"operator_time": datetime.datetime.now()})
         order_refunded = self.instance.order_refunded
         consumer = instance.consumer
         result = unified_refunded(instance.order_id,
@@ -626,7 +639,7 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
 
         order_refunded.save()
         logger.info("refunded result:{}".format(result))
-        instance = super(MarketOrderRetryRefundedSerializer, self).update(instance, validated_data)
+        instance = super(HotelOrderRetryRefundedSerializer, self).update(instance, validated_data)
         return instance
 
     class Meta:
@@ -634,6 +647,8 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "order_refunded",
+            "belong_hotel",
+            "belong_hotel_name",
             "order_pay",
             "order_type",
             "order_type_display",

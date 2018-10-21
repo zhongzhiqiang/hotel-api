@@ -567,6 +567,9 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         market_order_detail_list = attrs['market_order_detail']
+        market_order_contact = attrs.get("market_order_contact")
+        if not market_order_contact:
+            raise serializers.ValidationError("请传递订单联系信息")
         consumer = self.context['request'].user.consumer
 
         # 循环遍历。计算

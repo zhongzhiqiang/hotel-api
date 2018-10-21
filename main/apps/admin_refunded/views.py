@@ -50,8 +50,8 @@ class HotelRefundedViews(mixins.ListModelMixin,
     serializer_class = serializers.HotelOrderRefundedSerializer
 
     def get_queryset(self):
-        if hasattr(self.request.user, 'consumer'):
-            return self.queryset.filter(belong_hotel=self.request.user.consumer.belong_hotel)
+        if hasattr(self.request.user, 'staffprofile'):
+            return self.queryset.filter(belong_hotel=self.request.user.staffprofile.belong_hotel)
         return self.request
 
     def perform_update(self, serializer):

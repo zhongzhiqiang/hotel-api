@@ -46,6 +46,12 @@ permission = [
     }, {
         "name": "会员中心",
         "codename": "vip_info"
+    }, {
+        "name": "退款中心",
+        "codename": "refunded"
+    }, {
+        "name": "评论回复中心",
+        "codename": "comment_reply"
     }
 ]
 

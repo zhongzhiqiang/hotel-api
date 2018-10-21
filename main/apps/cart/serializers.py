@@ -38,6 +38,10 @@ class CartSerializers(serializers.ModelSerializer):
         source='goods.goods_name',
         read_only=True
     )
+    cover_image = serializers.CharField(
+        source='goods.cover_image',
+        read_only=True
+    )
 
     def validate(self, attrs):
         goods = attrs.get("goods")
@@ -70,6 +74,7 @@ class CartSerializers(serializers.ModelSerializer):
             'goods_price',
             'goods_integral',
             'is_integral',
-            'goods_name'
+            'goods_name',
+            'cover_image'
         )
 

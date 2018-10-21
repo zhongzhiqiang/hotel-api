@@ -42,7 +42,7 @@ class CartViews(mixins.CreateModelMixin,
                 cart.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
-                return Response(status=status.HTTP_400_BAD_REQUEST, data={"non_fields_error": "传递错误"})
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={"non_field_errors": "传递错误"})
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

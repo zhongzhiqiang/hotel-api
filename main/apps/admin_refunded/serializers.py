@@ -325,6 +325,15 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if self.instance.order_status != OrderStatus.pre_refund:
             raise serializers.ValidationError("当前订单不可退款")
+        refunded_money = attrs.get("refunded_money")
+        if not refunded_money:
+            raise serializers.ValidationError("请传递退款金额")
+
+        if self.instance.order_amount < refunded_money:
+            raise serializers.ValidationError("退款金额不能够超过订单总额")
+
+        if self.refunded_money < 0:
+            raise serializers.ValidationError("退款金额不能改为负")
 
         return attrs
 
@@ -374,6 +383,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         # 如果支付类型为余额支付。返回给余额
         pay_type = instance.pay_type
         refunded_money = validated_data.pop('refunded_money')
+
         if pay_type == PayType.balance:
             validated_data.update({"order_status": OrderStatus.refunded})
             refunded_info = self.increase_balance(instance, refunded_money)

@@ -461,7 +461,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         elif pay_type == PayType.balance and instance.order_type == OrderType.market:
             # 首先判断是否有积分
             if consumer.integral < instance.integral:
-                raise serializers.ValidationError({"non_fields_error": ['用户积分不足']})
+                raise serializers.ValidationError({"non_field_error": ['用户积分不足']})
 
             if consumer.balance > instance.order_amount:
                 validated_data.update({"order_status": OrderStatus.deliver})

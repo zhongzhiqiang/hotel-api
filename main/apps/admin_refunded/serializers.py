@@ -50,7 +50,7 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods_name',
             'sale_price',
             'integral',
-            'image',
+            'cover_image',
             "nums",
             'single_goods_amount'
         )

@@ -207,7 +207,7 @@ class MarketOrderDetail(models.Model):
         return self.goods.goods_name
 
     @property
-    def image(self):
+    def cover_image(self):
         return self.goods.cover_image
 
     @property

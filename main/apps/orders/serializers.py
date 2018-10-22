@@ -238,7 +238,7 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods_integral',
             'goods_price',
             'nums',
-            'image',
+            'cover_image',
             'is_integral'
         )
 
@@ -537,9 +537,10 @@ class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods_price',
             'goods_name',
             'goods_integral',
-            'is_integral'
+            'is_integral',
+            'cover_image'
         )
-        read_only_fields = ('goods_price', 'goods_integral', 'is_integral')
+        read_only_fields = ('goods_price', 'goods_integral', 'is_integral', 'cover_image')
 
 
 class CreateMarketOrderSerializer(serializers.ModelSerializer):

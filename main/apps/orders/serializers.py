@@ -326,11 +326,14 @@ class OrderSerializer(serializers.ModelSerializer):
             'user_remark',
             'image',
             'market_order_contact',
+            'integral',
             'order_express'
         )
         read_only_fields = (
             'order_id',
             'order_type',
+            'integral'
+            'order_express',
             'belong_hotel'
         )
 
@@ -826,7 +829,8 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             'user_remark',
             'image',
             'market_order_contact',
-            'order_express'
+            'order_express',
+            'integral'
         )
         read_only_fields = (
             'order_id',
@@ -841,5 +845,6 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             'pay_time',
             'user_remark',
             'market_order_contact',
-            'order_express'
+            'order_express',
+            'integral'
         )

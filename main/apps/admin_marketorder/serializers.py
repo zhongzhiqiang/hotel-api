@@ -20,6 +20,10 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
         source='goods.name',
         read_only=True
     )
+    is_integral = serializers.BooleanField(
+        source='goods.is_integral',
+        read_only=True
+    )
 
     class Meta:
         model = MarketOrderDetail
@@ -27,10 +31,11 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'id',
             'goods',
             'goods_name',
-            'sale_price',
-            'integral',
+            'goods_price',
+            'goods_integral',
             'image',
             "nums",
+            'is_integral',
             'single_goods_amount'
         )
 

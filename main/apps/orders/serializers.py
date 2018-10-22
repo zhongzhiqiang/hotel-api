@@ -225,15 +225,21 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
 
 
 class MarketOrderDetailSerializer(serializers.ModelSerializer):
+    is_integral = serializers.BooleanField(
+        source='goods.is_integral',
+        read_only=True
+    )
+
     class Meta:
         model = MarketOrderDetail
         fields = (
             'id',
             'goods',
-            'integral',
-            'sale_price',
+            'goods_integral',
+            'goods_price',
             'nums',
-            'image'
+            'image',
+            'is_integral'
         )
 
 
@@ -528,12 +534,12 @@ class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
             'id',
             'goods',
             'nums',
-            'sale_price',
+            'goods_price',
             'goods_name',
-            'integral',
+            'goods_integral',
             'is_integral'
         )
-        read_only_fields = ('sale_price', 'integral', 'is_integral')
+        read_only_fields = ('goods_price', 'goods_integral', 'is_integral')
 
 
 class CreateMarketOrderSerializer(serializers.ModelSerializer):
@@ -581,11 +587,11 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
                 vip_obj = market_order_detail
             if goods.is_integral:
                 need_integral += (goods.need_integral * market_order_detail['nums'])
-                market_order_detail.update({"integral": goods.need_integral})
+                market_order_detail.update({"goods_integral": goods.need_integral})
 
             if not goods.is_integral:
                 need_price += (goods.goods_price * market_order_detail['nums'])
-                market_order_detail.update({"sale_price": goods.goods_price})
+                market_order_detail.update({"goods_price": goods.goods_price})
 
         # 这里判断会员类型的数量
         if vip_count > 1:
@@ -750,8 +756,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'order_type',
             'num',
             "order_status",
-            "pay_time",
-            "integral",
+            "pay_time"
         )
 
 

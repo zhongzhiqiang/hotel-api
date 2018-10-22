@@ -20,4 +20,5 @@ class HotelOrderFilter(django_filters.rest_framework.FilterSet):
             "pay_time": ['range'],
             "create_time": ['range'],
             "operator_time": ['range'],
+            "order_type": ['range', 'exact'],
         }

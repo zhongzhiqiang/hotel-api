@@ -178,7 +178,7 @@ class MarketOrderDetail(models.Model):
         null=True,
         on_delete=models.SET_NULL
     )
-    sale_price = models.DecimalField(
+    goods_price = models.DecimalField(
         '销售单价',
         max_digits=5,
         decimal_places=2,
@@ -186,7 +186,7 @@ class MarketOrderDetail(models.Model):
         default=0
     )
 
-    integral = models.PositiveIntegerField(
+    goods_integral = models.PositiveIntegerField(
         '兑换积分单价',
         blank=True,
         default=0,

@@ -11,13 +11,12 @@ from django.db import transaction
 from main.schedul.celery_app import app
 from main.models import Order
 from main.common.defines import OrderStatus, OrderType
+from main.common.utils import increase_room_num
 
 
 @transaction.atomic
-def increase_room_num(order):
-    room_style = order.hotel_order_detail.room_style
-    room_style.room_count = room_style.room_count + order.hotel_order_detail.room_nums
-    room_style.save()
+def increase_num(order):
+    increase_room_num(order)
 
 
 @app.task(name='beat_cancel_task')
@@ -32,5 +31,5 @@ def beat_cancel_task():
         if minutes > datetime.timedelta(minutes=20):
             order.order_status = OrderStatus.pasted
             if order.order_type == OrderType.hotel:
-                increase_room_num(order)
+                increase_num(order)
             order.save()

@@ -79,7 +79,7 @@ class OrderRefundedSerializer(serializers.ModelSerializer):
             "id",
             "order",
             "order_id",
-            "refunded_status"
+            "refunded_status",
             "refunded_status_display",
             "refunded_message",
             "refunded_order_id",
@@ -332,7 +332,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         if self.instance.order_amount < refunded_money:
             raise serializers.ValidationError("退款金额不能够超过订单总额")
 
-        if self.refunded_money < 0:
+        if refunded_money < 0:
             raise serializers.ValidationError("退款金额不能改为负")
 
         return attrs
@@ -455,6 +455,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             "order_type",
+            'belong_hotel',
             "order_type_display",
             "order_id",
             "order_status",

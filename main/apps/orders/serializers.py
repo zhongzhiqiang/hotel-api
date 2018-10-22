@@ -15,7 +15,7 @@ from main.models import (Order, HotelOrderDetail, ConsumerBalance, OrderType, Ma
                          IntegralDetail, MarketOrderContact, MarketOrderExpress, Cart)
 from main.common.defines import PayType, OrderStatus
 from main.common.utils import create_integral_info
-
+from main.common import utils
 from main.schedul.tasks import cancel_task
 from main.common.constant import CANCEl_TIME
 logger = logging.getLogger('django')
@@ -152,12 +152,6 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         attrs.update({"num": num, "order_amount": order_amount})
         return attrs
 
-    @staticmethod
-    def reduce_room_num(hotel_detail):
-        # 下单支付成功扣除房间数
-        hotel_detail['room_style'].room_count = hotel_detail['room_style'].room_count - hotel_detail['room_nums']
-        hotel_detail['room_style'].save()
-
     @atomic
     def create(self, validated_data):
         consumer = self.context['request'].user.consumer
@@ -189,15 +183,14 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         instance.order_id = instance.make_order_id()
         instance.save()
 
-        # 下单的时候, 将房间类型减去订单数量
-        self.reduce_room_num(hotel_order_detail)
-
         if pay_info:
             pay_info.update({"order": instance})
             OrderPay.objects.create(**pay_info)
         hotel_order_detail.update({"hotel_order": instance})
         HotelOrderDetail.objects.create(**hotel_order_detail)
         cancel_task.apply_async(args=(instance.order_id, ), countdown=CANCEl_TIME)
+        # 下单成功，扣除房间数
+        utils.reduce_room_num(instance.hotel_order_detail.room_style, instance.num)
 
         return instance
 
@@ -421,27 +414,17 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
             recharge_balance = instance.order_amount
         consumer.save()
 
+        goods_name, nums = utils.get_goods_name_by_instance(instance.market_order_detail, 'market')
         params = {
             "consumer": consumer,
             "balance_type": 20,
-            "message": "余额消费,购买商品:{},数量:{}".format(
-                instance.market_order_detail.goods_name, instance.market_order_detail.num),
+            "message": "余额消费,购买商品:{},数量:{}".format(goods_name, instance.market_order_detail.num),
             "cost_price": -instance.order_amount,
             "left_balance": consumer.balance,
         }
         ConsumerBalance(**params).save()
 
         return recharge_balance, free_balance
-
-    @classmethod
-    def create_vip(cls, consumer, vip_level):
-        # 这里应该是判断用户是否有会员，如果有会员就更新.
-        params = {
-            "consumer": consumer,
-            "vip_level": vip_level,
-            "vip_no": VipMember.make_vip_no()
-        }
-        VipMember.objects.create(**params)
 
     @atomic
     def update(self, instance, validated_data):
@@ -478,10 +461,11 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
 
         instance = super(OrderPayAgainSerializer, self).update(instance, validated_data)
 
-        if instance.order_type == OrderType.market:
+        # 这里需要判断是否为会员商品并且支付成功的
+        if instance.order_type == OrderType.market and instance.order_status == OrderStatus.deliver:
             for market_order in instance.market_order_detail.all():
                 if market_order.is_special:
-                    self.create_vip(instance.consumer, instance.market_order_detail.vip_info)
+                    utils.create_vip(instance.consumer, market_order.vip_info)
 
         if pay_info:
             pay_info.update({"order": instance})
@@ -608,7 +592,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("会员只能够购买一个")
 
         if hasattr(consumer, 'vipmember'):
-            if vip_obj and vip_obj['goods'].vip_info.vip_weight < consumer.vipmember.vip_level.vip_weight:
+            if vip_obj and vip_obj['goods'].vip_info.vip_weight <= consumer.vipmember.vip_level.vip_weight:
                 raise serializers.ValidationError("只能够购买比当前会员等级高的会员类型")
 
         if vip_count == 1 and len(market_order_detail_list) > 1:
@@ -634,8 +618,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         consumer.integral_info.integral = left_integral
         consumer.integral_info.save()
 
-        # 创建用户积分
-        goods_name, num = self.get_goods_name(market_order_detail, 'integral')
+        goods_name, num = utils.get_goods_name_by_post(market_order_detail, 'integral')
         params = {
             "consumer": consumer,
             "integral": -validated_data['integral'],
@@ -645,7 +628,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         }
         IntegralDetail.objects.create(**params)
 
-    def balance_buy(self, consumer, validated_data, market_order_detail):
+    @staticmethod
+    def balance_buy(consumer, validated_data, market_order_detail):
         left_balance = consumer.recharge_balance - validated_data['order_amount']
         free_balance = 0
         if left_balance < 0:
@@ -658,7 +642,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             consumer.recharge_balance = left_balance
             recharge_balance = validated_data['order_amount']
         consumer.save()
-        goods_name, num = self.get_goods_name(market_order_detail, 'market')
+        goods_name, num = utils.get_goods_name_by_post(market_order_detail, 'market')
         params = {
             "consumer": consumer,
             "balance_type": 20,
@@ -669,38 +653,6 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         ConsumerBalance(**params).save()
 
         return recharge_balance, free_balance
-
-    @classmethod
-    def create_vip(cls, consumer, vip_level):
-        params = {
-            "consumer": consumer,
-            "vip_level": vip_level,
-            "vip_no": VipMember.make_vip_no()
-        }
-        VipMember.objects.create(**params)
-
-    @staticmethod
-    def get_goods_name(market_order_detail, goods_type):
-        goods_name = u''
-        num = 0
-        if goods_type == 'integral':
-            for market in market_order_detail:
-                if market['goods'].is_integral:
-                    num += market['nums']
-                    if goods_name:
-                        goods_name = goods_name + u',' + market['goods'].goods_name
-                    else:
-                        goods_name = market['goods'].goods_name
-        else:
-            for market in market_order_detail:
-                if not market['goods'].is_integral:
-                    num += market['nums']
-                    if goods_name:
-                        goods_name = goods_name + u',' + market['goods'].goods_name
-                    else:
-                        goods_name = market['goods'].goods_name
-
-        return goods_name, num
 
     @atomic
     def create(self, validated_data):
@@ -745,7 +697,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
                 if detail['goods'].is_special:
                     validated_data.update({"order_status": OrderStatus.success})
                     level = detail['goods'].vip_info
-                    self.create_vip(consumer, level)
+                    utils.create_vip(consumer, level)
 
         instance = super(CreateMarketOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
@@ -822,12 +774,6 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
-    @staticmethod
-    def increase_room_num(order):
-        room_style = order.hotel_order_detail.room_style
-        room_style.room_count = room_style.room_count + order.hotel_order_detail.room_nums
-        room_style.save()
-
     def validate(self, attrs):
 
         if not attrs.get("refund_reason"):
@@ -842,10 +788,18 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
         # 用户申请退款.
         if order_status == OrderStatus.pre_refund and instance.order_status >= OrderStatus.check_in:
             raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
+
+        # 判断是否为商场订单且为会员
+        market_order_detail = self.instance.market_order_detail
+
+        if self.instance.order_type == OrderType.market:
+            for market in market_order_detail:
+                if market.is_special:
+                    raise serializers.ValidationError({"non_field_errors": ['特殊商品无法退款']})
         # 如果用户申请退款，将房间数直接减去。
         # 判断订单类型。如果是房间，则直接增加房子类型相应的数量
         if instance.order_type == OrderType.hotel:
-            self.increase_room_num(instance)
+            utils.increase_room_num(instance)
         instance = super(RefundedOrderSerializer, self).update(instance, validated_data)
         return instance
 

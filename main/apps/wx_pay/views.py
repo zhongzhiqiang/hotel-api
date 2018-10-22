@@ -16,8 +16,9 @@ from django.http import HttpResponse
 
 from main.apps.wx_pay.utils import WxpayServerPub
 from main.common.defines import WeiXinCode, OrderStatus, OrderType, PayType
-from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay, IntegralDetail
+from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay, IntegralDetail, VipMember
 from main.apps.orders import serializers
+from main.common import utils
 
 logger = logging.getLogger("django")
 
@@ -102,7 +103,13 @@ class ReceiveWXNotifyView(views.APIView):
             return_code = WeiXinCode.success
         elif hotel_order and hotel_order.order_status == OrderStatus.pre_pay and hotel_order.order_type == OrderType.market:
 
+            # 这里判断商品里面是否有会员
+
             # 这里要处理积分判断兑换的问题。并生成积分的扣除
+            goods_name = utils.get_goods_name_by_instance(hotel_order.market_order_detail, 'market')
+            for market in hotel_order.market_order_detail:
+                if market.is_special:
+                    utils.create_vip(hotel_order.consumer, market.vip_info)
             if hotel_order.integral:
                 # 这里扣去积分
                 hotel_order.consumer.integral_info.integral = hotel_order.consumer.integral - hotel_order.integral
@@ -124,7 +131,7 @@ class ReceiveWXNotifyView(views.APIView):
                 "consumer": hotel_order.consumer,
                 "balance_type": 20,
                 "message": "微信消费,购买商品:{},数量:{}".format(
-                    hotel_order.market_order_detail.goods_name, hotel_order.num),
+                    goods_name, hotel_order.num),
                 "cost_price": -hotel_order.sale_price,
                 "left_balance": hotel_order.consumer.balance,
             }

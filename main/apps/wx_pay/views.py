@@ -81,7 +81,7 @@ class ReceiveWXNotifyView(views.APIView):
 
     @staticmethod
     def handler_order(order_id, time_end, pay_money, wx_return_data):
-
+        logger.info("order_id:{}, wx_return_data:{}".format(order_id, wx_return_data))
         if order_id.startswith("wx"):
             wx_pay = WeiXinPayInfo.objects.filter(wx_order_id=order_id).first()
             hotel_order = wx_pay.order

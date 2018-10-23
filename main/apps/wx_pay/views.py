@@ -147,7 +147,7 @@ class ReceiveWXNotifyView(views.APIView):
             ConsumerBalance(**params).save()
         else:
             return_code = WeiXinCode.fail
-
+            logger.warning("post error:{}".format(wx_return_data))
         # 支付成功时，创建支付信息.
         if return_code == WeiXinCode.success:
             pay_info = {

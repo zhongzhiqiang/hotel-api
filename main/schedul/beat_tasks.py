@@ -6,12 +6,16 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 import datetime
+import logging
 
 from django.db import transaction
 from main.schedul.celery_app import app
 from main.models import Order
 from main.common.defines import OrderStatus, OrderType
 from main.common.utils import increase_room_num
+
+
+logger = logging.getLogger('django')
 
 
 @transaction.atomic
@@ -30,6 +34,7 @@ def beat_cancel_task():
         # 这里如果是住宿订单，需要把房间数加上来
         if minutes > datetime.timedelta(minutes=20):
             order.order_status = OrderStatus.pasted
+            logger.info("cancel order_id:{}".format(order.order_id))
             if order.order_type == OrderType.hotel:
                 increase_num(order)
             order.save()

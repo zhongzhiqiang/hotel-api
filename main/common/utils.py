@@ -5,7 +5,7 @@
 # File    : utils.py
 # Software: PyCharm
 from __future__ import unicode_literals
-from main.models import IntegralDetail, VipMember
+from main.models import IntegralDetail, VipMember, WeiXinPayInfo
 
 
 def create_balance_info(user, integral, integral_type, remark):
@@ -123,3 +123,21 @@ def reduce_room_num(room_style, room_nums):
     # 下单支付成功扣除房间数
     room_style.room_count = room_style.room_count - room_nums
     room_style.save()
+
+
+def create_wx_pay(order):
+    # 传递订单.
+    wx_pay_info = {
+        "order": order,
+    }
+    wx_pay = WeiXinPayInfo.objects.create(**wx_pay_info)
+    wx_pay.wx_order_id = wx_pay.make_order_id()
+    wx_pay.save()
+
+
+def get_wx_order_id(order_id):
+    # 返回下发给微信的订单号
+    wx_pay = WeiXinPayInfo.objects.filter(order__order_id=order_id).order_by('-create_time').first()
+    if not wx_pay:
+        return order_id
+    return wx_pay.wx_order_id

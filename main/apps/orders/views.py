@@ -11,9 +11,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
 
 from main.apps.orders import serializers, filters
-from main.models import Order
+from main.models import Order, WeiXinPayInfo
 from main.common.defines import PayType, OrderType, OrderStatus
 from main.apps.wx_pay.utils import unifiedorder
+from main.common.utils import get_wx_order_id
 
 
 class OrderViews(mixins.CreateModelMixin,
@@ -130,8 +131,10 @@ class OrderViews(mixins.CreateModelMixin,
         self.perform_create(serializer)
         data = serializer.data
         if data['pay_type'] == PayType.weixin:
+            # 这里获取wx_order_id
+            wx_order_id = get_wx_order_id(data['order_id'])
             detail = data['hotel_order_detail']['room_style_name']
-            result = unifiedorder('曼嘉酒店-住宿', data['order_id'], data['order_amount'], self.request.user.consumer.openid, detail)
+            result = unifiedorder('曼嘉酒店-住宿', wx_order_id, data['order_amount'], self.request.user.consumer.openid, detail)
             data.update(result)
 
         if data['pay_type'] != PayType.weixin and data['order_status'] == 10:
@@ -148,8 +151,8 @@ class OrderViews(mixins.CreateModelMixin,
 
         data = serializer.data
         if data['pay_type'] == PayType.weixin:
-
-            result = unifiedorder('曼嘉尔酒店-商场', data['order_id'], data['order_amount'], self.request.user.consumer.openid,
+            wx_order_id = get_wx_order_id(data['order_id'])
+            result = unifiedorder('曼嘉尔酒店-商场', wx_order_id, data['order_amount'], self.request.user.consumer.openid,
                                   '购买商品')
             data.update(result)
         if data['pay_type'] != PayType.weixin and data['order_status'] == 10:
@@ -186,13 +189,14 @@ class OrderPayView(viewsets.GenericViewSet):
         self.perform_update(serializer)
         data = serializer.data
         # 支付方式为30，并且状态为10时，重新生成支付信息
+        wx_order_id = get_wx_order_id(data['order_id'])
         if data['pay_type'] == PayType.weixin and data['order_status'] == OrderStatus.pre_pay and data['order_type'] == OrderType.hotel:
             detail = data['hotel_order_detail']['room_style_name']
-            result = unifiedorder('曼嘉酒店-住宿', data['order_id'], data['order_amount'], self.request.user.consumer.openid,
+            result = unifiedorder('曼嘉酒店-住宿', wx_order_id, data['order_amount'], self.request.user.consumer.openid,
                                   detail)
             data.update(result)
         elif data['pay_type'] == PayType.weixin and data['order_status'] == OrderStatus.pre_pay and data['order_type'] == OrderType.market:
-            result = unifiedorder('曼嘉酒店-商场', data['order_id'], data['order_amount'], self.request.user.consumer.openid,
+            result = unifiedorder('曼嘉酒店-商场', wx_order_id, data['order_amount'], self.request.user.consumer.openid,
                                   '购买商品')
             data.update(result)
 

@@ -504,7 +504,7 @@ class MarketOrderExpress(models.Model):
         verbose_name_plural = verbose_name
 
 
-class WeiXinPay(models.Model):
+class WeiXinPayInfo(models.Model):
     order = models.ForeignKey(
         "main.Order",
         blank=True,
@@ -541,8 +541,12 @@ class WeiXinPay(models.Model):
         max_length=100
     )
 
+    def make_order_id(self):
+        """创建订单号"""
+        return 'wx%s%8.8d' % (datetime.date.today().strftime('%Y%m%d'), self.id)
+
     def __unicode__(self):
-        return self.order_id
+        return self.wx_order_id
 
     class Meta:
         verbose_name = '微信支付信息'

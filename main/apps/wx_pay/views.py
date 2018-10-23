@@ -16,7 +16,7 @@ from django.http import HttpResponse
 
 from main.apps.wx_pay.utils import WxpayServerPub
 from main.common.defines import WeiXinCode, OrderStatus, OrderType, PayType
-from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay, IntegralDetail, VipMember
+from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay, IntegralDetail, WeiXinPayInfo
 from main.apps.orders import serializers
 from main.common import utils
 
@@ -81,8 +81,17 @@ class ReceiveWXNotifyView(views.APIView):
 
     @staticmethod
     def handler_order(order_id, time_end, pay_money, wx_return_data):
-        hotel_order = Order.objects.filter(
-            order_id=order_id, order_amount=pay_money, pay_type=PayType.weixin).first()
+
+        if order_id.startswith("wx"):
+            wx_pay = WeiXinPayInfo.objects.filter(wx_order_id=order_id).first()
+            hotel_order = wx_pay.order
+            wx_pay.call_back_result = wx_return_data.get("return_code")
+            wx_pay.call_back_result_code = wx_return_data.get("result_code")
+            wx_pay.call_return_msg = wx_return_data.get("return_msg")
+            wx_pay.save()
+        else:
+            hotel_order = Order.objects.filter(
+                order_id=order_id, order_amount=pay_money, pay_type=PayType.weixin).first()
 
         if hotel_order and hotel_order.order_status == OrderStatus.pre_pay and hotel_order.order_type == OrderType.hotel:
             hotel_order.order_status = OrderStatus.to_check_in

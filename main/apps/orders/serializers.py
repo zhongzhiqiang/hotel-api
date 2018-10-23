@@ -182,6 +182,8 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         instance = super(CreateHotelOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
         instance.save()
+        if instance.pay_type == PayType.weixin:
+            utils.create_wx_pay(instance)
 
         if pay_info:
             pay_info.update({"order": instance})
@@ -490,7 +492,8 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
                 if instance.integral > 0:
                     self.integral_buy(consumer, instance)
                     pay_info.update({"integral": instance.integral})
-            # TODO 这里需要把购物车的相应商品给删除
+        elif pay_type == PayType.weixin:
+            utils.create_wx_pay(instance)
 
         instance = super(OrderPayAgainSerializer, self).update(instance, validated_data)
 
@@ -743,6 +746,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         instance = super(CreateMarketOrderSerializer, self).create(validated_data)
         instance.order_id = instance.make_order_id()
         instance.save()
+        if instance.pay_type == PayType.weixin:
+            utils.create_wx_pay(instance)
 
         if order_pay_params:
             # 创建一条支付信息。只有当成功支付时，才会有支付信息
@@ -754,7 +759,6 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             MarketOrderDetail.objects.create(**market_order)
         market_order_contact.update({"order": instance})
         MarketOrderContact.objects.create(**market_order_contact)
-
         # 这里删除用户的购物车.
         Cart.objects.filter(consumer=consumer).delete()
         cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)

@@ -4,7 +4,6 @@
 # Site    : 
 # File    : logger_resp_ret.py
 # Software: PyCharm
-from __future__ import unicode_literals
 
 try:
     from django.utils.deprecation import MiddlewareMixin

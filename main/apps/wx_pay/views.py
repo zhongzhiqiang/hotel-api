@@ -67,7 +67,8 @@ class ReceiveWXNotifyView(views.APIView):
                 return_code = self.handler_recharge(order_id, time_end, pay_money)
             else:
                 return_code = self.handler_order(order_id, time_end, pay_money, wx_return_data)
-        except Exception:
+        except Exception as e:
+            logger.error("error:{}".format(e), exc_info=True)
             return_code = WeiXinCode.fail
 
         return_param.update({
@@ -85,9 +86,9 @@ class ReceiveWXNotifyView(views.APIView):
         if order_id.startswith("wx"):
             wx_pay = WeiXinPayInfo.objects.filter(wx_order_id=order_id).first()
             hotel_order = wx_pay.order
-            wx_pay.call_back_result = wx_return_data.get("return_code")
-            wx_pay.call_back_result_code = wx_return_data.get("result_code")
-            wx_pay.call_return_msg = wx_return_data.get("return_msg")
+            wx_pay.call_back_result = wx_return_data.get("return_code") or ''
+            wx_pay.call_back_result_code = wx_return_data.get("result_code") or ''
+            wx_pay.call_return_msg = wx_return_data.get("return_msg") or ''
             wx_pay.save()
         else:
             hotel_order = Order.objects.filter(
@@ -105,7 +106,7 @@ class ReceiveWXNotifyView(views.APIView):
                 "balance_type": 20,
                 "message": "微信消费,预定房间:{},数量:{}".format(
                     hotel_order.hotel_order_detail.room_style.style_name, hotel_order.num),
-                "cost_price": -hotel_order.sale_price,
+                "cost_price": -hotel_order.order_amount,
                 "left_balance": hotel_order.consumer.balance,
             }
             ConsumerBalance(**params).save()
@@ -115,8 +116,8 @@ class ReceiveWXNotifyView(views.APIView):
             # 这里判断商品里面是否有会员
 
             # 这里要处理积分判断兑换的问题。并生成积分的扣除
-            goods_name = utils.get_goods_name_by_instance(hotel_order.market_order_detail, 'market')
-            for market in hotel_order.market_order_detail:
+            goods_name = utils.get_goods_name_by_instance(hotel_order.market_order_detail.all(), 'market')
+            for market in hotel_order.market_order_detail.all():
                 if market.is_special:
                     utils.create_vip(hotel_order.consumer, market.vip_info)
             if hotel_order.integral:
@@ -141,7 +142,7 @@ class ReceiveWXNotifyView(views.APIView):
                 "balance_type": 20,
                 "message": "微信消费,购买商品:{},数量:{}".format(
                     goods_name, hotel_order.num),
-                "cost_price": -hotel_order.sale_price,
+                "cost_price": -hotel_order.order_amount,
                 "left_balance": hotel_order.consumer.balance,
             }
             ConsumerBalance(**params).save()
@@ -151,7 +152,7 @@ class ReceiveWXNotifyView(views.APIView):
         # 支付成功时，创建支付信息.
         if return_code == WeiXinCode.success:
             pay_info = {
-                "wx_order_id": wx_return_data.get('transaction_id'),
+                "wx_order_id": wx_return_data.get('transaction_id') or '',
                 "order": hotel_order,
                 "money": pay_money,
                 "integral": hotel_order.integral

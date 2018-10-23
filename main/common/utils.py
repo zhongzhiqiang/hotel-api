@@ -69,20 +69,20 @@ def get_goods_name_by_instance(market_order_detail, goods_type):
     num = 0
     if goods_type == 'integral':
         for market in market_order_detail:
-            if market['goods'].is_integral:
-                num += market['nums']
+            if market.goods.is_integral:
+                num += market.nums
                 if goods_name:
-                    goods_name = goods_name + u',' + market['goods'].goods_name
+                    goods_name = goods_name + u',' + market.goods.goods_name
                 else:
-                    goods_name = market['goods'].goods_name
+                    goods_name = market.goods.goods_name
     else:
         for market in market_order_detail:
-            if not market['goods'].is_integral:
-                num += market['nums']
+            if not market.goods.is_integral:
+                num += market.nums
                 if goods_name:
-                    goods_name = goods_name + u',' + market['goods'].goods_name
+                    goods_name = goods_name + u',' + market.goods.goods_name
                 else:
-                    goods_name = market['goods'].goods_name
+                    goods_name = market.goods.goods_name
 
     return goods_name, num
 

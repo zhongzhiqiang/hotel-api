@@ -502,3 +502,48 @@ class MarketOrderExpress(models.Model):
     class Meta:
         verbose_name = '订单快递信息'
         verbose_name_plural = verbose_name
+
+
+class WeiXinPay(models.Model):
+    order = models.ForeignKey(
+        "main.Order",
+        blank=True,
+        null=True,
+    )
+
+    wx_order_id = models.CharField(
+        "传递给订单号",
+        blank=True,
+        max_length=30,
+        default='',
+        help_text='随机生成'
+    )
+    create_time = models.DateTimeField(
+        "创建时间",
+        auto_now_add=True
+    )
+    call_back_result = models.CharField(
+        "回调结果",
+        default='',
+        blank=True,
+        max_length=20
+    )
+    call_back_result_code = models.CharField(
+        "回调业务结果",
+        default='',
+        blank=True,
+        max_length=20
+    )
+    call_return_msg = models.CharField(
+        '回调描述',
+        default='',
+        blank=True,
+        max_length=100
+    )
+
+    def __unicode__(self):
+        return self.order_id
+
+    class Meta:
+        verbose_name = '微信支付信息'
+        verbose_name_plural = verbose_name

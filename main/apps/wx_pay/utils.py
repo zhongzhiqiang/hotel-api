@@ -5,8 +5,8 @@
 # File    : utils.py
 # Software: PyCharm
 from __future__ import unicode_literals
-import json
-import time
+
+import logging
 import random
 import hashlib
 import string
@@ -16,6 +16,8 @@ from weixin.pay import WXAppPay
 import xml.etree.ElementTree as ET
 
 from main.common.wx_config import WXConfig
+
+logger = logging.getLogger("django")
 
 
 def unifiedorder(body, out_trade_no, total_fee, openid, detail):
@@ -27,10 +29,11 @@ def unifiedorder(body, out_trade_no, total_fee, openid, detail):
         "openid": openid,
         "detail": detail,
         "notify_url": WXConfig.NOTIFY_URL
-
     }
+    # 默认当前时间的20分钟后过期
     wx_pay = WXAppPay(WXConfig.APP_ID, WXConfig.MCH_ID, partner_key=WXConfig.KEY)
     result = wx_pay.unifiedorder(**kwargs)
+    logger.info("request unifiedorder:{}, return:{}".format(kwargs, result))
     return result
 
 

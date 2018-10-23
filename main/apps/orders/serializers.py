@@ -278,7 +278,7 @@ class HotelOrderDetailSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
-    market_order_detail = MarketOrderDetailSerializer(many=True)
+    market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     market_order_contact = MarketOrderContactSerializer(read_only=True)
     order_express = MarketOrderExpressSerializer(read_only=True)
     belong_hotel_name = serializers.CharField(
@@ -338,9 +338,14 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'order_id',
             'order_type',
-            'integral'
+            'integral',
             'order_express',
-            'belong_hotel'
+            'belong_hotel',
+            'num',
+            'order_amount',
+            'pay_time',
+            'image',
+            'pay_type'
         )
 
 
@@ -419,10 +424,12 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         return attrs
 
     @staticmethod
-    def integral_buy(consumer, instance, remark):
+    def integral_buy(consumer, instance):
         left_integral = consumer.integral - instance.integral
         consumer.integral_info.integral = left_integral
         consumer.integral_info.save()
+        goods_name, nums = utils.get_goods_name_by_instance(instance.market_order_detail.all(), 'integral')
+        remark = "积分购买商品:{},总数量:{}".format(goods_name, nums)
         create_integral_info(consumer, instance.integral, 20, remark)
 
     @staticmethod
@@ -444,7 +451,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         params = {
             "consumer": consumer,
             "balance_type": 20,
-            "message": "余额消费,购买商品:{},数量:{}".format(goods_name, instance.market_order_detail.num),
+            "message": "余额消费,购买商品:{},数量:{}".format(goods_name, nums),
             "cost_price": -instance.order_amount,
             "left_balance": consumer.balance,
         }
@@ -481,7 +488,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
                     "money": recharge_balance,
                 }
                 if instance.integral > 0:
-                    self.integral_buy(consumer, instance, '消费,购买商品')
+                    self.integral_buy(consumer, instance)
                     pay_info.update({"integral": instance.integral})
             # TODO 这里需要把购物车的相应商品给删除
 

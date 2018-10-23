@@ -347,6 +347,23 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderPayAgainSerializer(serializers.ModelSerializer):
     hotel_order_detail = CreateHotelOrderDetailSerializer(read_only=True)
     market_order_detail = MarketOrderDetailSerializer(read_only=True, many=True)
+    order_express = MarketOrderExpressSerializer(read_only=True)
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True,
+    )
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
+    order_status_display = serializers.CharField(
+        source='get_order_status_display',
+        read_only=True,
+    )
+    pay_type_display = serializers.CharField(
+        source='get_pay_type_display',
+        read_only=True,
+    )
 
     @staticmethod
     def hotel_charge_user_balance(instance, consumer):
@@ -423,7 +440,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
             recharge_balance = instance.order_amount
         consumer.save()
 
-        goods_name, nums = utils.get_goods_name_by_instance(instance.market_order_detail, 'market')
+        goods_name, nums = utils.get_goods_name_by_instance(instance.market_order_detail.all(), 'market')
         params = {
             "consumer": consumer,
             "balance_type": 20,
@@ -488,17 +505,24 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
             'id',
             'order_id',
             'order_type',
+            'order_type_display',
             'pay_type',
+            'pay_type_display',
             'hotel_order_detail',
             'market_order_detail',
             'order_amount',
             'order_status',
+            'order_status_display',
             'num',
-            'integral'
+            'integral',
+            'order_express',
+            'belong_hotel_name',
+            'belong_hotel'
         )
         read_only_fields = (
             'order_amount',
             'order_id',
+            'belong_hotel',
             'order_status',
             'num',
             'integral'

@@ -839,9 +839,8 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
 
         # 判断是否为商场订单且为会员
-        market_order_detail = self.instance.market_order_detail
-
         if self.instance.order_type == OrderType.market:
+            market_order_detail = self.instance.market_order_detail.all()
             for market in market_order_detail:
                 if market.is_special:
                     raise serializers.ValidationError({"non_field_errors": ['特殊商品无法退款']})

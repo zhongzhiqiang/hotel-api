@@ -551,3 +551,32 @@ class WeiXinPayInfo(models.Model):
     class Meta:
         verbose_name = '微信支付信息'
         verbose_name_plural = verbose_name
+
+
+class UserRefundedInfo(models.Model):
+    order = models.OneToOneField(
+        'main.Order',
+        verbose_name='所属订单',
+        related_name='user_refunded_info',
+        null=True,
+        blank=True
+    )
+    user_express_id = models.CharField(
+        '快递单号',
+        max_length=100,
+    )
+    user_express = models.CharField(
+        '快递',
+        max_length=100
+    )
+    create_time = models.DateTimeField(
+        '创建时间',
+        auto_now_add=True
+    )
+
+    def __unicode__(self):
+        return self.user_express_id
+
+    class Meta:
+        verbose_name = '用户退货信息'
+        verbose_name_plural = verbose_name

@@ -835,7 +835,11 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         order_status = validated_data.get("order_status")
         # 用户申请退款.
-
+        if instance.order_status in [OrderStatus.canceled, OrderStatus.pre_pay,
+                                     OrderStatus.refunded, OrderStatus.refund_ing,
+                                     OrderStatus.pasted, OrderStatus.pre_refund,
+                                     OrderStatus.deleted]:
+            raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
         if instance.order_type == OrderType.hotel:
             if order_status == OrderStatus.pre_refund and instance.order_status not in [OrderStatus.to_check_in]:
                 raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})

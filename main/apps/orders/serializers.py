@@ -231,6 +231,10 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
         source='goods.is_integral',
         read_only=True
     )
+    goods_name = serializers.CharField(
+        source='goods.goods_name',
+        read_only=True
+    )
 
     class Meta:
         model = MarketOrderDetail
@@ -239,6 +243,7 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods',
             'goods_integral',
             'goods_price',
+            'goods_name',
             'nums',
             'cover_image',
             'is_integral'

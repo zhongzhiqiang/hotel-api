@@ -24,7 +24,7 @@ services:
       - "9101:9001"
     environment:
       - PYTHONPATH=/code
-      - HOTEL_API_SETTINGS=main.config.local
+      - HOTEL_API_SETTINGS=main.config.product
     network_mode: bridge
     sysctls:
       net.core.somaxconn: 16384
@@ -55,7 +55,7 @@ services:
       - /data/hotel_api:/data
     environment:
       - PYTHONPATH=/code
-      - HOTEL_API_SETTINGS=main.config.local
+      - HOTEL_API_SETTINGS=main.config.product
     network_mode: bridge
     sysctls:
       net.core.somaxconn: 16384

@@ -830,7 +830,96 @@ class MarketRefundedOrderSerializer(serializers.ModelSerializer):
     market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     market_order_contact = MarketOrderContactSerializer(read_only=True)
     order_express = MarketOrderExpressSerializer(read_only=True)
-    admin_refunded_info = ''
+    admin_refunded_info = AdminRefundedSerializer(read_only=True)
+    user_refunded_info = UserRefundedSerializer()
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True,
+    )
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
+    order_status_display = serializers.CharField(
+        source='get_order_status_display',
+        read_only=True,
+    )
+    pay_type_display = serializers.CharField(
+        source='get_pay_type_display',
+        read_only=True,
+    )
+
+    def validate(self, attrs):
+
+        if not attrs.get("user_refunded_info"):
+            raise serializers.ValidationError("请传递快递信息")
+        attrs.update({"order_status": OrderStatus.pre_refund})
+        return attrs
+
+    @atomic
+    def update(self, instance, validated_data):
+        # 填写邮寄信息
+        user_refunded_info = validated_data.pop("user_refunded_info")
+        user_refunded_info.update({"order": instance})
+        models.UserRefundedInfo.objects.update_or_create(order=instance, defaults=user_refunded_info)
+        instance = super(MarketRefundedOrderSerializer, self).update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = models.Order
+        fields = (
+            'id',
+            'hotel_order_detail',
+            'market_order_detail',
+            'order_id',
+            'order_type',
+            'order_type_display',
+            'belong_hotel',
+            'belong_hotel_name',
+            'order_status',
+            'order_status_display',
+            'pay_type',
+            'pay_type_display',
+            'num',
+            'order_amount',
+            'pay_time',
+            'create_time',
+            'refund_reason',
+            'user_remark',
+            'image',
+            'market_order_contact',
+            'order_express',
+            'integral',
+            'user_refunded_info',
+            "admin_refunded_info"
+        )
+        read_only_fields = (
+            'order_id',
+            'order_type',
+            'belong_hotel',
+            'hotel_order_detail',
+            'market_order_detail',
+            'belong_hotel',
+            'pay_type',
+            'num',
+            'order_amount',
+            'pay_time',
+            'user_remark',
+            'market_order_contact',
+            'order_express',
+            'integral',
+            'order_status'
+            "refund_reason"
+        )
+
+
+class MarketRefundedApplySerializer(serializers.ModelSerializer):
+    hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
+    market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
+    market_order_contact = MarketOrderContactSerializer(read_only=True)
+    order_express = MarketOrderExpressSerializer(read_only=True)
+    admin_refunded_info = AdminRefundedSerializer(read_only=True)
+    user_refunded_info = UserRefundedSerializer(read_only=True)
     belong_hotel_name = serializers.CharField(
         source='belong_hotel.name',
         read_only=True,
@@ -872,7 +961,7 @@ class MarketRefundedOrderSerializer(serializers.ModelSerializer):
                 if market.is_special:
                     raise serializers.ValidationError({"non_field_errors": ['特殊商品无法退款']})
 
-        instance = super(MarketRefundedOrderSerializer, self).update(instance, validated_data)
+        instance = super(MarketRefundedApplySerializer, self).update(instance, validated_data)
         return instance
 
     class Meta:
@@ -900,6 +989,8 @@ class MarketRefundedOrderSerializer(serializers.ModelSerializer):
             'market_order_contact',
             'order_express',
             'integral',
+            'user_refunded_info',
+            "admin_refunded_info"
         )
         read_only_fields = (
             'order_id',

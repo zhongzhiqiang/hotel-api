@@ -123,7 +123,9 @@ class OrderViews(mixins.CreateModelMixin,
             return serializers.CreateHotelOrderSerializer
         elif self.action == 'market_order_create':
             return serializers.CreateMarketOrderSerializer
-        elif self.action == 'refunded':
+        elif self.action == 'market_apply_refunded':
+            return serializers.MarketRefundedApplySerializer
+        elif self.action == 'market_refunded':
             return serializers.MarketRefundedOrderSerializer
         elif self.action == 'hotel_refunded':
             return serializers.RefundedOrderSerializer

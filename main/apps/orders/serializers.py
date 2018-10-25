@@ -11,9 +11,8 @@ import datetime
 from rest_framework import serializers
 from django.db.transaction import atomic
 
-from main.models import (Order, HotelOrderDetail, ConsumerBalance, OrderType, MarketOrderDetail, VipMember, OrderPay,
-                         IntegralDetail, MarketOrderContact, MarketOrderExpress, Cart)
-from main.common.defines import PayType, OrderStatus
+from main import models
+from main.common.defines import PayType, OrderStatus, OrderType
 from main.common.utils import create_integral_info
 from main.common import utils
 from main.schedul.tasks import cancel_task
@@ -23,7 +22,7 @@ logger = logging.getLogger('django')
 
 class MarketOrderExpressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MarketOrderExpress
+        model = models.MarketOrderExpress
         fields = "__all__"
 
 
@@ -57,7 +56,7 @@ class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
         return attrs
 
     class Meta:
-        model = HotelOrderDetail
+        model = models.HotelOrderDetail
         fields = (
             'id',
             'room_style',
@@ -121,7 +120,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
             "cost_price": -validated_data['order_amount'],
             "left_balance": consumer.balance,
         }
-        balance_info = ConsumerBalance(**params)
+        balance_info = models.ConsumerBalance(**params)
         balance_info.save()
         return recharge_balance, free_balance
 
@@ -156,7 +155,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         consumer = self.context['request'].user.consumer
         # 这里判断用户是否还有未支付的订单。如果有返回无法下单.
-        order = Order.objects.filter(consumer=consumer, order_type=OrderType.hotel, order_status=OrderStatus.pre_pay).first()
+        order = models.Order.objects.filter(consumer=consumer, order_type=OrderType.hotel, order_status=OrderStatus.pre_pay).first()
         if order:
             raise serializers.ValidationError({"non_field_errors": ['已有未支付订单,无法在创建']})
         # 第一判断支付类型。余额支付时，进行扣除余额并更改支付状态
@@ -187,9 +186,9 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
 
         if pay_info:
             pay_info.update({"order": instance})
-            OrderPay.objects.create(**pay_info)
+            models.OrderPay.objects.create(**pay_info)
         hotel_order_detail.update({"hotel_order": instance})
-        HotelOrderDetail.objects.create(**hotel_order_detail)
+        models.HotelOrderDetail.objects.create(**hotel_order_detail)
         cancel_task.apply_async(args=(instance.order_id, ), countdown=CANCEl_TIME)
         # 下单成功，扣除房间数
         utils.reduce_room_num(instance.hotel_order_detail.room_style, instance.num)
@@ -197,7 +196,7 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         return instance
 
     class Meta:
-        model = Order
+        model = models.Order
         fields = (
             'id',
             'hotel_order_detail',
@@ -237,7 +236,7 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = MarketOrderDetail
+        model = models.MarketOrderDetail
         fields = (
             'id',
             'goods',
@@ -252,7 +251,7 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
 
 class MarketOrderContactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MarketOrderContact
+        model = models.MarketOrderContact
         fields = "__all__"
 
 
@@ -267,7 +266,7 @@ class HotelOrderDetailSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = HotelOrderDetail
+        model = models.HotelOrderDetail
         fields = (
             'id',
             'room_style_name',
@@ -317,7 +316,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return instance
 
     class Meta:
-        model = Order
+        model = models.Order
         fields = (
             'id',
             'hotel_order_detail',
@@ -404,7 +403,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
             "cost_price": -instance.order_amount,
             "left_balance": consumer.balance,
         }
-        balance_info = ConsumerBalance(**params)
+        balance_info = models.ConsumerBalance(**params)
         balance_info.save()
         # 下单扣除房间数
         hotel_detail.room_style.room_count = hotel_detail.room_style.room_count - hotel_detail.room_nums
@@ -462,7 +461,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
             "cost_price": -instance.order_amount,
             "left_balance": consumer.balance,
         }
-        ConsumerBalance(**params).save()
+        models.ConsumerBalance(**params).save()
 
         return recharge_balance, free_balance
 
@@ -511,11 +510,11 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
         if pay_info:
             pay_info.update({"order": instance})
             # logger.info("create pay info :{}".format(pay_info))
-            OrderPay.objects.create(**pay_info)
+            models.OrderPay.objects.create(**pay_info)
         return instance
 
     class Meta:
-        model = Order
+        model = models.Order
         fields = (
             'id',
             'order_id',
@@ -546,7 +545,7 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
 
 class CreateMarketOrderContactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MarketOrderContact
+        model = models.MarketOrderContact
         fields = "__all__"
 
 
@@ -568,7 +567,7 @@ class CreateMarketOrderDetailSerializer(serializers.ModelSerializer):
         return attrs
 
     class Meta:
-        model = MarketOrderDetail
+        model = models.MarketOrderDetail
         fields = (
             'id',
             'goods',
@@ -675,7 +674,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             "remark": u'积分购买商品:{}, 数量:{}'.format(goods_name, num),
             "left_integral": consumer.integral
         }
-        IntegralDetail.objects.create(**params)
+        models.IntegralDetail.objects.create(**params)
 
     @staticmethod
     def balance_buy(consumer, validated_data, market_order_detail):
@@ -699,7 +698,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             "cost_price": -validated_data['order_amount'],
             "left_balance": consumer.balance,
         }
-        ConsumerBalance(**params).save()
+        models.ConsumerBalance(**params).save()
 
         return recharge_balance, free_balance
 
@@ -712,8 +711,9 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         # 步骤3。余额兑换
         # 步骤4。微信支付
         consumer = self.context['request'].user.consumer
-        order = Order.objects.filter(consumer=consumer, order_type=OrderType.market,
-                                     order_status=OrderStatus.pre_pay).first()
+        order = models.Order.objects.filter(
+            consumer=consumer, order_type=OrderType.market,
+            order_status=OrderStatus.pre_pay).first()
 
         order_pay_params = None
 
@@ -757,20 +757,20 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         if order_pay_params:
             # 创建一条支付信息。只有当成功支付时，才会有支付信息
             order_pay_params.update({"order": instance})
-            OrderPay.objects.create(**order_pay_params)
+            models.OrderPay.objects.create(**order_pay_params)
 
         for market_order in market_order_detail:
             market_order.update({"market_order": instance})
-            MarketOrderDetail.objects.create(**market_order)
+            models.MarketOrderDetail.objects.create(**market_order)
         market_order_contact.update({"order": instance})
-        MarketOrderContact.objects.create(**market_order_contact)
+        models.MarketOrderContact.objects.create(**market_order_contact)
         # 这里删除用户的购物车.
-        Cart.objects.filter(consumer=consumer).delete()
+        models.Cart.objects.filter(consumer=consumer).delete()
         cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)
         return instance
 
     class Meta:
-        model = Order
+        model = models.Order
         fields = (
             'id',
             'order_id',
@@ -798,6 +798,125 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'num',
             "order_status",
             "pay_time"
+        )
+
+
+class UserRefundedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.UserRefundedInfo
+        fields = (
+            'id',
+            'user_express_id',
+            'user_express'
+        )
+
+
+class AdminRefundedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.AdminRefundedInfo
+        fields = {
+            "id",
+            "refunded_address",
+            "refunded_name",
+            "refunded_phone",
+            "remark"
+        }
+
+
+class MarketRefundedOrderSerializer(serializers.ModelSerializer):
+    hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
+    market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
+    market_order_contact = MarketOrderContactSerializer(read_only=True)
+    order_express = MarketOrderExpressSerializer(read_only=True)
+    admin_refunded_info = ''
+    belong_hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True,
+    )
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
+    order_status_display = serializers.CharField(
+        source='get_order_status_display',
+        read_only=True,
+    )
+    pay_type_display = serializers.CharField(
+        source='get_pay_type_display',
+        read_only=True,
+    )
+
+    def validate(self, attrs):
+
+        if not attrs.get("refund_reason"):
+            raise serializers.ValidationError("请传递退款原因")
+        attrs.update({"order_status": OrderStatus.apply_refund})
+        return attrs
+
+    @atomic
+    def update(self, instance, validated_data):
+        # 用户申请退款.
+        if instance.order_status in [OrderStatus.canceled, OrderStatus.pre_pay,
+                                     OrderStatus.refunded, OrderStatus.refund_ing,
+                                     OrderStatus.pasted, OrderStatus.pre_refund,
+                                     OrderStatus.deleted, OrderStatus.fill_apply,
+                                     OrderStatus.apply_refund]:
+            raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
+
+        # 判断是否为商场订单且为会员
+        if self.instance.order_type == OrderType.market:
+            market_order_detail = self.instance.market_order_detail.all()
+            for market in market_order_detail:
+                if market.is_special:
+                    raise serializers.ValidationError({"non_field_errors": ['特殊商品无法退款']})
+
+        instance = super(MarketRefundedOrderSerializer, self).update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = models.Order
+        fields = (
+            'id',
+            'hotel_order_detail',
+            'market_order_detail',
+            'order_id',
+            'order_type',
+            'order_type_display',
+            'belong_hotel',
+            'belong_hotel_name',
+            'order_status',
+            'order_status_display',
+            'pay_type',
+            'pay_type_display',
+            'num',
+            'order_amount',
+            'pay_time',
+            'create_time',
+            'refund_reason',
+            'user_remark',
+            'image',
+            'market_order_contact',
+            'order_express',
+            'integral',
+        )
+        read_only_fields = (
+            'order_id',
+            'order_type',
+            'belong_hotel',
+            'hotel_order_detail',
+            'market_order_detail',
+            'belong_hotel',
+            'pay_type',
+            'num',
+            'order_amount',
+            'pay_time',
+            'user_remark',
+            'market_order_contact',
+            'order_express',
+            'integral',
+            'order_status'
         )
 
 
@@ -858,7 +977,7 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
         return instance
 
     class Meta:
-        model = Order
+        model = models.Order
         fields = (
             'id',
             'hotel_order_detail',
@@ -899,3 +1018,4 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             'order_express',
             'integral'
         )
+

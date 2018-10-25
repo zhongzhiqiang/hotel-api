@@ -30,9 +30,12 @@ class OrderStatus(object):
     finish = 40  # 结束
     canceled = 45
 
-    pre_refund = 50
-    refund_ing = 55
-    refunded = 60
+    apply_refund = 46  # 申请退款
+    fill_apply = 48  # 填写退款
+    pre_refund = 50  # 准备退款
+    refund_ing = 55  # 退款中
+    refunded = 60  # 退款完成
+    refunded_fail = 61  # 拒绝退款
     pasted = 65
     deleted = 70
 

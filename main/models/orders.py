@@ -7,6 +7,7 @@ import datetime
 from django.db import models
 
 from main.common.defines import PayType, OrderStatus, OrderType, RefundedStatus
+from main.modelfields.JsonFields import JSONField
 
 
 class Order(models.Model):
@@ -19,9 +20,12 @@ class Order(models.Model):
         (OrderStatus.success, '待评价'),
         (OrderStatus.canceled, '已取消'),
         (OrderStatus.finish, '已评价'),
+        (OrderStatus.apply_refund, '申请退款'),
+        (OrderStatus.fill_apply, '填写退货信息'),
         (OrderStatus.pre_refund, '等待退款'),
         (OrderStatus.refund_ing, '退款中'),
         (OrderStatus.refunded, '退款完成'),
+        (OrderStatus.refunded_fail, '退款失败'),
         (OrderStatus.pasted, '已过期'),
         (OrderStatus.deleted, '已删除')
     )
@@ -139,11 +143,18 @@ class Order(models.Model):
         blank=True
     )
 
+    fail_reason = models.CharField(
+        '退款失败原因',
+        max_length=100,
+        default='',
+        blank=True,
+    )
+
     @property
     def image(self):
         # TODO 商场订单没有照片
         if self.order_type == OrderType.market:
-            return self.market_order_detail.image
+            return self.market_order_detail.all().values_list('goods__images', flat=True)
         else:
             return self.hotel_order_detail.image
 
@@ -200,7 +211,7 @@ class MarketOrderDetail(models.Model):
 
     @property
     def single_goods_amount(self):
-        return self.sale_price * self.nums
+        return self.goods_price * self.nums
 
     @property
     def goods_name(self):
@@ -399,7 +410,8 @@ class OrderRefunded(models.Model):
     refunded_status = models.IntegerField(
         "退款状态",
         default=RefundedStatus.unknown,
-        help_text='退款状态。微信可能会退款失败'
+        help_text='退款状态。微信可能会退款失败',
+        choices=WX_REFUND_STATUS,
     )
     refunded_message = models.CharField(
         "退款描述",
@@ -553,6 +565,41 @@ class WeiXinPayInfo(models.Model):
         verbose_name_plural = verbose_name
 
 
+class AdminRefundedInfo(models.Model):
+    order = models.OneToOneField(
+        'main.Order',
+        null=True,
+        blank=True,
+        verbose_name='退款地址',
+        related_name='admin_refunded_info'
+    )
+    refunded_address = models.CharField(
+        '退款收货地址',
+        max_length=200,
+    )
+    refunded_name = models.CharField(
+        '退款收货人',
+        max_length=200,
+    )
+    refunded_phone = models.CharField(
+        '退款联系电话',
+        max_length=30
+    )
+    remark = models.CharField(
+        '备注',
+        blank=True,
+        default='',
+        max_length=200
+    )
+
+    def __unicode__(self):
+        return '%s,%s' % (self.refunded_name, self.refunded_address)
+
+    class Meta:
+        verbose_name = '邮寄信息'
+        verbose_name_plural = verbose_name
+
+
 class UserRefundedInfo(models.Model):
     order = models.OneToOneField(
         'main.Order',
@@ -568,6 +615,12 @@ class UserRefundedInfo(models.Model):
     user_express = models.CharField(
         '快递',
         max_length=100
+    )
+    remark = models.CharField(
+        '备注',
+        default='',
+        max_length=100,
+        blank=True
     )
     create_time = models.DateTimeField(
         '创建时间',

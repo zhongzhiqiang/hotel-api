@@ -48,8 +48,8 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'id',
             'goods',
             'goods_name',
-            'sale_price',
-            'integral',
+            'goods_price',
+            'goods_integral',
             'cover_image',
             "nums",
             'single_goods_amount'
@@ -107,7 +107,15 @@ class MarketOrderExpressSerializer(serializers.ModelSerializer):
         )
 
 
+class MarketRefundedAdminInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AdminRefundedInfo
+        fields = "__all__"
+
+
 class MarketRefundedSerializer(serializers.ModelSerializer):
+    refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True)
+    refunded_integral = serializers.IntegerField(default=0, write_only=True)
 
     market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     order_refunded = OrderRefundedSerializer(read_only=True)
@@ -156,63 +164,105 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
                         goods_name = mark_order.goods_name
         return goods_name
 
-    def increase_integral(self, instance):
+    def increase_integral(self, instance, refunded_integral):
         # 用户积分增加上来
         goods_name = self.get_goods_name(instance, 'integral')
         integral_param = {
             "consumer": instance.consumer,
-            "integral": instance.integral,
+            "integral": refunded_integral,
             "integral_type": 10,
-            "remark": "增加,商品退款:{},商品名称:{}".format(instance.integral, goods_name)
+            "remark": "增加,商品退款:{},商品名称:{}".format(refunded_integral, goods_name)
         }
-        IntegralDetail.objects.create(**integral_param)
-        instance.consumer.integral_info.integral += instance.integral
+        models.IntegralDetail.objects.create(**integral_param)
+        instance.consumer.integral_info.integral += refunded_integral
         instance.consumer.integral_info.save()
 
-    def increase_balance(self, instance):
+    def increase_balance(self, instance, refunded_money):
+        # 首先退免费余额
+        order_pay = instance.order_pay
+        consumer = instance.consumer
+
+        free_money = refunded_money - order_pay.free_money
+        re_recharge_money = 0
+        if free_money > 0:
+            # 表示还要退会充值余额
+            re_free_money = order_pay.free_money
+            re_recharge_money = free_money
+            recharge_money = free_money
+            consumer.free_balance = consumer.free_balance + order_pay.free_money
+            consumer.recharge_balance = consumer.recharge_balance + recharge_money
+
+        else:
+            re_free_money = refunded_money
+            # 表示不用退充值余额。
+            consumer.free_balance = consumer.free_balance + refunded_money
+            # 生成余额详情
+        consumer.save()
         # 退换余额
         goods_name = self.get_goods_name(instance, 'money')
         # 用户余额明细
         balance_info = {
-            "consumer": instance.consumer,
+            "consumer": consumer,
             "balance_type": 10,
             "message": "增加,商品退款:{},商品名称:{}".format(instance.order_amount, goods_name),
-            "cost_price": instance.order_amount,
+            "cost_price": refunded_money,
             "left_balance": instance.consumer.balance + instance.order_amount
         }
         models.ConsumerBalance.objects.create(**balance_info)
-        # 退回余额。
-        instance.consumer.recharge_balance = instance.consumer.recharge_balance + instance.order_pay.money
-        instance.consumer.free_balance = instance.consumer.free_balance + instance.order_pay.free_money
-        instance.consumer.save()
+
+        return re_recharge_money, re_free_money
+
+    def validate(self, attrs):
+        refunded_money = attrs.get("refunded_money")
+        refunded_integral = attrs.get("refunded_integral")
+
+        if not any((refunded_integral, refunded_money)):
+            raise serializers.ValidationError("退款金额与退款积分必须存在一个")
+
+        if refunded_money and refunded_money < 0:
+            raise serializers.ValidationError("退款金额不能够为负")
+
+        if refunded_integral and refunded_integral < 0:
+            raise serializers.ValidationError("退款积分不能够为负")
+        return attrs
 
     @transaction.atomic
     def update(self, instance, validated_data):
         # 进行退款操作, 创建退款信息
-
+        refunded_money = validated_data.pop("refunded_money", 0)
+        refunded_integral = validated_data.pop("refunded_integral", 0)
         if self.instance.order_status != OrderStatus.pre_refund:
             raise serializers.ValidationError({"non_field_errors": ['当前订单状态无法操作退款']})
+
+        if refunded_money > instance.order_amount:
+            raise serializers.ValidationError({"non_field_errors": ["退款金额不能够超过订单总额"]})
+
+        if refunded_integral > instance.integral:
+            raise serializers.ValidationError({"non_field_errors": ["退款积分不能够超过订单总额"]})
 
         # 根据订单类型来退款。。如果是商场订单。每个都要去扣除
         if self.instance.pay_type == PayType.balance:
             # 将余额退回相应的地方。并把状态更改为已退款
+            if self.instance.integral:
+                self.increase_integral(instance, refunded_integral)
+            money, free_money = self.increase_balance(instance, refunded_money)
             params = {
                 "order": instance,
-                "refunded_money": self.instance.order_pay.money,
-                "refunded_free_money": self.instance.order_pay.free_money,
+                "refunded_money": money,
+                "refunded_free_money": free_money,
                 "refunded_account": datetime.datetime.now(),
-                "refunded_integral": self.instance.integral,
+                "refunded_integral": refunded_integral,
+                "refunded_status": RefundedStatus.success
             }
-            if self.instance.integral:
-                self.increase_integral(instance)
-            self.increase_balance(instance)
 
             validated_data.update({"order_status": OrderStatus.refunded})
         else:
             params = {
                 "order": instance,
-                "refunded_money": instance.order_amount
+                "refunded_money": refunded_money,
+                "refunded_integral": refunded_integral
             }
+            validated_data.update({"order_status": OrderStatus.refund_ing})
         order_refunded = models.OrderRefunded.objects.create(**params)
         order_refunded.refunded_order_id = order_refunded.make_order_id()
         order_refunded.save()
@@ -222,7 +272,7 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
             result = unified_refunded(instance.order_id,
                                       order_refunded.refunded_order_id,
                                       instance.order_amount,
-                                      order_refunded.refunded_money,
+                                      refunded_money,
                                       consumer.openid)
             if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
                 order_refunded.refunded_status = RefundedStatus.success
@@ -268,7 +318,9 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
             "operator_time",
             "user_remark",
             "operator_remark",
-            "operator_name_display"
+            "operator_name_display",
+            'refunded_integral',
+            'refunded_money'
         )
         read_only_fields = (
             "order_type",
@@ -288,6 +340,43 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
             "operator_name",
             "operator_time",
             "user_remark"
+        )
+
+
+class MarketRefundedApplySerializer(serializers.ModelSerializer):
+    # 同意或者拒绝退款申请
+    admin_refunded_info = MarketRefundedAdminInfoSerializer()
+
+    def validate(self, attrs):
+        order_status = attrs.get("order_status")
+        admin_refunded_info = attrs.get("admin_refunded_info") or {}
+        if not order_status:
+            raise serializers.ValidationError("请传递订单状态")
+
+        if order_status == OrderStatus.fill_apply and not admin_refunded_info:
+            raise serializers.ValidationError("请传递退款邮寄信息")
+
+        return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        admin_refunded_info = validated_data.pop("admin_refunded_info")
+
+        if instance.order_status != OrderStatus.apply_refund:
+            raise serializers.ValidationError({"non_field_errors": ['当前订单无法操作']})
+        instance = super(MarketRefundedApplySerializer, self).update(instance, validated_data)
+        if admin_refunded_info:
+            admin_refunded_info.update({"order": instance})
+            models.AdminRefundedInfo.objects.create(**instance)
+
+        return instance
+
+    class Meta:
+        model = models.Order
+        fields = (
+            "id",
+            "order_status",
+            "admin_refunded_info"
         )
 
 
@@ -344,7 +433,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         # 首先退免费余额
         free_money = refunded_money - order_pay.free_money
         re_recharge_money = 0
-        if refunded_money > 0:
+        if free_money > 0:
             # 表示还要退会充值余额
             re_free_money = order_pay.free_money
             re_recharge_money = free_money
@@ -383,7 +472,6 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         # 如果支付类型为余额支付。返回给余额
         pay_type = instance.pay_type
         refunded_money = validated_data.pop('refunded_money')
-
         if pay_type == PayType.balance:
             validated_data.update({"order_status": OrderStatus.refunded})
             refunded_info = self.increase_balance(instance, refunded_money)
@@ -406,6 +494,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
                                       instance.order_amount,
                                       order_refunded.refunded_money,
                                       consumer.openid)
+            logger.info("order_id:{},refunded:{}".format(instance.order_id, result))
             if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
                 order_refunded.refunded_status = RefundedStatus.success
                 order_refunded.refunded_message = "退款成功"
@@ -416,7 +505,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
                 order_refunded.refunded_message = result.get("err_code_des") or ''
             else:
                 order_refunded.refunded_status = RefundedStatus.retry
-                order_refunded.refunded_message = result.get("return_msg") or ''
+                order_refunded.refunded_message = result.get("err_code_des") or ''
 
             order_refunded.save()
 
@@ -506,12 +595,13 @@ class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
         # 这里需要判断订单退款状态是否是在退款中并且退款信息为失败或者重试
         if self.instance.order_status != OrderStatus.refund_ing and self.instance.order_refunded.refunded_status not in (RefundedStatus.retry, RefundedStatus.fail):
             raise serializers.ValidationError("重复支付错误, 订单状态有误")
-
         return attrs
 
     @transaction.atomic
     def update(self, instance, validated_data):
         # 根据退款信息重新支付.只有微信支付的会出现问题
+        if instance.pay_type != PayType.weixin:
+            raise serializers.ValidationError({"non_field_error":['当前订单不支持重试']})
         validated_data.update({"operator_time": datetime.datetime.now()})
         order_refunded = self.instance.order_refunded
         consumer = instance.consumer
@@ -520,6 +610,7 @@ class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
                                   instance.order_amount,
                                   order_refunded.refunded_money,
                                   consumer.openid)
+        logger.warning("retry order_id:{}, result:{}".format(instance.order_id, result))
         if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
             order_refunded.refunded_status = RefundedStatus.success
             order_refunded.refunded_message = "退款成功"
@@ -530,7 +621,7 @@ class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
             order_refunded.refunded_message = result.get("err_code_des") or ''
         else:
             order_refunded.refunded_status = RefundedStatus.retry
-            order_refunded.refunded_message = result.get("return_msg") or ''
+            order_refunded.refunded_message = result.get("err_code_des") or ''
 
         order_refunded.save()
         logger.info("refunded result:{}".format(result))

@@ -101,7 +101,7 @@ class OrderViews(mixins.CreateModelMixin,
         }
     ```
     refunded:
-        退款接口，传递退款状态:order_status=50
+        申请退款接口.
 
     """
     queryset = Order.objects.all().order_by('-create_time')
@@ -110,7 +110,10 @@ class OrderViews(mixins.CreateModelMixin,
     ordering_fields = ('create_time', 'pay_time', 'order_id')
 
     def get_queryset(self):
-        return self.queryset.filter(consumer=self.request.user.consumer)
+        queryset = self.queryset.filter(consumer=self.request.user.consumer)
+        if self.action == 'refunded':
+            queryset = queryset.filter(order_type=OrderType.market)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(consumer=self.request.user.consumer)
@@ -121,6 +124,8 @@ class OrderViews(mixins.CreateModelMixin,
         elif self.action == 'market_order_create':
             return serializers.CreateMarketOrderSerializer
         elif self.action == 'refunded':
+            return serializers.MarketRefundedOrderSerializer
+        elif self.action == 'hotel_refunded':
             return serializers.RefundedOrderSerializer
 
         return self.serializer_class
@@ -161,7 +166,15 @@ class OrderViews(mixins.CreateModelMixin,
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
     @detail_route(methods=['POST'])
-    def refunded(self, request, *args, **kwargs):
+    def market_apply_refunded(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    @detail_route(methods=['POST'])
+    def market_refunded(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    @detail_route(methods=['POST'])
+    def hotel_refunded(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
 

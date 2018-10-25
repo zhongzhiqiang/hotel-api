@@ -14,7 +14,8 @@ from main.common.defines import OrderType, OrderStatus
 from main.apps.admin_refunded import serializers
 
 
-refund_status = [OrderStatus.pre_refund, OrderStatus.refund_ing, OrderStatus.refunded]
+refund_status = [OrderStatus.pre_refund, OrderStatus.refund_ing, OrderStatus.refunded,
+                 OrderStatus.apply_refund, OrderStatus.fill_apply, OrderStatus.refunded_fail]
 
 
 class HotelRefundedViews(mixins.ListModelMixin,
@@ -92,7 +93,16 @@ class MarketRefundedViews(mixins.ListModelMixin,
         返回详细信息
     retry:
         重新退款，大多数情况下为微信支付的。退款条件为订单的状态为退款中且退款的状态为失败或重试
-
+    deal_apply:
+        处理退款申请
+        order_status = ['48', '61'] # 拒绝退款传递`61`。同意退款传递`48`
+        admin_refunded_info = {
+            "refunded_address": "退款收货地址",
+            "refunded_name": "退款收货人",
+            "refunded_phone": "退款联系电话",
+            "remark": "备注"
+        }
+        
     """
     queryset = Order.objects.filter(order_type=OrderType.market,
                                     order_status__in=refund_status)
@@ -104,8 +114,14 @@ class MarketRefundedViews(mixins.ListModelMixin,
     def get_serializer_class(self):
         if self.action == 'retry':
             return serializers.MarketOrderRetryRefundedSerializer
+        elif self.action == 'deal_apply':
+            return serializers.MarketRefundedApplySerializer
         return self.serializer_class
 
     @detail_route(methods=['POST'])
     def retry(self, request, *args, **kwargs):
-        self.partial_update(request, *args, **kwargs)
+        return self.partial_update(request, *args, **kwargs)
+
+    @detail_route(methods=['POST'])
+    def deal_apply(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

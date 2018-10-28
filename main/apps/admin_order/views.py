@@ -27,9 +27,11 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
         (35, '完成待评价'),
         (40, '完成并且已评价'),
         (45, '取消'),
+        (46, '申请退款'),
         (50, '待退款'),
         (55, '退款中'),
-        (69, '已退款'),
+        (60, '已退款'),
+        (61, '拒绝退款'),
         (65, '已过期')
         )
     partial_update:

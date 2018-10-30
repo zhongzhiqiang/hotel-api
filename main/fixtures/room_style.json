@@ -1,0 +1,18 @@
+[
+  {
+    "model": "main.roomstyles",
+    "pk": 1,
+    "fields": {
+      "belong_hotel": 1,
+      "style_name": "高端房间",
+      "price": "100",
+      "room_profile": "2222",
+      "images": ["https://1234.com"],
+      "create_time": "2018-10-10T10:10:10",
+      "cover_image": "https://1234.com",
+      "room_count": 20,
+      "is_active": true,
+      "update_time": "2018-10-10T10:10:10"
+    }
+  }
+]

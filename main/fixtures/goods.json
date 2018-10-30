@@ -1,0 +1,54 @@
+[
+    {
+    "model": "main.goodscategory",
+    "pk": 1,
+    "fields": {
+      "category_name": "233",
+      "create_time": "2017-10-31T17:16:00",
+      "is_active": true,
+      "operator_name": 1,
+      "update_time": "2017-10-31T17:16:00"
+    }
+  },
+  {
+    "model": "main.goods",
+    "pk": 1,
+    "fields": {
+      "category": 1,
+      "goods_name": "测试",
+      "goods_price": "100",
+      "is_integral": false,
+      "is_special": false,
+      "is_active": true,
+      "create_time": "2017-10-31T17:16:00",
+      "update_time": "2017-10-31T17:16:00"
+    }
+  },
+  {
+    "model": "main.vipsettings",
+    "pk": 1,
+    "fields": {
+      "vip_name": "测试",
+      "vip_weight": 1,
+      "hotel_discount": 0.8,
+      "create_time": "2017-10-31T17:16:00",
+      "operator_name": 1,
+      "update_time": "2017-10-31T17:16:00"
+    }
+  },
+  {
+    "model": "main.goods",
+    "pk": 2,
+    "fields": {
+      "category": 1,
+      "goods_name": "测试会员",
+      "goods_price": "100",
+      "is_integral": false,
+      "is_special": true,
+      "is_active": true,
+      "vip_info": 1,
+      "create_time": "2017-10-31T17:16:00",
+      "update_time": "2017-10-31T17:16:00"
+    }
+  }
+]

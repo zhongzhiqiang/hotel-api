@@ -1,0 +1,24 @@
+[
+  {
+    "model": "main.integralinfo",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "integral": 10,
+      "update_time": "2017-10-31T18:16:00",
+      "growth_value": 10
+    }
+  },
+  {
+    "model": "main.integraldetail",
+    "pk": 1,
+    "fields": {
+      "consumer": 1,
+      "integral": 20,
+      "integral_type": 10,
+      "remark": "消费增加",
+      "create_time": "2017-10-31T18:16:00",
+      "left_integral": 10
+    }
+  }
+]

@@ -1,0 +1,39 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "123456",
+        "last_login": "2017-11-08T15:28:00",
+        "is_superuser": true,
+        "username": "root",
+        "first_name": "",
+        "last_name": "",
+        "email": "null@just666.cn",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2017-10-31T17:16:00"
+    }
+  },
+  {
+    "model": "main.staffprofile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "user_name": "1234",
+      "sex": 10
+    }
+  },
+  {
+    "model": "main.consumer",
+    "pk": 1,
+    "fields": {
+      "openid": "12345",
+      "session_key": "123456",
+      "user": 1,
+      "phone": "123456",
+      "user_name": "1234",
+      "sex": 10
+    }
+  }
+]

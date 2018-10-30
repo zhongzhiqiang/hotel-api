@@ -1,0 +1,23 @@
+[
+  {
+    "model": "main.hotel",
+    "pk": 1,
+    "fields": {
+      "name": "测试",
+      "province": "四川省",
+      "city": "成都市",
+      "area": "双流区",
+      "street": "天府大道南端651号",
+      "hotel_profile": "12345",
+      "cover_images": "https://1235.com",
+      "is_active": true,
+      "tel": "0123-1234",
+      "tags": ["WIFI", "热水"],
+      "images": [],
+      "create_time": "2017-10-31T17:16:00",
+      "update_time": "2017-10-31T17:16:00",
+      "longitude": "123.12",
+      "latitude": "33"
+    }
+  }
+]

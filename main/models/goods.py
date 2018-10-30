@@ -24,7 +24,9 @@ class GoodsCategory(models.Model):
     )
     update_time = models.DateTimeField(
         '更新时间',
-        auto_now=True
+        auto_now=True,
+        blank=True,
+        null=True
     )
     operator_name = models.ForeignKey(
         'main.StaffProfile',
@@ -97,7 +99,8 @@ class Goods(models.Model):
     )
     update_time = models.DateTimeField(
         '更新时间',
-        auto_now=True
+        auto_now=True,
+        blank=True
     )
     cover_image = models.CharField(
         '封面图',

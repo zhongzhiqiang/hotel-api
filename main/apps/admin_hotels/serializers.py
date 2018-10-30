@@ -86,8 +86,13 @@ class CreateHotelSerializers(serializers.ModelSerializer):
             'tel',
             'tags',
             'is_active',
-            'images'
+            'images',
+            'longitude',
+            'latitude',
+            'create_time',
+            'update_time',
         )
+        read_only_fields = ('longitude', 'latitude')
 
 
 class CreateRoomStyleSerializer(serializers.ModelSerializer):

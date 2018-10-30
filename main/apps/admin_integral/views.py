@@ -86,7 +86,7 @@ class UserIntegralView(mixins.ListModelMixin,
     """
     queryset = IntegralInfo.objects.all()
     serializer_class = serializers.IntegralSerializers
-    filter_class = filters.IntegralDetailFilter
+    # filter_class = filters.IntegralDetailFilter
 
     def retrieve(self, request, *args, **kwargs):
         # 返回用户的积分详情

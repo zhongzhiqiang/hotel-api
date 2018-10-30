@@ -16,7 +16,7 @@ from main.apps.admin_integral.utils import get_integral, make_integral
 from main.common.defines import OrderStatus
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('django')
 
 
 def increase_room_num(order):
@@ -84,7 +84,7 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
     @staticmethod
     def make_integral(instance):
         integral = get_integral(instance.order_amount)
-        remark = "住宿:%s,积分:%s" % (instance.hotelorderdetail.room_style.style_name, integral)
+        remark = "住宿:%s,积分:%s" % (instance.hotel_order_detail.room_style.style_name, integral)
         make_integral(instance.consumer, integral, remark)
 
     def validate(self, attrs):

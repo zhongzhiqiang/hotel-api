@@ -7,12 +7,17 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from django.db import transaction
 
 from main.models import HotelOrderComment, CommentReply
 from main.common.defines import OrderStatus
 
 
 class CreateHotelOrderCommentSerializer(serializers.ModelSerializer):
+    commenter_name = serializers.CharField(
+        source='commenter.user_name',
+        read_only=True
+    )
 
     def validate(self, attrs):
         consumer = self.context['request'].user.consumer
@@ -24,6 +29,13 @@ class CreateHotelOrderCommentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("无法评论其他用户订单")
         return attrs
 
+    @transaction.atomic
+    def create(self, validated_data):
+        instance = super(CreateHotelOrderCommentSerializer, self).create(validated_data)
+        instance.belong_order.order_status = OrderStatus.finish
+        instance.belong_order.save()
+        return instance
+
     class Meta:
         model = HotelOrderComment
         fields = (
@@ -32,7 +44,8 @@ class CreateHotelOrderCommentSerializer(serializers.ModelSerializer):
             'content',
             'comment_level',
             'create_time',
-            'commenter'
+            'commenter',
+            'commenter_name'
         )
         read_only_fields = ('commenter', )
 

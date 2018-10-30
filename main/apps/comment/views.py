@@ -43,7 +43,7 @@ class CommentViews(mixins.CreateModelMixin,
     serializer_class = serializers.CreateHotelOrderCommentSerializer
 
     def perform_create(self, serializer):
-        serializer.save(consumer=self.request.user.consumer)
+        serializer.save(commenter=self.request.user.consumer)
 
     def get_queryset(self):
         # 返回当前用户的所有评论以及回复。

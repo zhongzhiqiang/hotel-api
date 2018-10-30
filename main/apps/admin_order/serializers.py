@@ -83,7 +83,7 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def make_integral(instance):
-        integral = get_integral(instance.sale_price)
+        integral = get_integral(instance.order_amount)
         remark = "住宿:%s,积分:%s" % (instance.hotelorderdetail.room_style.style_name, integral)
         make_integral(instance.consumer, integral, remark)
 

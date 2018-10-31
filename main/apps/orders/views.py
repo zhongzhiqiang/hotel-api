@@ -123,12 +123,10 @@ class OrderViews(mixins.CreateModelMixin,
             return serializers.CreateHotelOrderSerializer
         elif self.action == 'market_order_create':
             return serializers.CreateMarketOrderSerializer
-        elif self.action == 'market_apply_refunded':
-            return serializers.MarketRefundedApplySerializer
+        elif self.action == 'refunded':
+            return serializers.RefundedApplySerializer
         elif self.action == 'market_refunded':
             return serializers.MarketRefundedOrderSerializer
-        elif self.action == 'hotel_refunded':
-            return serializers.RefundedOrderSerializer
 
         return self.serializer_class
 
@@ -168,15 +166,11 @@ class OrderViews(mixins.CreateModelMixin,
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
     @detail_route(methods=['POST'])
-    def market_apply_refunded(self, request, *args, **kwargs):
+    def refunded(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
     @detail_route(methods=['POST'])
     def market_refunded(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    @detail_route(methods=['POST'])
-    def hotel_refunded(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
 

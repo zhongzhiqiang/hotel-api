@@ -913,7 +913,7 @@ class MarketRefundedOrderSerializer(serializers.ModelSerializer):
         )
 
 
-class MarketRefundedApplySerializer(serializers.ModelSerializer):
+class RefundedApplySerializer(serializers.ModelSerializer):
     hotel_order_detail = HotelOrderDetailSerializer(read_only=True)
     market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     market_order_contact = MarketOrderContactSerializer(read_only=True)
@@ -941,27 +941,34 @@ class MarketRefundedApplySerializer(serializers.ModelSerializer):
 
         if not attrs.get("refund_reason"):
             raise serializers.ValidationError("请传递退款原因")
-        attrs.update({"order_status": OrderStatus.apply_refund})
         return attrs
 
     @atomic
     def update(self, instance, validated_data):
         # 用户申请退款.
-        if instance.order_status in [OrderStatus.canceled, OrderStatus.pre_pay,
-                                     OrderStatus.refunded, OrderStatus.refund_ing,
-                                     OrderStatus.pasted, OrderStatus.pre_refund,
-                                     OrderStatus.deleted, OrderStatus.fill_apply,
-                                     OrderStatus.apply_refund]:
+        if instance.order_type == OrderType.market and instance.order_status in [
+            OrderStatus.canceled, OrderStatus.pre_pay,
+            OrderStatus.refunded, OrderStatus.refund_ing,
+            OrderStatus.pasted, OrderStatus.pre_refund,
+            OrderStatus.deleted, OrderStatus.fill_apply,
+            OrderStatus.apply_refund
+        ]:
             raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
 
+        elif instance.order_type == OrderType.hotel and instance.order_status not in [OrderStatus.to_check_in]:
+                raise serializers.ValidationError({"non_field_errors": ['当前订单无法申请退款']})
+
         # 判断是否为商场订单且为会员
-        if self.instance.order_type == OrderType.market:
+        if instance.order_type == OrderType.market:
             market_order_detail = self.instance.market_order_detail.all()
             for market in market_order_detail:
                 if market.is_special:
                     raise serializers.ValidationError({"non_field_errors": ['特殊商品无法退款']})
+            validated_data.update({"order_status": OrderStatus.apply_refund})
+        elif instance.order_tyoe == OrderType.hotel:
+            validated_data.update({"order_status": OrderStatus.apply_refund})
 
-        instance = super(MarketRefundedApplySerializer, self).update(instance, validated_data)
+        instance = super(RefundedApplySerializer, self).update(instance, validated_data)
         return instance
 
     class Meta:
@@ -1109,4 +1116,3 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             'order_express',
             'integral'
         )
-

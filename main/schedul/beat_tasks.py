@@ -12,7 +12,8 @@ from django.db import transaction
 from main.schedul.celery_app import app
 from main.models import Order
 from main.common.defines import OrderStatus, OrderType
-from main.common.utils import increase_room_num
+from main.common.utils import increase_room_num, get_goods_name_by_instance
+from main.apps.admin_integral.utils import make_integral, get_integral
 
 
 logger = logging.getLogger('django')
@@ -53,6 +54,10 @@ def auto_success():
         if now.year == checkout_time.year and now.month == checkout_time.month and now.day == checkout_time.day:
             order.order_status = OrderStatus.success
             increase_room_num(order)
+            # 生成积分
+            integral = get_integral(order.order_amount)
+            remark = "住宿:%s,积分:%s" % (order.hotel_order_detail.room_style.style_name, integral)
+            make_integral(order.consumer, integral, remark)
             order.save()
 
 

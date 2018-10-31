@@ -109,7 +109,7 @@ def increase_room_num(order):
     :return: 
     """
     room_style = order.hotel_order_detail.room_style
-    room_style.room_count = room_style.room_count + order.hotel_order_detail.room_nums
+    room_style.room_count = room_style.room_count + order.num
     room_style.save()
 
 

@@ -51,5 +51,19 @@
       "integral": 0,
       "consumer": 1
     }
+  },
+  {
+    "model": "main.hotelorderdetail",
+    "pk": "1",
+    "fields": {
+      "hotel_order": 2,
+      "room_style": 1,
+      "room_nums": 1,
+      "room_price": "90",
+      "reserve_check_in_time": "2017-10-31T18:16:00",
+      "reserve_check_out_time": "2017-11-1T18:16:00",
+      "contact_name": "12345",
+      "contact_phone": "12233"
+    }
   }
 ]

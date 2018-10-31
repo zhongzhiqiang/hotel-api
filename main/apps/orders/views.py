@@ -111,8 +111,6 @@ class OrderViews(mixins.CreateModelMixin,
 
     def get_queryset(self):
         queryset = self.queryset.filter(consumer=self.request.user.consumer)
-        if self.action == 'refunded':
-            queryset = queryset.filter(order_type=OrderType.market)
         return queryset
 
     def perform_create(self, serializer):
@@ -170,7 +168,7 @@ class OrderViews(mixins.CreateModelMixin,
         return self.partial_update(request, *args, **kwargs)
 
     @detail_route(methods=['POST'])
-    def market_refunded(self, request, *args, **kwargs):
+    def market_fill_refunded(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
 

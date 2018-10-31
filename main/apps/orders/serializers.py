@@ -965,7 +965,8 @@ class RefundedApplySerializer(serializers.ModelSerializer):
                 if market.is_special:
                     raise serializers.ValidationError({"non_field_errors": ['特殊商品无法退款']})
             validated_data.update({"order_status": OrderStatus.apply_refund})
-        elif instance.order_tyoe == OrderType.hotel:
+        elif instance.order_type == OrderType.hotel:
+            utils.increase_room_num(instance)
             validated_data.update({"order_status": OrderStatus.apply_refund})
 
         instance = super(RefundedApplySerializer, self).update(instance, validated_data)

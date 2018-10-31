@@ -15,10 +15,11 @@ from django.db import transaction
 from django.http import HttpResponse
 
 from main.apps.wx_pay.utils import WxpayServerPub
-from main.common.defines import WeiXinCode, OrderStatus, OrderType, PayType
-from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay, IntegralDetail, WeiXinPayInfo
+from main.common.defines import WeiXinCode, OrderStatus, OrderType, PayType, RefundedStatus
+from main.models import Order, ConsumerBalance, RechargeInfo, OrderPay, IntegralDetail, WeiXinPayInfo, OrderRefunded
 from main.apps.orders import serializers
 from main.common import utils
+from main.common.decrypt import ASECipher
 
 logger = logging.getLogger("django")
 
@@ -215,3 +216,37 @@ class OrderStatusSearchView(views.APIView):
         serializer = serializers.OrderSerializer
         serializer = serializer(instance=order_id)
         return response.Response(serializer.data)
+
+
+class RefundedNotifyView(views.APIView):
+    authentication_classes = ()
+    permission_classes = ()
+
+    def get(self, request, *args, **kwargs):
+        logger.info('request data: {}'.format(request.body))
+
+        wx_pay_server = WxpayServerPub()
+        wx_pay_server.save_data(request.body)
+        wx_return_data = wx_pay_server.getData()
+
+        logger.info("paresing data:{}".format(wx_return_data))
+        aes_cipher = ASECipher('')
+        return_param = {"return_code": WeiXinCode.fail}
+        if wx_return_data == WeiXinCode.success:
+            req_info = wx_return_data['req_info']
+            ret = aes_cipher.decrypt(req_info)
+            out_refund_no = ret['out_refund_no']
+            success_time = ret['success_time']
+
+            order_refunded = OrderRefunded.objects.get(refunded_order_id=out_refund_no)
+
+            order_refunded.refunded_status = RefundedStatus.success
+            order_refunded.refunded_account = datetime.datetime.strptime(success_time, '%Y-%m-%d %H:%M:%S')
+            order_refunded.save()
+            order_refunded.order.order_status = OrderStatus.refunded
+            order_refunded.order.save()
+            return_param.update({"return_code": WeiXinCode.success})
+        ret_xml = wx_pay_server.array_to_xml(return_param)
+
+        logger.info("return wx xml:{}".format(ret_xml))
+        return HttpResponse(ret_xml)

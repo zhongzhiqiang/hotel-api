@@ -33,7 +33,9 @@
       "user": 1,
       "phone": "123456",
       "user_name": "1234",
-      "sex": 10
+      "sex": 10,
+      "recharge_balance": 100,
+      "free_balance": 10000
     }
   }
 ]

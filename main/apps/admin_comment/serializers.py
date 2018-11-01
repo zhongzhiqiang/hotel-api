@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 from django.db import transaction
-from main.models import HotelOrderComment, CommentReply
+from main.models import HotelOrderComment, CommentReply, MarketOrderDetail, HotelOrderDetail, Order
 
 
 class CreateReplySerializer(serializers.ModelSerializer):
@@ -68,11 +68,59 @@ class ReplaySerializer(serializers.ModelSerializer):
         )
 
 
+class MarketOrderDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MarketOrderDetail
+        fields = "__all__"
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    market_order_detail = MarketOrderDetailSerializer(many=True)
+    order_type_display = serializers.CharField(
+        source='get_order_type_display',
+        read_only=True
+    )
+    order_status_display = serializers.CharField(
+        source='get_order_status_display',
+        read_only=True
+    )
+    pay_type_display = serializers.CharField(
+        source='get_pay_type_display',
+        read_only=True
+    )
+    operator_name = serializers.CharField(
+        source='operator_name.user_name',
+        read_only=True,
+    )
+
+    class Meta:
+        model = Order
+        fields = ("market_order_detail",
+                  'order_type',
+                  'order_type_display',
+                  'order_id',
+                  'order_status',
+                  'order_status_display',
+                  'create_time',
+                  'pay_type',
+                  'pay_type_display',
+                  'pay_time',
+                  'num',
+                  'order_amount',
+                  'integral',
+                  'operator_name',
+                  'operator_time',
+                  'refund_reason',
+                  "user_remark"
+                  )
+
+
 class CommentSerializer(serializers.ModelSerializer):
     commenter_name = serializers.CharField(
         source='commenter.user_name',
         read_only=True
     )
+
     comment_show_display = serializers.CharField(
         source='get_comment_show_display',
         read_only=True
@@ -89,6 +137,7 @@ class CommentSerializer(serializers.ModelSerializer):
         source='belong_order.order_type',
         read_only=True
     )
+    belong_order = OrderDetailSerializer(read_only=True)
 
     comment_reply = ReplaySerializer()
 
@@ -110,4 +159,3 @@ class CommentSerializer(serializers.ModelSerializer):
             'is_reply',
             'comment_reply'
         )
-

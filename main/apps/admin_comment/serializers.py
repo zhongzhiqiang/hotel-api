@@ -69,13 +69,51 @@ class ReplaySerializer(serializers.ModelSerializer):
 
 
 class MarketOrderDetailSerializer(serializers.ModelSerializer):
+    goods_name = serializers.CharField(
+        source='goods.name',
+        read_only=True
+    )
+    is_integral = serializers.BooleanField(
+        source='goods.is_integral',
+        read_only=True
+    )
+
     class Meta:
         model = MarketOrderDetail
-        fields = "__all__"
+        fields = (
+            'id',
+            'goods',
+            'goods_name',
+            'goods_price',
+            'goods_integral',
+            'cover_image',
+            "nums",
+            'is_integral',
+            'single_goods_amount'
+        )
+
+
+class HotelOrderDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HotelOrderDetail
+        fields = (
+            'id',
+            'room_style',
+            'room_nums',
+            'room_price',
+            "reserve_check_in_time",
+            "reserve_check_out_time",
+            "contact_name",
+            "contact_phone",
+            "room_style_name",
+            "days"
+        )
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     market_order_detail = MarketOrderDetailSerializer(many=True)
+    hotel_order_detail = HotelOrderDetailSerializer()
     order_type_display = serializers.CharField(
         source='get_order_type_display',
         read_only=True
@@ -111,7 +149,8 @@ class OrderDetailSerializer(serializers.ModelSerializer):
                   'operator_name',
                   'operator_time',
                   'refund_reason',
-                  "user_remark"
+                  "user_remark",
+                  'hotel_order_detail'
                   )
 
 

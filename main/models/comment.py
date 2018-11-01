@@ -13,7 +13,7 @@ class HotelOrderComment(models.Model):
 
     COMMENT_DISPLAY = (
         (10, '评论人可见'),
-        (20, '所有人可见')
+        (20, '审核通过')
     )
 
     COMMENT_LEVEL = (

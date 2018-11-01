@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets, status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from django.db.models import Q, Avg
 
@@ -89,14 +89,12 @@ class GoodsView(mixins.ListModelMixin,
             return HotelCommentSerializer
         return self.serializer_class
 
-    @detail_route(methods=['GET'])
+    @list_route(methods=['GET'])
     def comment(self, request, *args, **kwargs):
-        lookup_fields = self.lookup_url_kwarg or self.lookup_field
-
         query_params = Q(comment_show=20)
         if hasattr(self.request.user, 'consumer'):
             query_params = (query_params | Q(commenter=self.request.user.consumer))
-        query_params = query_params & Q(belong_order__market_order_detail__goods_id=kwargs[lookup_fields])
+
         queryset = HotelOrderComment.objects.filter(query_params).prefetch_related('comment_reply')
 
         tmp = queryset.aggregate(level_avg=Avg('comment_level'))

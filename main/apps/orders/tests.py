@@ -78,4 +78,4 @@ class OrderTest(BaseTest):
             "user_remark": "33"
         }
         resp = self.client.post(path, post_data, format='json')
-        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp.status_code, 200)

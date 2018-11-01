@@ -42,7 +42,11 @@ class Consumer(models.Model):
         max_length=30,
         default=''
     )
-
+    avatar_url = models.CharField(
+        "头像链接",
+        default='',
+        max_length=100
+    )
     sex = models.IntegerField(
         '性别',
         choices=SEX_STATUS,

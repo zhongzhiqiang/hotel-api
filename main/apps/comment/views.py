@@ -25,11 +25,11 @@ class CommentViews(mixins.CreateModelMixin,
         创建一个评论
         
         COMMENT_LEVEL = (
-        (10, '一星'),
-        (20, '两星'),
-        (30, '三星'),
-        (40, '四星'),
-        (50, '五星')
+        (1, '一星'),
+        (2, '两星'),
+        (3, '三星'),
+        (4, '四星'),
+        (5, '五星')
         ```
         {
             "content": "string",

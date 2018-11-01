@@ -6,13 +6,53 @@
 # Software: PyCharm
 from __future__ import unicode_literals
 
+import uuid
+import requests
 from rest_framework import serializers
+from django.core.files.base import ContentFile
 
-from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings, IntegralInfo, VipMember
+from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSettings, IntegralInfo, VipMember, Images
+from main.apps.admin_images.serializers import CreateImageSerializer
 
 
 class WeiXinCreateTokenSerializer(serializers.Serializer):
     code = serializers.CharField(required=True, max_length=100, help_text='微信登录获取code')
+    user_name = serializers.CharField(allow_blank=True, help_text='用户昵称')
+    sex = serializers.CharField(allow_blank=True, help_text='性别')
+    avatar_url = serializers.CharField(help_text='头像链接')
+
+    def validate_user_name(self, attrs):
+        if not attrs:
+            attrs = uuid.uuid1()
+        return attrs
+
+    def validate_avatar_url(self, attrs):
+        request = self.context['request']
+        try:
+            resp = requests.get(attrs)
+            image = resp.content
+            image = ContentFile(content=image, name='avatar_url')
+            image_serializer = CreateImageSerializer(data={"image": image})
+            image_serializer.is_valid(raise_exception=True)
+            instance = image_serializer.save()
+
+            attrs = request.build_absolute_uri(instance.image.url)
+        except Exception:
+            attrs = ""
+        return attrs
+
+    def validate_sex(self, attr):
+        try:
+            attr = int(attr)
+        except:
+            attr = 0
+        if attr == 0:
+            attr = 10
+        elif attr == 1:
+            attr = 20
+        else:
+            attr = 30
+        return attr
 
 
 class WeiXinDataDecrypt(serializers.Serializer):

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Q, Avg
 
 from main.apps.market.serializers import GoodsCategorySerializer, GoodsSerializer, HotelCommentSerializer
 from main.models import GoodsCategory, Goods, HotelOrderComment
@@ -77,6 +77,13 @@ class GoodsView(mixins.ListModelMixin,
     permission_classes = ()
     authentication_classes = ()
 
+    def get_paginated_response(self, data, meta={}):
+        """
+        Return a paginated style `Response` object for the given output data.
+        """
+        assert self.paginator is not None
+        return self.paginator.get_paginated_response(data, meta)
+
     def get_serializer_class(self):
         if self.action == 'comment':
             return HotelCommentSerializer
@@ -86,15 +93,17 @@ class GoodsView(mixins.ListModelMixin,
     def comment(self, request, *args, **kwargs):
         lookup_fields = self.lookup_url_kwarg or self.lookup_field
 
-        query_params = Q(comment_show=20) & Q(belong_order__market_order_detail__goods_id=kwargs[lookup_fields])
+        query_params = Q(comment_show=20)
         if hasattr(self.request.user, 'consumer'):
-            query_params = query_params | Q(comment=self.request.user.consumer)
-
+            query_params = (query_params | Q(commenter=self.request.user.consumer))
+        query_params = query_params & Q(belong_order__market_order_detail__goods_id=kwargs[lookup_fields])
         queryset = HotelOrderComment.objects.filter(query_params).prefetch_related('comment_reply')
+
+        tmp = queryset.aggregate(level_avg=Avg('comment_level'))
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            return self.get_paginated_response(serializer.data, meta=tmp)
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

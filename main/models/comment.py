@@ -17,11 +17,11 @@ class HotelOrderComment(models.Model):
     )
 
     COMMENT_LEVEL = (
-        (10, '一分'),
-        (20, '两分'),
-        (30, '三分'),
-        (40, '四分'),
-        (50, '五分')
+        (1, '一分'),
+        (2, '两分'),
+        (3, '三分'),
+        (4, '四分'),
+        (5, '五分')
     )
     belong_order = models.OneToOneField(
         'main.Order',
@@ -51,7 +51,7 @@ class HotelOrderComment(models.Model):
     comment_level = models.IntegerField(
         '评论等级',
         choices=COMMENT_LEVEL,
-        default=50
+        default=5
     )
 
     create_time = models.DateTimeField(

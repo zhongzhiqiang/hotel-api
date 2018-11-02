@@ -367,7 +367,7 @@ class MarketRefundedApplySerializer(serializers.ModelSerializer):
         instance = super(MarketRefundedApplySerializer, self).update(instance, validated_data)
         if admin_refunded_info:
             admin_refunded_info.update({"order": instance})
-            models.AdminRefundedInfo.objects.create(**instance)
+            models.AdminRefundedInfo.objects.create(**admin_refunded_info)
 
         return instance
 

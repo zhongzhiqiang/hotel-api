@@ -24,7 +24,7 @@ class OrderPayInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     inlines = [HotelOrderInline, MarketOrderContactInline, MarketOrderInline, OrderPayInline]
 
-    list_display = ['order_type', 'order_id', 'order_status', 'belong_hotel', 'pay_type']
+    list_display = ['order_type', 'order_id', 'order_status', 'belong_hotel', 'pay_type', 'consumer']
 
 
 class GoodsAdmin(admin.ModelAdmin):

@@ -47,4 +47,4 @@ class CommentViews(mixins.CreateModelMixin,
 
     def get_queryset(self):
         # 返回当前用户的所有评论以及回复。
-        return self.queryset.filer(commenter=self.request.user.consumer)
+        return self.queryset.filter(commenter=self.request.user.consumer)

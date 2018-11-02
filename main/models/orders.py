@@ -25,7 +25,7 @@ class Order(models.Model):
         (OrderStatus.pre_refund, '等待退款'),
         (OrderStatus.refund_ing, '退款中'),
         (OrderStatus.refunded, '退款完成'),
-        (OrderStatus.refunded_fail, '退款失败'),
+        (OrderStatus.refunded_fail, '退款拒绝'),
         (OrderStatus.pasted, '已过期'),
         (OrderStatus.deleted, '已删除')
     )

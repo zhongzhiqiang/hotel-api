@@ -65,5 +65,42 @@
       "contact_name": "12345",
       "contact_phone": "12233"
     }
+  },
+    {
+    "model": "main.order",
+    "pk": 3,
+    "fields": {
+      "order_type": 10,
+      "order_id": "20181029000010",
+      "order_status": 46,
+      "create_time": "2017-10-31T17:16:00",
+      "pay_type": 20,
+      "pay_time": "2017-10-31T18:16:00",
+      "num": 10,
+      "order_amount": "0.01",
+      "integral": 0,
+      "consumer": 1
+    }
+  },
+    {
+    "model": "main.marketorderdetail",
+    "pk": 3,
+    "fields": {
+      "market_order": 3,
+      "goods": 1,
+      "goods_price": 100,
+      "goods_integral": 0,
+      "nums": 1
+    }
+  },
+  {
+    "model": "main.marketordercontact",
+    "pk": 3,
+    "fields": {
+      "order": 3,
+      "consignee_name": "1234",
+      "consignee_address": "12345",
+      "consignee_phone": 1234
+    }
   }
 ]

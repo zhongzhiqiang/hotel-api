@@ -576,14 +576,20 @@ class AdminRefundedInfo(models.Model):
     refunded_address = models.CharField(
         '退款收货地址',
         max_length=200,
+        default='',
+        blank=True,
     )
     refunded_name = models.CharField(
         '退款收货人',
         max_length=200,
+        default='',
+        blank=True,
     )
     refunded_phone = models.CharField(
         '退款联系电话',
-        max_length=30
+        max_length=30,
+        default='',
+        blank=True
     )
     remark = models.CharField(
         '备注',

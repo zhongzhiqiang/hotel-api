@@ -39,7 +39,7 @@ class CommentViews(mixins.CreateModelMixin,
         ```
     )
     """
-    queryset = HotelOrderComment.objects.all().prefetch_related('commentreply')
+    queryset = HotelOrderComment.objects.all().prefetch_related('comment_reply')
     serializer_class = serializers.CreateHotelOrderCommentSerializer
 
     def perform_create(self, serializer):

@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from rest_framework import serializers
+from django.db.models import Avg, Q
 
 from main.models import Hotel, RoomStyles, CommentReply, HotelOrderComment
 from main.common.seriliazer_fields import ImageField, TagsField
@@ -10,6 +11,27 @@ class HotelSerializers(serializers.ModelSerializer):
     address = serializers.CharField(read_only=True)
     tags = TagsField()
     images = ImageField()
+
+    comment_count = serializers.SerializerMethodField()
+    avg_level = serializers.SerializerMethodField()
+
+    def get_comment_count(self, obj):
+        user = self.context['request']
+        query_params = Q(comment_show=20)
+        if hasattr(user, 'consumer'):
+            query_params = query_params | Q(commenter=user.consumer)
+        query_params = query_params & Q(belong_order__belong_hotel=obj)
+
+        return HotelOrderComment.objects.filter(query_params).count()
+
+    def get_avg_level(self, obj):
+        user = self.context['request']
+        query_params = Q(comment_show=20)
+        if hasattr(user, 'consumer'):
+            query_params = query_params | Q(commenter=user.consumer)
+        query_params = query_params & Q(belong_order__belong_hotel=obj)
+
+        return HotelOrderComment.objects.filter(query_params).aggregate(level=Avg('comment_level')).get("level") or 0
 
     class Meta:
         model = Hotel
@@ -28,7 +50,9 @@ class HotelSerializers(serializers.ModelSerializer):
             'min_price',
             'tel',
             'tags',
-            'images'
+            'images',
+            'comment_count',
+            'avg_level'
         )
 
 
@@ -61,6 +85,27 @@ class HotelDetailSerializer(serializers.ModelSerializer):
     tags = TagsField()
     images = ImageField()
 
+    comment_count = serializers.SerializerMethodField()
+    avg_level = serializers.SerializerMethodField()
+
+    def get_comment_count(self, obj):
+        user = self.context['request']
+        query_params = Q(comment_show=20)
+        if hasattr(user, 'consumer'):
+            query_params = query_params | Q(commenter=user.consumer)
+        query_params = query_params & Q(belong_order__belong_hotel=obj)
+
+        return HotelOrderComment.objects.filter(query_params).count()
+
+    def get_avg_level(self, obj):
+        user = self.context['request']
+        query_params = Q(comment_show=20)
+        if hasattr(user, 'consumer'):
+            query_params = query_params | Q(commenter=user.consumer)
+        query_params = query_params & Q(belong_order__belong_hotel=obj)
+
+        return HotelOrderComment.objects.filter(query_params).aggregate(level=Avg('comment_level')).get("level") or 0
+
     class Meta:
         model = Hotel
         fields = (
@@ -79,7 +124,9 @@ class HotelDetailSerializer(serializers.ModelSerializer):
             'tel',
             'room_styles',
             'tags',
-            'images'
+            'images',
+            'comment_count',
+            'avg_level'
         )
 
 

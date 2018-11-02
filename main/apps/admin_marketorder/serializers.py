@@ -17,7 +17,7 @@ from main.common.defines import OrderStatus
 
 class MarketOrderDetailSerializer(serializers.ModelSerializer):
     goods_name = serializers.CharField(
-        source='goods.name',
+        source='goods.goods_name',
         read_only=True
     )
     is_integral = serializers.BooleanField(

@@ -21,7 +21,7 @@ class Order(models.Model):
         (OrderStatus.canceled, '已取消'),
         (OrderStatus.finish, '已评价'),
         (OrderStatus.apply_refund, '申请退款'),
-        (OrderStatus.fill_apply, '填写退货信息'),
+        (OrderStatus.fill_apply, '请退货'),
         (OrderStatus.pre_refund, '等待退款'),
         (OrderStatus.refund_ing, '退款中'),
         (OrderStatus.refunded, '退款完成'),

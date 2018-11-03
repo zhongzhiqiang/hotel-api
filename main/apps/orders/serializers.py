@@ -26,6 +26,18 @@ class MarketOrderExpressSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class UserRefundedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.UserRefundedInfo
+        fields = (
+            'id',
+            'order',
+            'user_express_id',
+            'user_express'
+        )
+
+
 class CreateHotelOrderDetailSerializer(serializers.ModelSerializer):
     room_style_name = serializers.CharField(
         source='room_style.style_name',
@@ -287,6 +299,7 @@ class OrderSerializer(serializers.ModelSerializer):
     market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     market_order_contact = MarketOrderContactSerializer(read_only=True)
     order_express = MarketOrderExpressSerializer(read_only=True)
+    user_refunded_info = UserRefundedSerializer(read_only=True)
     belong_hotel_name = serializers.CharField(
         source='belong_hotel.name',
         read_only=True,
@@ -339,7 +352,8 @@ class OrderSerializer(serializers.ModelSerializer):
             'image',
             'market_order_contact',
             'integral',
-            'order_express'
+            'order_express',
+            "user_refunded_info"
         )
         read_only_fields = (
             'order_id',
@@ -800,15 +814,26 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             "pay_time"
         )
 
+class UpdateRefundedSerializer(serializers.ModelSerializer):
+    user_refunded_info = UserRefundedSerializer()
 
-class UserRefundedSerializer(serializers.ModelSerializer):
+    @atomic
+    def update(self, instance, validated_data):
+        user_refunded_info = validated_data.pop("user_refunded_info") or {}
+        for k, v in user_refunded_info.items():
+            if k in ("user_express_id", "user_express") and not v:
+                raise serializers.ValidationError({"non_field_errors": ['请填写快递信息']})
+        validated_data.update(order_status=OrderStatus.pre_refund)
+        instance = super(UpdateRefundedSerializer, self).update(instance, validated_data)
+        user_refunded_info.update({"order": instance})
+        models.UserRefundedInfo.objects.create(**user_refunded_info)
+        return instance
 
     class Meta:
-        model = models.UserRefundedInfo
+        model = models.Order
         fields = (
-            'id',
-            'user_express_id',
-            'user_express'
+            "id",
+            "user_refunded_info"
         )
 
 

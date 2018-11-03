@@ -105,6 +105,13 @@ class OrderViews(mixins.CreateModelMixin,
     ```
     refunded:
         申请退款接口.
+    market_fill_refunded: 
+        填写退款快递信息
+        {
+        "user_express_id": "快递单号",
+        "user_express": "快递公司",
+        "remark": "备注"
+        }
 
     """
     queryset = Order.objects.all().order_by('-create_time')
@@ -128,7 +135,8 @@ class OrderViews(mixins.CreateModelMixin,
             return serializers.RefundedApplySerializer
         elif self.action == 'market_refunded':
             return serializers.MarketRefundedOrderSerializer
-
+        elif self.action == 'market_fill_refunded':
+            return serializers.UpdateRefundedSerializer
         return self.serializer_class
 
     def create(self, request, *args, **kwargs):

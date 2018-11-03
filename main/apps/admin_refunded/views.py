@@ -71,7 +71,7 @@ class HotelRefundedViews(mixins.ListModelMixin,
         return self.request
 
     def perform_update(self, serializer):
-        serializer.save(consumer=self.request.user.consumer)
+        serializer.save(operator_name=self.request.user.staffprofile)
 
     def get_serializer_class(self):
         if self.action == 'retry':
@@ -141,7 +141,7 @@ class MarketRefundedViews(mixins.ListModelMixin,
     serializer_class = serializers.MarketRefundedSerializer
 
     def perform_update(self, serializer):
-        serializer.save(consumer=self.request.user.consumer)
+        serializer.save(operator_name=self.request.user.staffprofile)
 
     def get_serializer_class(self):
         if self.action == 'retry':

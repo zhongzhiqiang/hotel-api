@@ -353,8 +353,12 @@ class MarketRefundedApplySerializer(serializers.ModelSerializer):
         if not order_status:
             raise serializers.ValidationError("请传递订单状态")
 
-        if order_status == OrderStatus.fill_apply and not admin_refunded_info:
-            raise serializers.ValidationError("请传递退款邮寄信息")
+        if order_status == OrderStatus.fill_apply:
+            if not admin_refunded_info:
+                raise serializers.ValidationError("请传递退款邮寄信息")
+            for k, v in admin_refunded_info.items():
+                if k in ('refunded_address', 'refunded_name', 'refunded_phone') and not v:
+                    raise serializers.ValidationError("请传递退款邮寄信息")
 
         return attrs
 

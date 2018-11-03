@@ -16,7 +16,7 @@ class HotelSerializers(serializers.ModelSerializer):
     avg_level = serializers.SerializerMethodField()
 
     def get_comment_count(self, obj):
-        user = self.context['request']
+        user = self.context['request'].user
         query_params = Q(comment_show=20)
         if hasattr(user, 'consumer'):
             query_params = query_params | Q(commenter=user.consumer)

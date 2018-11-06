@@ -101,6 +101,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         validated_data.update({"operator_time": datetime.datetime.now()})
+        order_express = validated_data.pop('order_express') or {}
+        if order_express:
+            order_express.update({"order": instance})
+            MarketOrderExpress.objects.create(**order_express)
         instance = super(OrderSerializer, self).update(instance, validated_data)
         return instance
 

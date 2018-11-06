@@ -79,3 +79,11 @@ class OrderTest(BaseTest):
         }
         resp = self.client.post(path, post_data, format='json')
         self.assertEqual(resp.status_code, 200)
+
+    def test_refunded_hotel(self):
+        path = "/user/order/2/refunded/"
+        patch_data = {
+            "refund_reason": "xxxx"
+        }
+        resp = self.client.post(path, data=patch_data, format='json')
+        self.assertEqual(resp.status_code, 200)

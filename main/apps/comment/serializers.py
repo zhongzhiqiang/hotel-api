@@ -82,7 +82,7 @@ class HotelOrderCommentSerializer(serializers.ModelSerializer):
             'content',
             'comment_level',
             'create_time',
-            'commenter'
+            'commenter',
             'comment_avatar_url',
             'comment_reply'
         )

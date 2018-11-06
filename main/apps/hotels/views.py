@@ -27,6 +27,7 @@ class HotelView(mixins.ListModelMixin,
     queryset = Hotel.objects.filter(is_active=True).prefetch_related('room_styles')
     serializer_class = HotelSerializers
     permission_classes = ()
+    authentication_classes = ()
 
     def get_paginated_response(self, data, meta={}):
         """

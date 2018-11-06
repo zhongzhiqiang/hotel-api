@@ -29,6 +29,12 @@ class ApplySerializer(serializers.ModelSerializer):
             'is_success',
             'fail_remark',
         )
+        read_only_fields = (
+            'success_time',
+            "is_success",
+            "fail_remark",
+            "operator_time"
+        )
 
 
 class CreateApplySerializer(serializers.ModelSerializer):

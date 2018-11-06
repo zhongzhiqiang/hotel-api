@@ -281,7 +281,8 @@ class DistributionApply(models.Model):
     operator_time = models.DateTimeField(
         '操作时间',
         auto_now=True,
-        blank=True
+        blank=True,
+        null=True
     )
     operator_name = models.ForeignKey(
         'main.StaffProfile',

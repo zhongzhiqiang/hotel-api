@@ -29,17 +29,23 @@ class ApplySerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    def validate(self, attrs):
+        apply_status = attrs.get("apply_status")
+        fail_remark = attrs.get('fail_remark', '')
+        if apply_status == 20 and not fail_remark:
+            raise serializers.ValidationError("失败时,必须填写失败原因")
+        return attrs
+
     @transaction.atomic
     def update(self, instance, validated_data):
-        apply_status = validated_data.pop('is_success', False)
-        fail_remark = validated_data.pop('fail_remark', '')
-        if apply_status:
+        apply_status = validated_data.get("apply_status")
+        if apply_status == 30:
             # 如果申请状态为成功。则需要将consumer的is_distribution设置为True
-            instance.consumer_name.is_distribution = True
-            instance.consumer_name.save()
-
-        if apply_status is False and not fail_remark:
-            raise serializers.ValidationError("失败时,必须填写失败原因")
+            instance.consumer.is_distribution = True
+            instance.consumer.save()
+            validated_data.update({"fail_remark": ""})
+            validated_data.update({"is_success": True})
+            validated_data.update({"success_time": datetime.datetime.now()})
 
         instance = super(ApplySerializer, self).update(instance, validated_data)
         return instance
@@ -57,7 +63,13 @@ class ApplySerializer(serializers.ModelSerializer):
             'fail_remark',
             'is_success'
         )
-        read_only_fields = ('consumer', )
+        read_only_fields = (
+            'consumer',
+            'apply_time',
+            'apply_remark',
+            'success_time',
+            'is_success'
+        )
 
 
 class BonusPickSerializer(serializers.ModelSerializer):

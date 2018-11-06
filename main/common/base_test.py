@@ -18,7 +18,8 @@ class BaseTest(APITestCase):
         'hotel.json',
         "order.json",
         "integral.json",
-        'room_style.json'
+        'room_style.json',
+        'distribution_apply.json'
     ]
 
     def setUp(self):

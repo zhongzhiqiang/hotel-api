@@ -1,0 +1,12 @@
+[
+  {
+    "model": "main.distributionapply",
+    "pk": 1,
+    "fields": {
+      "consumer": 1,
+      "apply_status": 10,
+      "apply_time": "2018-10-11T00:00:00",
+      "apply_remark": "哈哈哈哈"
+    }
+  }
+]

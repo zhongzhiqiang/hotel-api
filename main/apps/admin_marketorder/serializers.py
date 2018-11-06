@@ -72,7 +72,7 @@ class MarketOrderExpressSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     order_refunded = OrderRefundedSerializer(read_only=True)
-    market_order_contact = MarketOrderContactSerializer()
+    market_order_contact = MarketOrderContactSerializer(read_only=True)
     order_express = MarketOrderExpressSerializer()
 
     order_pay = OrderPaySerializer(read_only=True)

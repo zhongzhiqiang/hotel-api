@@ -75,7 +75,7 @@ class GoodsView(mixins.ListModelMixin,
     serializer_class = GoodsSerializer
     filter_class = GoodsFilter
     permission_classes = ()
-    authentication_classes = ()
+
 
     def get_paginated_response(self, data, meta={}):
         """

@@ -68,6 +68,12 @@ class CommentReplySerializer(serializers.ModelSerializer):
 
 
 class HotelOrderCommentSerializer(serializers.ModelSerializer):
+    comment_avatar_url = serializers.CharField(
+        source='commenter.avatar_url',
+        read_only=True
+    )
+    comment_reply = CommentReplySerializer(read_only=True)
+
     class Meta:
         model = HotelOrderComment
         fields = (
@@ -77,4 +83,6 @@ class HotelOrderCommentSerializer(serializers.ModelSerializer):
             'comment_level',
             'create_time',
             'commenter'
+            'comment_avatar_url',
+            'comment_reply'
         )

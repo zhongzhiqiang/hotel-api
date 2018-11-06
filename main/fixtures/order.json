@@ -102,5 +102,21 @@
       "consignee_address": "12345",
       "consignee_phone": 1234
     }
+  },
+  {
+    "model": "main.order",
+    "pk": 4,
+    "fields": {
+      "order_type": 10,
+      "order_id": "20181029000010",
+      "order_status": 48,
+      "create_time": "2017-10-31T17:16:00",
+      "pay_type": 20,
+      "pay_time": "2017-10-31T18:16:00",
+      "num": 10,
+      "order_amount": "0.01",
+      "integral": 0,
+      "consumer": 1
+    }
   }
 ]

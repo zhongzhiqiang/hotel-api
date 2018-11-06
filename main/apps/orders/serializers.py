@@ -814,11 +814,14 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             "pay_time"
         )
 
+
 class UpdateRefundedSerializer(serializers.ModelSerializer):
     user_refunded_info = UserRefundedSerializer()
 
     @atomic
     def update(self, instance, validated_data):
+        if instance.order_status != OrderStatus.fill_apply:
+            raise serializers.ValidationError({"non_field_error": ['订单操作错误']})
         user_refunded_info = validated_data.pop("user_refunded_info") or {}
         for k, v in user_refunded_info.items():
             if k in ("user_express_id", "user_express") and not v:

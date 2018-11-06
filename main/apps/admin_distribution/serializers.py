@@ -134,6 +134,7 @@ class BonusPickSerializer(serializers.ModelSerializer):
             instance.consumer.bonus = last_bonus
             instance.consumer.save()
             validated_data.update({"success_time": datetime.datetime.now()})
+            # 这里下发一个退款
 
         instance = super(BonusPickSerializer, self).update(instance, validated_data)
         return instance

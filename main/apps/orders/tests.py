@@ -87,3 +87,15 @@ class OrderTest(BaseTest):
         }
         resp = self.client.post(path, data=patch_data, format='json')
         self.assertEqual(resp.status_code, 200)
+
+    def test_fill_market(self):
+        path = '/user/order/4/market_fill_refunded/'
+        patch_data = {
+            "user_refunded_info": {
+                "user_express_id": "xxx",
+                "user_express": "1234",
+                "remark": "1234"
+            }
+        }
+        resp = self.client.post(path, data=patch_data, format='json')
+        self.assertEqual(resp.status_code, 200)

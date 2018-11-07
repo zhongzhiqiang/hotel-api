@@ -491,3 +491,48 @@ class DistributionBonusPick(models.Model):
     class Meta:
         verbose_name = '提取分销金额申请'
         verbose_name_plural = verbose_name
+
+
+class DistributionWXInfo(models.Model):
+
+    distribution_pick = models.ForeignKey(
+        'main.DistributionBonusPick',
+        help_text='一个申请可能有多个转账'
+    )
+    wx_payment_no = models.CharField(
+        '微信付款订单号',
+        max_length=100,
+        default='',
+        blank=True,
+        help_text='微信内部订单号'
+    )
+    distribution_order_id = models.CharField(
+        '提取转账订单号',
+        max_length=40,
+        default='',
+        blank=True,
+        help_text='成功提取时的订单号'
+    )
+    wx_result_code = models.CharField(
+        '微信业务结果',
+        default='',
+        max_length=20,
+        blank=True
+    )
+    err_code = models.CharField(
+        '微信错误代码',
+        default='',
+        max_length=30,
+        blank=True
+    )
+    err_code_des = models.CharField(
+        '微信错误描述',
+        blank=True,
+        default='',
+        max_length=100
+    )
+    payment_time = models.DateTimeField(
+        '微信到账时间',
+        blank=True,
+        null=True
+    )

@@ -136,6 +136,14 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         balance_info.save()
         return recharge_balance, free_balance
 
+    @staticmethod
+    def check_day(check_in_time, check_out_time):
+        now = datetime.datetime.now()
+        # 1。如果预定入住时间为
+        #
+
+        return (check_out_time - check_in_time).days
+
     def validate(self, attrs):
         pay_type = attrs.get("pay_type")
         if not pay_type:
@@ -157,8 +165,10 @@ class CreateHotelOrderSerializer(serializers.ModelSerializer):
         if hotel_order_detail['reserve_check_in_time'] > hotel_order_detail['reserve_check_out_time']:
             raise serializers.ValidationError("入住时间不能够大于退房时间")
 
-        # 计算总价
-        order_amount = hotel_order_detail['room_nums'] * hotel_order_detail['room_price']
+        days = self.check_day(hotel_order_detail['reserve_check_in_time'], hotel_order_detail['reserve_check_out_time'])
+        # 计算天数
+        # 计算总价, 未计算天数
+        order_amount = hotel_order_detail['room_nums'] * hotel_order_detail['room_price'] * days
         num = hotel_order_detail['room_nums']
         attrs.update({"num": num, "order_amount": order_amount})
         return attrs

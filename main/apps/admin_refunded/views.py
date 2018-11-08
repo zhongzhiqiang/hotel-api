@@ -11,7 +11,7 @@ from rest_framework.decorators import detail_route
 
 from main.models import Order
 from main.common.defines import OrderType, OrderStatus
-from main.apps.admin_refunded import serializers
+from main.apps.admin_refunded import serializers, filters
 
 
 refund_status = [OrderStatus.pre_refund, OrderStatus.refund_ing, OrderStatus.refunded,
@@ -64,6 +64,7 @@ class HotelRefundedViews(mixins.ListModelMixin,
     queryset = Order.objects.filter(order_type=OrderType.hotel,
                                     order_status__in=refund_status)
     serializer_class = serializers.HotelOrderRefundedSerializer
+    filter_class = filters.OrderFilter
 
     def get_queryset(self):
         if hasattr(self.request.user, 'staffprofile'):
@@ -139,7 +140,8 @@ class MarketRefundedViews(mixins.ListModelMixin,
     queryset = Order.objects.filter(order_type=OrderType.market,
                                     order_status__in=refund_status)
     serializer_class = serializers.MarketRefundedSerializer
-
+    filter_class = filters.OrderFilter
+    
     def perform_update(self, serializer):
         serializer.save(operator_name=self.request.user.staffprofile)
 

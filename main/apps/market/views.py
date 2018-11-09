@@ -75,12 +75,7 @@ class GoodsView(mixins.ListModelMixin,
     serializer_class = GoodsSerializer
     filter_class = GoodsFilter
     permission_classes = ()
-
-    def get_authenticators(self):
-
-        if self.action_map['get'] != 'comment':
-            self.authentication_classes = ()
-        return super(GoodsView, self).get_authenticators()
+    authentication_classes = ()
 
     def get_paginated_response(self, data, meta={}):
         """

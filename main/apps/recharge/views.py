@@ -23,6 +23,7 @@ class RechargeSettingsViews(mixins.ListModelMixin,
     """
     queryset = RechargeSettings.objects.filter(is_active=True)
     serializer_class = serializers.RechargeSettingsSerializer
+    permission_classes = ()
 
     def get_paginated_response(self, data, meta={}):
         """
@@ -34,20 +35,27 @@ class RechargeSettingsViews(mixins.ListModelMixin,
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
-        self.meta = {
-            "balance": self.request.user.consumer.balance,
-            "free_balance": self.request.user.consumer.free_balance,
-            "recharge_balance": self.request.user.consumer.recharge_balance
-        }
+        if hasattr(self.request.user, 'consumer'):
+            meta = {
+                "balance": self.request.user.consumer.balance,
+                "free_balance": self.request.user.consumer.free_balance,
+                "recharge_balance": self.request.user.consumer.recharge_balance
+            }
+        else:
+            meta = {
+                "balance": 0,
+                "free_balance": 0,
+                "recharge_balance": 0
+            }
 
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
 
-            return self.get_paginated_response(serializer.data, self.meta)
+            return self.get_paginated_response(serializer.data, meta)
 
         serializer = self.get_serializer(queryset, many=True)
-        ret = {'meta': self.meta, "results": serializer.data}
+        ret = {'meta': meta, "results": serializer.data}
         return Response(ret)
 
 

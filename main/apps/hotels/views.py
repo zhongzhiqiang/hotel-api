@@ -27,11 +27,7 @@ class HotelView(mixins.ListModelMixin,
     queryset = Hotel.objects.filter(is_active=True).prefetch_related('room_styles')
     serializer_class = HotelSerializers
     permission_classes = ()
-
-    def get_authenticators(self):
-        if self.action_map['get'] != 'comment':
-            self.authentication_classes = ()
-        return super(HotelView, self).get_authenticators()
+    authentication_classes = ()
 
     def get_paginated_response(self, data, meta={}):
         """

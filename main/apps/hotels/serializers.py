@@ -32,7 +32,7 @@ class HotelSerializers(serializers.ModelSerializer):
             query_params = query_params | Q(commenter=user.consumer)
         query_params = query_params & Q(belong_order__belong_hotel=obj)
         level = HotelOrderComment.objects.filter(query_params).aggregate(level=Avg('comment_level')).get("level") or 0
-        return str(0) if level == 0 else float("%.1f" % level)
+        return str(0) if level == 0 else ("%.1f" % level)
 
     class Meta:
         model = Hotel

@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from main.models import GrowthValueSettings, IntegralInfo, IntegralDetail, IntegralSettings
 from main.apps.admin_integral import serializers, filters
+from main.common.permissions import PermsRequired
 
 
 class GrowthValueSettingView(mixins.CreateModelMixin,
@@ -38,6 +39,7 @@ class GrowthValueSettingView(mixins.CreateModelMixin,
     # 成长值配置
     queryset = GrowthValueSettings.objects.all()
     serializer_class = serializers.GrowthValueSettingsSerializer
+    permission_classes = (PermsRequired('main.integral'), )
 
 
 class AdminIntegralSettingsView(mixins.CreateModelMixin,
@@ -69,6 +71,7 @@ class AdminIntegralSettingsView(mixins.CreateModelMixin,
     queryset = IntegralSettings.objects.all()
     serializer_class = serializers.IntegralSettingsSerializer
     filter_class = filters.IntegralSettingsFilter
+    permission_classes = (PermsRequired('main.integral'),)
 
 
 class UserIntegralView(mixins.ListModelMixin,
@@ -87,6 +90,7 @@ class UserIntegralView(mixins.ListModelMixin,
     queryset = IntegralInfo.objects.all()
     serializer_class = serializers.IntegralSerializers
     # filter_class = filters.IntegralDetailFilter
+    permission_classes = (PermsRequired('main.integral'),)
 
     def retrieve(self, request, *args, **kwargs):
         # 返回用户的积分详情

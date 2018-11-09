@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 
 from main.apps.admin_groups import serializers
 from main.common.perms import permission
+from main.common.permissions import PermsRequired
 
 
 class RoleViews(mixins.CreateModelMixin,
@@ -35,6 +36,7 @@ class RoleViews(mixins.CreateModelMixin,
     """
     queryset = Group.objects.all().prefetch_related('permissions', 'user_set')
     serializer_class = serializers.CreateRoleSerializer
+    permission_classes = (PermsRequired('main.role'), )
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

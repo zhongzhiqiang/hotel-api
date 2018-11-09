@@ -6,6 +6,7 @@ from rest_framework import mixins, viewsets
 
 from main.apps.admin_market import serializers, filters
 from main.models import Goods, GoodsCategory
+from main.common.permissions import PermsRequired
 
 
 class GoodsCategoryView(mixins.CreateModelMixin,
@@ -38,6 +39,7 @@ class GoodsCategoryView(mixins.CreateModelMixin,
 
     queryset = GoodsCategory.objects.all()
     serializer_class = serializers.GoodsCategorySerializer
+    permission_classes = (PermsRequired('main.market'), )
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -69,6 +71,7 @@ class GoodsView(mixins.CreateModelMixin,
     queryset = Goods.objects.all()
     filter_class = filters.AdminGoodsFilter
     serializer_class = serializers.GoodsSerializer
+    permission_classes = (PermsRequired('main.market'),)
 
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):

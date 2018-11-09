@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from rest_framework import mixins, viewsets
 
 from main.models import RechargeSettings, RechargeInfo
+from main.common.permissions import PermsRequired
 from main.apps.admin_recharge_settings import serializers, filters
 
 
@@ -29,6 +30,7 @@ class RechargeSettingsView(mixins.CreateModelMixin,
     """
     queryset = RechargeSettings.objects.all()
     serializer_class = serializers.RechargeSettingsSerializer
+    permission_classes = (PermsRequired('main.vip_info'), )
 
     def perform_create(self, serializer):
         serializer.save(operator_name=self.request.user.staffprofile)
@@ -46,3 +48,4 @@ class RechargeInfoView(mixins.ListModelMixin,
     queryset = RechargeInfo.objects.all()
     serializer_class = serializers.RechargeInfoSerializer
     filter_class = filters.RechargeInfoFilter
+    permission_classes = (PermsRequired('main.vip_info'),)

@@ -8,6 +8,7 @@ from rest_framework.decorators import list_route, detail_route
 from main.models import Hotel, RoomStyles, Rooms
 from main.apps.admin_hotels import serializers, filters
 from main.common.gaode import GaoDeMap
+from main.common.permissions import PermsRequired
 
 
 class AdminHotelView(mixins.CreateModelMixin,
@@ -34,8 +35,8 @@ class AdminHotelView(mixins.CreateModelMixin,
 
     serializer_class = serializers.HotelSerializers
     queryset = Hotel.objects.all()
-    permission_classes = ()
     search_fields = ('name', )
+    permission_classes = (PermsRequired('main.hotel'),)
 
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
@@ -101,6 +102,7 @@ class AdminRoomStyle(mixins.CreateModelMixin,
     serializer_class = serializers.RoomStyleSerializer
     filter_class = filters.RoomStyleFilter
     search_fields = ('style_name', )
+    permission_classes = (PermsRequired('main.hotel'),)
 
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
@@ -140,6 +142,7 @@ class AdminRoomView(mixins.CreateModelMixin,
     serializer_class = serializers.RoomSerializer
     search_fields = ('room_style__style_name', )
     filter_class = filters.RoomFilter
+    permission_classes = (PermsRequired('main.hotel'),)
 
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):

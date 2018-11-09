@@ -10,6 +10,7 @@ from rest_framework import viewsets, mixins
 
 from main.apps.admin_tags import serializers
 from main.models import Tags
+from main.common.permissions import PermsRequired
 
 
 class TagViews(mixins.CreateModelMixin,
@@ -28,3 +29,4 @@ class TagViews(mixins.CreateModelMixin,
 
     serializer_class = serializers.TagSerializer
     queryset = Tags.objects.all()
+    permission_classes = (PermsRequired('main.tags'), )

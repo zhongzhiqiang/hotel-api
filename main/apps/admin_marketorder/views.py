@@ -12,6 +12,7 @@ from rest_framework.decorators import detail_route
 from main.apps.admin_marketorder import serializers, filters
 from main.models import Order
 from main.common.defines import OrderType
+from main.common.permissions import PermsRequired
 
 
 class MarketOrderView(mixins.UpdateModelMixin,
@@ -63,6 +64,7 @@ class MarketOrderView(mixins.UpdateModelMixin,
         order_type=OrderType.market).prefetch_related(
         'order_pay', 'order_refunded', 'market_order_detail', 'market_order_detail__goods').order_by('-create_time')
     filter_class = filters.OrderFilter
+    permission_classes = (PermsRequired('main.market_order'),)
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):

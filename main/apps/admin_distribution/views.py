@@ -10,6 +10,7 @@ from rest_framework import mixins, viewsets
 
 from main.models import DistributionApply, DistributionBonusPick
 from main.apps.admin_distribution import serializers, filters
+from main.common.permissions import PermsRequired
 
 
 class AdminDistributionApplyView(mixins.UpdateModelMixin,
@@ -34,6 +35,7 @@ class AdminDistributionApplyView(mixins.UpdateModelMixin,
     serializer_class = serializers.ApplySerializer
     search_fields = ("consumer__user_name", )
     filter_class = filters.ApplyFilter
+    permission_classes = (PermsRequired('main.distribution'), )
 
 
 class BonusPickViews(mixins.UpdateModelMixin,

@@ -10,6 +10,7 @@ from rest_framework import mixins, viewsets
 
 from main.models import VipMember, VipSettings
 from main.apps.admin_vip import serializers, filters
+from main.common.permissions import PermsRequired
 
 
 class VipMemberViews(mixins.ListModelMixin,
@@ -24,6 +25,7 @@ class VipMemberViews(mixins.ListModelMixin,
     queryset = VipMember.objects.all().order_by('-create_time')
     serializer_class = serializers.VipMemberSerializer
     filter_class = filters.VipMemberFilter
+    permission_classes = (PermsRequired('main.vip_info'),)
 
 
 class VipSettingsViews(mixins.CreateModelMixin,
@@ -39,6 +41,7 @@ class VipSettingsViews(mixins.CreateModelMixin,
     """
     queryset = VipSettings.objects.all()
     serializer_class = serializers.VipSettingsSerializer
+    permission_classes = (PermsRequired('main.vip_info'),)
 
     def perform_create(self, serializer):
         serializer.save(operator_name=self.request.user.staffprofile)

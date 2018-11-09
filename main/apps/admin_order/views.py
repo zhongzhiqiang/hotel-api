@@ -11,6 +11,7 @@ from rest_framework import mixins, viewsets
 from main.models import Order
 from main.apps.admin_order import serializers, filters
 from main.common.defines import OrderType
+from main.common.permissions import PermsRequired
 
 
 class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
@@ -61,6 +62,7 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
     queryset = Order.objects.filter(order_type=OrderType.hotel).prefetch_related('hotel_order_detail', 'order_pay')
     serializer_class = serializers.HotelOrderInfoSerializer
     filter_class = filters.HotelOrderFilter
+    permission_classes = (PermsRequired('main.hotel_order'), )
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):

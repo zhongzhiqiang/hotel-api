@@ -10,6 +10,7 @@ from rest_framework import mixins, viewsets
 
 from main.models import HotelOrderComment, CommentReply
 from main.apps.admin_comment import serializers, filters
+from main.common.permissions import PermsRequired
 
 
 class HotelOrderCommentViews(mixins.ListModelMixin,
@@ -54,6 +55,7 @@ class HotelOrderCommentViews(mixins.ListModelMixin,
     queryset = HotelOrderComment.objects.all().order_by('-create_time')
     serializer_class = serializers.CommentSerializer
     filter_class = filters.OrderCommentFilter
+    permission_classes = (PermsRequired('main.comment_reply'), )
 
     def perform_create(self, serializer):
         if hasattr(self.request.user, 'staffprofile'):

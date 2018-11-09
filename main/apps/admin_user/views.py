@@ -11,6 +11,7 @@ from rest_framework.decorators import list_route
 
 from main.apps.admin_user import serializers
 from main.models import StaffProfile
+from main.common.permissions import PermsRequired
 
 
 class AdminUserViews(mixins.CreateModelMixin,
@@ -36,6 +37,7 @@ class AdminUserViews(mixins.CreateModelMixin,
     """
     queryset = StaffProfile.objects.all()
     serializer_class = serializers.StaffProfileSerializer
+    permission_classes = (PermsRequired('main.staff'), )
 
     def get_queryset(self):
         if self.request.user and self.request.user.is_superuser:

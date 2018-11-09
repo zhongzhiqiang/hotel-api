@@ -10,7 +10,7 @@ from rest_framework import mixins, viewsets
 
 from main.apps.admin_banner import serializers, filters
 from main.models import Banners, Notice
-
+from main.common.permissions import PermsRequired
 
 class AdminBannerView(mixins.CreateModelMixin,
                       mixins.UpdateModelMixin,
@@ -41,6 +41,7 @@ class AdminBannerView(mixins.CreateModelMixin,
     queryset = Banners.objects.all()
     serializer_class = serializers.BannerSerializer
     filter_class = filters.BannersFilter
+    permission_classes = (PermsRequired('main.banner'), )
 
 
 class AdminNoticeView(mixins.CreateModelMixin,
@@ -62,3 +63,4 @@ class AdminNoticeView(mixins.CreateModelMixin,
 
     queryset = Notice.objects.all()
     serializer_class = serializers.NoticeSerializer
+    permission_classes = (PermsRequired('main.banner'),)

@@ -12,6 +12,7 @@ from rest_framework.decorators import detail_route
 from main.models import Order
 from main.common.defines import OrderType, OrderStatus
 from main.apps.admin_refunded import serializers, filters
+from main.common.permissions import PermsRequired
 
 
 refund_status = [OrderStatus.pre_refund, OrderStatus.refund_ing, OrderStatus.refunded,
@@ -65,6 +66,7 @@ class HotelRefundedViews(mixins.ListModelMixin,
                                     order_status__in=refund_status)
     serializer_class = serializers.HotelOrderRefundedSerializer
     filter_class = filters.OrderFilter
+    permission_classes = (PermsRequired('main.refunded'), )
 
     def get_queryset(self):
         if hasattr(self.request.user, 'staffprofile'):
@@ -141,7 +143,8 @@ class MarketRefundedViews(mixins.ListModelMixin,
                                     order_status__in=refund_status)
     serializer_class = serializers.MarketRefundedSerializer
     filter_class = filters.OrderFilter
-    
+    permission_classes = (PermsRequired('main.refunded'),)
+
     def perform_update(self, serializer):
         serializer.save(operator_name=self.request.user.staffprofile)
 

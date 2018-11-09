@@ -28,6 +28,10 @@ class HotelView(mixins.ListModelMixin,
     serializer_class = HotelSerializers
     permission_classes = ()
 
+    def get_authenticators(self):
+        if self.action_map['get'] != 'comment':
+            self.authentication_classes = ()
+        return super(HotelView, self).get_authenticators()
 
     def get_paginated_response(self, data, meta={}):
         """

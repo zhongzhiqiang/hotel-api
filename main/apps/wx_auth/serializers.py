@@ -20,7 +20,7 @@ class WeiXinCreateTokenSerializer(serializers.Serializer):
     user_name = serializers.CharField(allow_blank=True, help_text='用户昵称')
     sex = serializers.CharField(allow_blank=True, help_text='性别')
     avatar_url = serializers.CharField(help_text='头像链接')
-    recommend_id = serializers.CharField(help_text='推荐人ID', allow_blank=True, allow_null=True, default='')
+    recommend_id = serializers.CharField(help_text='推荐人ID', allow_blank=True, allow_null=True, default='0')
 
     def validate_user_name(self, attrs):
         if not attrs:
@@ -43,6 +43,8 @@ class WeiXinCreateTokenSerializer(serializers.Serializer):
         return attrs
 
     def validate_recommend_id(self, value):
+        if not value:
+            return None
         consumer = Consumer.objects.filter(id=value).first()
         if not consumer:
             return None

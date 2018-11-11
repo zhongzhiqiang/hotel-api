@@ -7,6 +7,7 @@
 from __future__ import unicode_literals
 import logging
 
+from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import mixins, viewsets, status
@@ -47,6 +48,7 @@ class WeiXinAuth(mixins.CreateModelMixin,
             return serializers.WeiXinDataDecrypt
         return self.serializer_class
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -68,6 +70,10 @@ class WeiXinAuth(mixins.CreateModelMixin,
                                      "sex": data['sex'],
                                      "avatar_url": data['avatar_url']
                                      })
+            if data.get("recommend_id") and not user_profile.sell_user:
+                sell_user = Consumer.objects.get(id=data.get("recommend_id"))
+                user_profile.sell_user = sell_user
+                user_profile.save()
             serializer = JSONWebTokenSerializer(data={
                 "username": openid, "password": PASSWORD
             })

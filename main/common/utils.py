@@ -5,7 +5,7 @@
 # File    : utils.py
 # Software: PyCharm
 from __future__ import unicode_literals
-from main.models import IntegralDetail, VipMember, WeiXinPayInfo
+from main.models import IntegralDetail, VipMember, WeiXinPayInfo, DistributionBonusDetail
 
 
 def create_balance_info(user, integral, integral_type, remark):
@@ -147,4 +147,13 @@ def make_bonus(sell_user, order_amount):
     # 生成奖金
     bonus = order_amount * 0.2  # 以订单的20%计算
     sell_user.bonus = sell_user.bonus + bonus
+    params = {
+        "consumer": sell_user,
+        "status": 20,
+        "detail_type": 10,
+        "use_bonus": bonus,
+        "last_bonus": sell_user.bonus,
+        "remark": "赠送金额"
+    }
+    DistributionBonusDetail.objects.create(**params)
     sell_user.save()

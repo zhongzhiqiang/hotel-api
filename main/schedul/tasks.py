@@ -13,7 +13,7 @@ from main.models import Order
 from main.apps.admin_integral.utils import make_integral, get_integral
 from main.common.defines import OrderStatus, OrderType
 from main.schedul.beat_tasks import increase_room_num
-
+from main.common.utils import make_bonus
 logger = logging.getLogger('django')
 
 
@@ -47,5 +47,7 @@ def make_integral_task(order_id):
         integral = get_integral(order.order_amount)
         remark = "购买商品:{},".format(integral)
         make_integral(order.consumer, integral, remark)
+        if order.consumer.sell_user:
+            make_bonus(order.consumer.sell_user, order.order_amount)
     else:
         return ''

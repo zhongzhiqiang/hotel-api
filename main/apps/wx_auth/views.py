@@ -70,7 +70,8 @@ class WeiXinAuth(mixins.CreateModelMixin,
                                      "sex": data['sex'],
                                      "avatar_url": data['avatar_url']
                                      })
-            if data.get("recommend_id") and not user_profile.sell_user:
+            if data.get("recommend_id"):
+            # if data.get("recommend_id") and not user_profile.sell_user:
                 sell_user = Consumer.objects.get(id=data.get("recommend_id"))
                 user_profile.sell_user = sell_user
                 user_profile.save()

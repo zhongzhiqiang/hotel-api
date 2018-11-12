@@ -26,6 +26,7 @@ def jwt_response_payload_handler(token, user=None, request=None):
 
     if user and hasattr(user, 'consumer'):
         kwargs.update({"user_id": user.consumer.id})
+        kwargs.update({"sell_user": user.consumer.sell_user_id or ''})
 
     if user and hasattr(user, 'staffprofile'):
         kwargs.update({"user_name": user.staffprofile.user_name})

@@ -141,3 +141,10 @@ def get_wx_order_id(order_id):
     if not wx_pay:
         return order_id
     return wx_pay.wx_order_id
+
+
+def make_bonus(sell_user, order_amount):
+    # 生成奖金
+    bonus = order_amount * 0.2  # 以订单的20%计算
+    sell_user.bonus = sell_user.bonus + bonus
+    sell_user.save()

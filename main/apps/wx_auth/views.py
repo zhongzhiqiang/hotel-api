@@ -70,11 +70,12 @@ class WeiXinAuth(mixins.CreateModelMixin,
                                      "sex": data['sex'],
                                      "avatar_url": data['avatar_url']
                                      })
-            if data.get("recommend_id"):
+            if data.get("sell_user"):
             # if data.get("recommend_id") and not user_profile.sell_user:
-                sell_user = Consumer.objects.get(id=data.get("recommend_id"))
+                sell_user = Consumer.objects.get(id=data.get("sell_user"))
                 user_profile.sell_user = sell_user
                 user_profile.save()
+                logger.info("user_id:{}, sell_user_id:{}".format(user_profile, sell_user))
             serializer = JSONWebTokenSerializer(data={
                 "username": openid, "password": PASSWORD
             })

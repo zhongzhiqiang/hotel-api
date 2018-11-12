@@ -5,6 +5,7 @@
 # File    : serializers.py
 # Software: PyCharm
 from __future__ import unicode_literals
+import logging
 
 import uuid
 import requests
@@ -15,12 +16,15 @@ from main.models import Consumer, ConsumerBalance, RechargeInfo, RechargeSetting
 from main.apps.admin_images.serializers import CreateImageSerializer
 
 
+logger = logging.getLogger('django')
+
+
 class WeiXinCreateTokenSerializer(serializers.Serializer):
     code = serializers.CharField(required=True, max_length=100, help_text='微信登录获取code')
     user_name = serializers.CharField(allow_blank=True, help_text='用户昵称')
     sex = serializers.CharField(allow_blank=True, help_text='性别')
     avatar_url = serializers.CharField(help_text='头像链接')
-    recommend_id = serializers.CharField(help_text='推荐人ID', allow_blank=True, allow_null=True, default='0')
+    sell_user = serializers.CharField(help_text='推荐人ID', allow_blank=True, allow_null=True, default='0')
 
     def validate_user_name(self, attrs):
         if not attrs:
@@ -42,9 +46,10 @@ class WeiXinCreateTokenSerializer(serializers.Serializer):
             attrs = ""
         return attrs
 
-    def validate_recommend_id(self, value):
+    def validate_sell_user(self, value):
         if not value:
             return None
+        logger.info("sell_user id:{}".format(value))
         consumer = Consumer.objects.filter(id=value).first()
         if not consumer:
             return None

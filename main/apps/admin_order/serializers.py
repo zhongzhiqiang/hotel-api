@@ -14,6 +14,7 @@ from django.db import transaction
 from main.models import Order, HotelOrderDetail, OrderPay, OrderRefunded
 from main.apps.admin_integral.utils import get_integral, make_integral
 from main.common.defines import OrderStatus
+from main.common.utils import make_bonus
 
 
 logger = logging.getLogger('django')
@@ -105,6 +106,8 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
                 logger.warning("make integral error:{}".format(e), exc_info=True)
                 raise serializers.ValidationError("生成积分失败")
             increase_room_num(self.instance)
+            if instance.consumer.sell_user:
+                make_bonus(instance.consumer.sell_user, instance.order_amount)
             validated_data.update({"order_status": OrderStatus.success})
         instance = super(HotelOrderInfoSerializer, self).update(instance, validated_data)
         return instance

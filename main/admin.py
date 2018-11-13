@@ -34,10 +34,14 @@ class GoodsAdmin(admin.ModelAdmin):
 class ConsumerBalanceAdmin(admin.ModelAdmin):
     list_display = ['id', 'consumer', 'balance_type', 'message']
 
+
+class ConsumerAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user_name', 'phone', 'sex', 'bonus', 'recharge_balance']
+
 admin.site.register(models.Order, OrderAdmin)
 admin.site.register(models.Goods, GoodsAdmin)
 admin.site.register(models.ConsumerBalance, ConsumerBalanceAdmin)
-
+admin.site.register(models.Consumer, ConsumerAdmin)
 for attr in dir(models):
     model = getattr(models, attr)
 

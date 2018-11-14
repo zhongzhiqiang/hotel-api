@@ -5,8 +5,13 @@
 # File    : utils.py
 # Software: PyCharm
 from __future__ import unicode_literals
+import logging
+from decimal import Decimal
+
 from main.models import IntegralDetail, VipMember, WeiXinPayInfo, DistributionBonusDetail
 
+
+logger = logging.getLogger('django')
 
 def create_balance_info(user, integral, integral_type, remark):
     # 生成用户余额详情。
@@ -145,7 +150,8 @@ def get_wx_order_id(order_id):
 
 def make_bonus(sell_user, order_amount):
     # 生成奖金
-    bonus = order_amount * 0.2  # 以订单的20%计算
+    bonus = order_amount * Decimal(0.2)  # 以订单的20%计算
+
     sell_user.bonus = sell_user.bonus + bonus
     params = {
         "consumer": sell_user,
@@ -156,4 +162,5 @@ def make_bonus(sell_user, order_amount):
         "remark": "赠送金额"
     }
     DistributionBonusDetail.objects.create(**params)
+    logger.info("user {}: obtain bonus:{}".format(sell_user, bonus))
     sell_user.save()

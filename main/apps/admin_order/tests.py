@@ -26,3 +26,11 @@ class HotelOrderTest(BaseTest):
         }
         resp = self.client.patch(path, patch_data)
         self.assertEqual(resp.status_code, 200)
+
+    def test_finish_order(self):
+        path = '/admin/hotel_order/6/'
+        patch_data = {
+            "order_status": OrderStatus.success,
+        }
+        resp = self.client.patch(path, patch_data)
+        self.assertEqual(resp.status_code, 200)

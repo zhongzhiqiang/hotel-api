@@ -134,5 +134,35 @@
       "integral": 0,
       "consumer": 1
     }
+  },
+  {
+    "model": "main.order",
+    "pk": 6,
+    "fields": {
+      "order_type": 20,
+      "order_id": "20181029000010",
+      "order_status": 30,
+      "create_time": "2017-10-31T17:16:00",
+      "pay_type": 20,
+      "pay_time": "2017-10-31T18:16:00",
+      "num": 10,
+      "order_amount": "1000.0",
+      "integral": 0,
+      "consumer": 1
+    }
+  },
+  {
+    "model": "main.hotelorderdetail",
+    "pk": "3",
+    "fields": {
+      "hotel_order": 6,
+      "room_style": 1,
+      "room_nums": 1,
+      "room_price": "90",
+      "reserve_check_in_time": "2017-10-31T18:16:00",
+      "reserve_check_out_time": "2017-11-1T18:16:00",
+      "contact_name": "12345",
+      "contact_phone": "12233"
+    }
   }
 ]

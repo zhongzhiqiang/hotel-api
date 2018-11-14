@@ -17,5 +17,3 @@ class AdminConsumrTest(BaseTest):
 
         resp = self.client.get(path)
         self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertEqual(data['count'], 1)

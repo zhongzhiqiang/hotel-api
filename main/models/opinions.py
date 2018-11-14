@@ -19,6 +19,11 @@ class Opinions(models.Model):
         '意见内容',
         max_length=200,
     )
+    phone = models.CharField(
+        '联系电话',
+        max_length=20,
+        default='',
+    )
     create_time = models.DateTimeField(
         '创建时间',
         auto_now_add=True

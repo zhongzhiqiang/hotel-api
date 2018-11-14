@@ -17,5 +17,6 @@ class OpinionsSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'content',
-            'create_time'
+            'create_time',
+            'phone'
         )

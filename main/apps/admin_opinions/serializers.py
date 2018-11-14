@@ -24,5 +24,6 @@ class OpinionsSerializers(serializers.ModelSerializer):
             'consumer_name',
             'consumer',
             'content',
-            'create_time'
+            'create_time',
+            'phone'
         )

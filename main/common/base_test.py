@@ -8,6 +8,7 @@
 from rest_framework.test import APITestCase
 
 from main.models import StaffProfile
+from main.schedul.tasks import app
 
 
 class BaseTest(APITestCase):
@@ -25,3 +26,4 @@ class BaseTest(APITestCase):
     def setUp(self):
         self.login_user = StaffProfile.objects.get(user=1)
         self.client.force_authenticate(user=self.login_user.user)
+        app.conf.CELERY_ALWAYS_EAGER = True

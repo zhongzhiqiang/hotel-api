@@ -15,7 +15,7 @@ from main import models
 from main.common.defines import PayType, OrderStatus, OrderType
 from main.common.utils import create_integral_info
 from main.common import utils
-from main.schedul.tasks import cancel_task
+from main.schedul.tasks import cancel_task, make_integral_task
 from main.common.constant import CANCEl_TIME
 logger = logging.getLogger('django')
 
@@ -1154,4 +1154,23 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             'market_order_contact',
             'order_express',
             'integral'
+        )
+
+
+class DeliverySerializer(serializers.ModelSerializer):
+
+    def update(self, instance, validated_data):
+        # 商场订单收货
+        if instance.order_type != OrderType.market or instance.order_status != OrderStatus.take_deliver:
+            raise serializers.ValidationError({"non_field_errors": ['当前订单不支持收货']})
+        validated_data.update({"order_status": OrderStatus.success})
+        instance = super(DeliverySerializer, self).update(instance, validated_data)
+        # 生成积分
+        make_integral_task.apply_async(args=(instance.order_id, ))
+        return instance
+
+    class Meta:
+        model = models.Order
+        fields = (
+            'id',
         )

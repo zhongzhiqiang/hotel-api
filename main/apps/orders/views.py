@@ -112,6 +112,8 @@ class OrderViews(mixins.CreateModelMixin,
         "user_express": "快递公司",
         "remark": "备注"
         }
+    market_delivery:
+        商场订单收货.不用传递。
 
     """
     queryset = Order.objects.all().order_by('-create_time')
@@ -137,6 +139,8 @@ class OrderViews(mixins.CreateModelMixin,
             return serializers.MarketRefundedOrderSerializer
         elif self.action == 'market_fill_refunded':
             return serializers.UpdateRefundedSerializer
+        elif self.action == 'market_delivery':
+            return serializers.DeliverySerializer
         return self.serializer_class
 
     def create(self, request, *args, **kwargs):
@@ -176,6 +180,10 @@ class OrderViews(mixins.CreateModelMixin,
 
     @detail_route(methods=['POST'])
     def refunded(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    @detail_route(methods=['POST'])
+    def market_delivery(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
     @detail_route(methods=['POST'])

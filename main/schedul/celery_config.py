@@ -30,6 +30,10 @@ CELERYBEAT_SCHEDULE = {
     },
     "auto_success": {
         "task": "auto_success",
-        "schedule": crontab(hour=8)
+        "schedule": crontab(hour=8, minute=0)
+    },
+    "auto_integral": {
+        "task": "auto_integral",
+        "schedule": crontab(hour='*/1', minute=0)
     }
 }

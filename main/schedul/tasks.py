@@ -14,7 +14,7 @@ from main.apps.admin_integral.utils import make_integral, get_integral
 from main.common.defines import OrderStatus, OrderType
 from main.schedul.beat_tasks import increase_room_num
 from main.common.utils import make_bonus
-logger = logging.getLogger('django')
+logger = logging.getLogger('celery')
 
 
 @app.task(name='cancel_task')
@@ -49,5 +49,9 @@ def make_integral_task(order_id):
         make_integral(order.consumer, integral, remark)
         if order.consumer.sell_user:
             make_bonus(order.consumer.sell_user, order.order_amount)
+            logger.info("deal order_id:{}, bonus".format(order_id))
+        order.is_make = True
+        logger.info("deal order_id:{}".format(order_id))
+        order.save()
     else:
         return ''

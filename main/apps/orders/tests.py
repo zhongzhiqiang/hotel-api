@@ -99,3 +99,8 @@ class OrderTest(BaseTest):
         }
         resp = self.client.post(path, data=patch_data, format='json')
         self.assertEqual(resp.status_code, 200)
+
+    def test_delivery_market(self):
+        path = '/user/order/7/market_delivery/'
+        resp = self.client.post(path)
+        self.assertEqual(resp.status_code, 200)

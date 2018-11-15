@@ -250,6 +250,18 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'formatter': 'verbose',
             'filename': '/data/log/django.log',
+        },
+        'celery': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': '/data/log/celery.log'
+        },
+        'celery.error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': '/data/log/celery_err.log'
         }
     },
     'loggers': {
@@ -258,6 +270,10 @@ LOGGING = {
             'handlers': ['console', 'prod.info'],
             'propagate': True,
         },
-
+        'celery': {
+            'level': 'INFO',
+            'handlers': ['console', 'celery', 'celery.error'],
+            'propagate': True
+        }
     },
 }

@@ -149,6 +149,11 @@ class Order(models.Model):
         default='',
         blank=True,
     )
+    is_make = models.BooleanField(
+        '是否已生成积分',
+        default=False,
+        blank=True,
+    )
 
     @property
     def image(self):

@@ -12,11 +12,11 @@ from django.db import transaction
 from main.schedul.celery_app import app
 from main.models import Order
 from main.common.defines import OrderStatus, OrderType
-from main.common.utils import increase_room_num, get_goods_name_by_instance
+from main.common.utils import increase_room_num, get_goods_name_by_instance, make_bonus
 from main.apps.admin_integral.utils import make_integral, get_integral
 
 
-logger = logging.getLogger('django')
+logger = logging.getLogger('celery')
 
 
 @transaction.atomic
@@ -60,6 +60,41 @@ def auto_success():
             make_integral(order.consumer, integral, remark)
             order.save()
 
+
+@app.task(name='auto_delivery')
+def auto_delivery():
+    # 自动收货
+    order_list = Order.objects.filter(order_status=OrderStatus.take_deliver, order_type=OrderType.market)
+
+    now = datetime.datetime.now()
+    for order in order_list:
+        operator_time = order.operator_time
+        deliver_day = operator_time + datetime.timedelta(days=7)
+
+        if now.year == deliver_day.year and now.month == deliver_day.month and now.day == deliver_day.day:
+            order.order_status = OrderStatus.success
+            order.operator_time = datetime.datetime.now()
+            order.save()
+
+
+@app.task(name='auto_integral')
+def auto_integral():
+    status = [OrderStatus.success, OrderStatus.finish]
+    order_list = Order.objects.filter(order_status__in=status, order_type=OrderType.market, is_make=False)
+    now = datetime.datetime.now()
+
+    for order in order_list:
+        operator_time = order.operator_time
+        integral_day = operator_time + datetime.timedelta(days=7)
+        if now.year == integral_day.year and now.month == integral_day.month and now.day == integral_day.day:
+            integral = get_integral(order.order_amount)
+            name = get_goods_name_by_instance(order.market_order_detail)
+            remark = "购买商品:{},积分:{}".format(name, integral)
+            make_integral(order.consumer, integral, remark)
+            if order.consumer.sell_user:
+                make_bonus(order.consumer.sell_user, order.order_amount)
+            order.is_make = True
+            order.save()
 
 if __name__ == '__main__':
     auto_success()

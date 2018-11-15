@@ -65,6 +65,10 @@ class DistributionBonusDetailSerializer(serializers.ModelSerializer):
         source='get_detail_type_display',
         read_only=True,
     )
+    avatar_url = serializers.CharField(
+        source='consumer.avatar_url',
+        read_only=True
+    )
 
     class Meta:
         model = DistributionBonusDetail
@@ -79,7 +83,8 @@ class DistributionBonusDetailSerializer(serializers.ModelSerializer):
             'use_bonus',
             'remark',
             'create_time',
-            'operator_time'
+            'operator_time',
+            'avatar_url'
         )
 
 

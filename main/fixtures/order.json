@@ -82,7 +82,7 @@
       "consumer": 1
     }
   },
-    {
+  {
     "model": "main.marketorderdetail",
     "pk": 3,
     "fields": {
@@ -163,6 +163,43 @@
       "reserve_check_out_time": "2017-11-1T18:16:00",
       "contact_name": "12345",
       "contact_phone": "12233"
+    }
+  },
+    {
+    "model": "main.order",
+    "pk": 7,
+    "fields": {
+      "order_type": 10,
+      "order_id": "20181029000011",
+      "order_status": 20,
+      "create_time": "2017-10-31T17:16:00",
+      "pay_type": 20,
+      "pay_time": "2017-10-31T18:16:00",
+      "num": 10,
+      "order_amount": "1000.0",
+      "integral": 0,
+      "consumer": 1
+    }
+  },
+  {
+    "model": "main.marketorderdetail",
+    "pk": 4,
+    "fields": {
+      "market_order": 7,
+      "goods": 1,
+      "goods_price": 100,
+      "goods_integral": 0,
+      "nums": 1
+    }
+  },
+  {
+    "model": "main.marketordercontact",
+    "pk": 4,
+    "fields": {
+      "order": 7,
+      "consignee_name": "1234",
+      "consignee_address": "12345",
+      "consignee_phone": 1234
     }
   }
 ]

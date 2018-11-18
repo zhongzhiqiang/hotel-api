@@ -426,7 +426,7 @@ class OrderRefunded(models.Model):
     )
     refunded_order_id = models.CharField(
         '退款订单号',
-        max_length=30,
+        max_length=35,
         default=''
     )
 

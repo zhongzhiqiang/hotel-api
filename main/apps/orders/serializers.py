@@ -377,7 +377,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'market_order_contact',
             'integral',
             'order_express',
-            "user_refunded_info"
+            "user_refunded_info",
             'admin_refunded_info'
         )
         read_only_fields = (

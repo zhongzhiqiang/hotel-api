@@ -611,7 +611,8 @@ class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
         validated_data.update({"operator_time": datetime.datetime.now()})
         order_refunded = self.instance.order_refunded
         consumer = instance.consumer
-        result = unified_refunded(instance.order_id,
+        order_pay = models.OrderPay.objects.filter(order=instance).first()
+        result = unified_refunded(order_pay.wx_order_id,
                                   order_refunded.refunded_order_id,
                                   instance.order_amount,
                                   order_refunded.refunded_money,
@@ -685,7 +686,7 @@ class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
 
 
 class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
-    refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=True)
+
     order_refunded = OrderRefundedSerializer(read_only=True)
     order_pay = OrderPaySerializer(read_only=True)
 
@@ -728,7 +729,8 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
         validated_data.update({"operator_time": datetime.datetime.now()})
         order_refunded = self.instance.order_refunded
         consumer = instance.consumer
-        result = unified_refunded(instance.order_id,
+        order_pay = models.OrderPay.objects.filter(order=instance).first()
+        result = unified_refunded(order_pay.wx_order_id,
                                   order_refunded.refunded_order_id,
                                   instance.order_amount,
                                   order_refunded.refunded_money,
@@ -796,5 +798,6 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
             "consumer_name",
             "operator_name",
             "operator_time",
-            "user_remark"
+            "user_remark",
+            'belong_hotel'
         )

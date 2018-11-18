@@ -104,3 +104,8 @@ class OrderTest(BaseTest):
         path = '/user/order/7/market_delivery/'
         resp = self.client.post(path)
         self.assertEqual(resp.status_code, 200)
+
+    def test_list_data(self):
+        path = '/user/order/'
+        resp = self.client.get(path)
+        self.assertEqual(resp.status_code, 200)

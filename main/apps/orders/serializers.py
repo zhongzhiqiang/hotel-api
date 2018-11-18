@@ -30,13 +30,13 @@ class AdminRefundedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.AdminRefundedInfo
-        fields = {
+        fields = (
             "id",
             "refunded_address",
             "refunded_name",
             "refunded_phone",
             "remark"
-        }
+        )
 
 
 class UserRefundedSerializer(serializers.ModelSerializer):

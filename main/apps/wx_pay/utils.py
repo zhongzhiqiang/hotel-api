@@ -4,7 +4,6 @@
 # Site    : 
 # File    : utils.py
 # Software: PyCharm
-from __future__ import unicode_literals
 
 import logging
 import random

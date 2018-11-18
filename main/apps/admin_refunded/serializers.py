@@ -778,7 +778,6 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
             "operator_time",
             "user_remark",
             "operator_remark",
-            "refunded_money",
             "operator_name_display"
         )
         read_only_fields = (

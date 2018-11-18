@@ -243,7 +243,7 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'format',
+            'formatter': 'verbose',
         },
         'prod.info': {
             'level': 'INFO',

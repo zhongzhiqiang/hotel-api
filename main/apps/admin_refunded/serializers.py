@@ -275,12 +275,12 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
                                       instance.order_amount,
                                       refunded_money,
                                       consumer.openid)
-            if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
+            if result.get("return_code") == WeiXinCode.success and result.get("result_code") == WeiXinCode.success:
                 order_refunded.refunded_status = RefundedStatus.success
                 order_refunded.refunded_message = "退款成功"
                 order_refunded.refunded_account = datetime.datetime.now()
                 validated_data.update({"order_status": OrderStatus.refunded})
-            elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
+            elif result.get("return_code") == WeiXinCode.success and result.get("err_code"):
                 order_refunded.refunded_status = RefundedStatus.fail
                 order_refunded.refunded_message = result.get("err_code_des") or ''
             else:
@@ -501,12 +501,12 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
                                       order_refunded.refunded_money,
                                       consumer.openid)
             logger.info("order_id:{},refunded:{}".format(instance.order_id, result))
-            if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
+            if result.get("return_code") == WeiXinCode.success and result.get("result_code") == WeiXinCode.success:
                 order_refunded.refunded_status = RefundedStatus.success
                 order_refunded.refunded_message = "退款成功"
                 order_refunded.refunded_account = datetime.datetime.now()
                 validated_data.update({"order_status": OrderStatus.refunded})
-            elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
+            elif result.get("return_code") == WeiXinCode.success and result.get("err_code"):
                 order_refunded.refunded_status = RefundedStatus.fail
                 order_refunded.refunded_message = result.get("err_code_des") or ''
             else:
@@ -618,12 +618,12 @@ class MarketOrderRetryRefundedSerializer(serializers.ModelSerializer):
                                   order_refunded.refunded_money,
                                   consumer.openid)
         logger.warning("retry order_id:{}, result:{}".format(instance.order_id, result))
-        if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
+        if result.get("return_code") == WeiXinCode.success and result.get("result_code") == WeiXinCode.success:
             order_refunded.refunded_status = RefundedStatus.success
             order_refunded.refunded_message = "退款成功"
             order_refunded.refunded_account = datetime.datetime.now()
             validated_data.update({"order_status": OrderStatus.refunded})
-        elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
+        elif result.get("return_code") == WeiXinCode.success and result.get("err_code"):
             order_refunded.refunded_status = RefundedStatus.fail
             order_refunded.refunded_message = result.get("err_code_des") or ''
         else:
@@ -735,12 +735,12 @@ class HotelOrderRetryRefundedSerializer(serializers.ModelSerializer):
                                   instance.order_amount,
                                   order_refunded.refunded_money,
                                   consumer.openid)
-        if result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.success:
+        if result.get("return_code") == WeiXinCode.success and result.get("result_code") == WeiXinCode.success:
             order_refunded.refunded_status = RefundedStatus.success
             order_refunded.refunded_message = "退款成功"
             order_refunded.refunded_account = datetime.datetime.now()
             validated_data.update({"order_status": OrderStatus.refunded})
-        elif result.get("return_code") == WeiXinCode.success and result.get("err_code") == WeiXinCode.error:
+        elif result.get("return_code") == WeiXinCode.success and result.get("err_code"):
             order_refunded.refunded_status = RefundedStatus.fail
             order_refunded.refunded_message = result.get("err_code_des") or ''
         else:

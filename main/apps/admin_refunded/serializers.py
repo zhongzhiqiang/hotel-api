@@ -416,7 +416,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, attrs):
-        if self.instance.order_status != OrderStatus.pre_refund:
+        if self.instance.order_status != OrderStatus.apply_refund:
             raise serializers.ValidationError("当前订单不可退款")
         refunded_money = attrs.get("refunded_money")
         if not refunded_money:

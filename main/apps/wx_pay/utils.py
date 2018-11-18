@@ -52,7 +52,7 @@ def unified_refunded(out_trade_no, out_refund_no, total_fee, refund_fee, op_user
         "total_fee": total_fee,
         "refund_fee": refund_fee,
         "op_user_id": op_user_id,
-        "out_trade_no": out_trade_no
+        "transaction_id": out_trade_no
     }
     wx_pay = WXAppPay(WXConfig.APP_ID, WXConfig.MCH_ID, partner_key=WXConfig.KEY,
                       mch_cert='main/cert/apiclient_cert.pem', mch_key='main/cert/apiclient_key.pem')

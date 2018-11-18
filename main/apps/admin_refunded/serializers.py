@@ -269,7 +269,8 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
 
         consumer = instance.consumer
         if instance.pay_type == PayType.weixin:
-            result = unified_refunded(instance.order_id,
+            order_pay = models.OrderPay.objects.filter(order=instance).first()
+            result = unified_refunded(order_pay.wx_order_id,
                                       order_refunded.refunded_order_id,
                                       instance.order_amount,
                                       refunded_money,

@@ -69,6 +69,8 @@ class HotelRefundedViews(mixins.ListModelMixin,
     permission_classes = (PermsRequired('main.refunded'), )
 
     def get_queryset(self):
+        if self.request.user.is_superuser:
+            return self.queryset
         if hasattr(self.request.user, 'staffprofile'):
             return self.queryset.filter(belong_hotel=self.request.user.staffprofile.belong_hotel)
         return self.request

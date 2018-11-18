@@ -18,6 +18,18 @@ from main.apps.wx_pay.utils import unified_refunded
 logger = logging.getLogger(__name__)
 
 
+class UserRefundedInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserRefundedInfo
+        fields = (
+            'id',
+            'user_express_id',
+            'user_express',
+            "remark",
+            'create_time'
+        )
+
+
 class HotelOrderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -116,7 +128,7 @@ class MarketRefundedAdminInfoSerializer(serializers.ModelSerializer):
 class MarketRefundedSerializer(serializers.ModelSerializer):
     refunded_money = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True)
     refunded_integral = serializers.IntegerField(default=0, write_only=True)
-
+    user_refunded_info = UserRefundedInfoSerializer(read_only=True)
     market_order_detail = MarketOrderDetailSerializer(many=True, read_only=True)
     order_refunded = OrderRefundedSerializer(read_only=True)
     market_order_contact = MarketOrderContactSerializer(read_only=True)
@@ -321,7 +333,8 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
             "operator_remark",
             "operator_name_display",
             'refunded_integral',
-            'refunded_money'
+            'refunded_money',
+            'user_refunded_info'
         )
         read_only_fields = (
             "order_type",

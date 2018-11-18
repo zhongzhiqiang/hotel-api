@@ -59,7 +59,7 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
         退款。
     """
 
-    queryset = Order.objects.filter(order_type=OrderType.hotel).prefetch_related('hotel_order_detail', 'order_pay')
+    queryset = Order.objects.filter(order_type=OrderType.hotel).prefetch_related('hotel_order_detail', 'order_pay').order_by('-id')
     serializer_class = serializers.HotelOrderInfoSerializer
     filter_class = filters.HotelOrderFilter
     permission_classes = (PermsRequired('main.hotel_order'), )

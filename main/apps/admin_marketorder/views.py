@@ -62,7 +62,7 @@ class MarketOrderView(mixins.UpdateModelMixin,
     serializer_class = serializers.OrderSerializer
     queryset = Order.objects.filter(
         order_type=OrderType.market).prefetch_related(
-        'order_pay', 'order_refunded', 'market_order_detail', 'market_order_detail__goods').order_by('-create_time')
+        'order_pay', 'order_refunded', 'market_order_detail', 'market_order_detail__goods').order_by('-id')
     filter_class = filters.OrderFilter
     permission_classes = (PermsRequired('main.market_order'),)
 

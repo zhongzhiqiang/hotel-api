@@ -63,7 +63,7 @@ class HotelRefundedViews(mixins.ListModelMixin,
 
     """
     queryset = Order.objects.filter(order_type=OrderType.hotel,
-                                    order_status__in=refund_status)
+                                    order_status__in=refund_status).order_by('-id')
     serializer_class = serializers.HotelOrderRefundedSerializer
     filter_class = filters.OrderFilter
     permission_classes = (PermsRequired('main.refunded'), )
@@ -142,7 +142,7 @@ class MarketRefundedViews(mixins.ListModelMixin,
         
     """
     queryset = Order.objects.filter(order_type=OrderType.market,
-                                    order_status__in=refund_status)
+                                    order_status__in=refund_status).order_by('-id')
     serializer_class = serializers.MarketRefundedSerializer
     filter_class = filters.OrderFilter
     permission_classes = (PermsRequired('main.refunded'),)

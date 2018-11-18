@@ -26,6 +26,19 @@ class MarketOrderExpressSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AdminRefundedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.AdminRefundedInfo
+        fields = {
+            "id",
+            "refunded_address",
+            "refunded_name",
+            "refunded_phone",
+            "remark"
+        }
+
+
 class UserRefundedSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -310,6 +323,7 @@ class OrderSerializer(serializers.ModelSerializer):
     market_order_contact = MarketOrderContactSerializer(read_only=True)
     order_express = MarketOrderExpressSerializer(read_only=True)
     user_refunded_info = UserRefundedSerializer(read_only=True)
+    admin_refunded_info = AdminRefundedSerializer(read_only=True)
     belong_hotel_name = serializers.CharField(
         source='belong_hotel.name',
         read_only=True,
@@ -364,6 +378,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'integral',
             'order_express',
             "user_refunded_info"
+            'admin_refunded_info'
         )
         read_only_fields = (
             'order_id',
@@ -827,6 +842,7 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
 
 class UpdateRefundedSerializer(serializers.ModelSerializer):
     user_refunded_info = UserRefundedSerializer()
+    admin_refunded_info = AdminRefundedSerializer(read_only=True)
 
     @atomic
     def update(self, instance, validated_data):
@@ -846,21 +862,9 @@ class UpdateRefundedSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = (
             "id",
-            "user_refunded_info"
+            "user_refunded_info",
+            'admin_refunded_info'
         )
-
-
-class AdminRefundedSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.AdminRefundedInfo
-        fields = {
-            "id",
-            "refunded_address",
-            "refunded_name",
-            "refunded_phone",
-            "remark"
-        }
 
 
 class MarketRefundedOrderSerializer(serializers.ModelSerializer):

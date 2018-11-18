@@ -13,6 +13,7 @@ from main.models import IntegralDetail, VipMember, WeiXinPayInfo, DistributionBo
 
 logger = logging.getLogger('django')
 
+
 def create_balance_info(user, integral, integral_type, remark):
     # 生成用户余额详情。
     params = {
@@ -164,3 +165,12 @@ def make_bonus(sell_user, order_amount):
     DistributionBonusDetail.objects.create(**params)
     logger.info("user {}: obtain bonus:{}".format(sell_user, bonus))
     sell_user.save()
+
+
+def check_phone(value):
+    pattern = "1[]"
+    import re
+    re_compile = re.compile(pattern)
+    if re_compile.match(value):
+        return value
+    raise ValueError()

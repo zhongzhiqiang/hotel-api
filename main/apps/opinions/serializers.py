@@ -12,6 +12,12 @@ from main.models import Opinions
 
 
 class OpinionsSerializer(serializers.ModelSerializer):
+
+    def validate(self, attrs):
+        if not attrs.get("phone"):
+            raise serializers.ValidationError({"请传递手机号"})
+        return attrs
+
     class Meta:
         model = Opinions
         fields = (

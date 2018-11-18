@@ -494,7 +494,8 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
         order_refunded.save()
 
         if instance.pay_type == PayType.weixin:
-            result = unified_refunded(instance.order_id,
+            order_pay = models.OrderPay.objects.filter(order=instance).first()
+            result = unified_refunded(instance.wx_order_id,
                                       order_refunded.refunded_order_id,
                                       instance.order_amount,
                                       order_refunded.refunded_money,

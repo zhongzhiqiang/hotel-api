@@ -52,7 +52,8 @@
       "sex": 10,
       "recharge_balance": 100,
       "free_balance": 10000,
-      "sell_user": 2
+      "sell_user": 2,
+      "bonus": "100"
     }
   },
   {
@@ -66,7 +67,8 @@
       "user_name": "1234",
       "sex": 10,
       "recharge_balance": 100,
-      "free_balance": 10000
+      "free_balance": 10000,
+      "bonus": "100"
     }
   }
 ]

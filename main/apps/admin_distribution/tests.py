@@ -33,3 +33,7 @@ class DistributionTest(BaseTest):
         resp = self.client.put(path, data=patch_data)
         self.assertEqual(resp.status_code, 200)
 
+    def test_get_pick(self):
+        path = '/admin/pick/'
+        resp = self.client.get(path)
+        self.assertEqual(resp.status_code, 200)

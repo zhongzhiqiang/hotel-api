@@ -81,10 +81,6 @@ class BonusPickSerializer(serializers.ModelSerializer):
         source='consumer.user_name',
         read_only=True
     )
-    transfer_type_display = serializers.CharField(
-        source='get_transfer_type_display',
-        read_only=True,
-    )
 
     @staticmethod
     def create_bonus_detail(**kwargs):
@@ -99,18 +95,8 @@ class BonusPickSerializer(serializers.ModelSerializer):
         remark = "提取金额:{}, ".format(instance.pick_money)
 
         if pick_status and pick_status == 50:
-            remark += '失败'
-            kwargs = {
-                "status": "20",
-                "pick": instance,
-                "last_bonus": instance.consumer.bonus,
-                "use_bonus": -instance.pick_money,
-                "consumer": instance.consumer,
-                "remark": remark,
-                'detail_type': 20,  # 支出
-            }
-            self.create_bonus_detail(**kwargs)
-            raise serializers.ValidationError("提取失败时，需要输入失败原因")
+            if not validated_data.get("fail_remark", None):
+                raise serializers.ValidationError({"non_field_errors": ['不同意申请需传递原因']})
         elif pick_status and pick_status == 30:
             validated_data.update({"transfer_time": datetime.datetime.now()})
         elif pick_status and pick_status == 40:
@@ -118,7 +104,7 @@ class BonusPickSerializer(serializers.ModelSerializer):
             last_bonus = instance.consumer.bonus - instance.pick_money
             if last_bonus < 0:
                 logger.info("consumer pick:{}, last lte 0".format(instance.consumer.user_name))
-                raise serializers.ValidationError({"pick_money": ['提取金额超出限制']})
+                raise serializers.ValidationError({"non_field_errors": ['提取金额超出限制']})
             remark += '成功'
             kwargs = {
                 "status": "20",
@@ -148,12 +134,8 @@ class BonusPickSerializer(serializers.ModelSerializer):
             'pick_status_display',
             'pick_money',
             'pick_time',
-            'success_time',
-            'transfer_type',
-            'transfer_account',
-            'bank',
-            'transfer_type_display'
+            'success_time'
+
         )
 
-        read_only_fields = ('pick_money', 'pick_time', 'success_time',
-                            'transfer_type', 'transfer_account', 'bank')
+        read_only_fields = ('pick_money', 'pick_time', 'success_time')

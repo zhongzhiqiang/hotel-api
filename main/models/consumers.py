@@ -398,11 +398,6 @@ class DistributionBonusPick(models.Model):
         (60, '取消申请'),
     )
 
-    TRANSFER_TYPE = (
-        (10, '支付宝'),
-        (20, '微信'),
-        (30, '银行卡'),
-    )
     consumer = models.ForeignKey(
         'main.Consumer',
         on_delete=models.SET_NULL,
@@ -429,22 +424,6 @@ class DistributionBonusPick(models.Model):
         '提取金额',
         max_digits=10,
         decimal_places=2,
-    )
-    transfer_type = models.IntegerField(
-        '转账方式',
-        choices=TRANSFER_TYPE,
-        default=10
-    )
-    transfer_account = models.CharField(
-        '转账账号',
-        max_length=100,
-        default='',
-    )
-    bank = models.CharField(
-        '开户行',
-        max_length=100,
-        default='',
-        help_text='当提取方式为银行卡时,此字段必须输入'
     )
 
     pick_time = models.DateTimeField(

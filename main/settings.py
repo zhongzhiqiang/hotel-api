@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import datetime
-
+from main.config import config_module
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -93,8 +93,13 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config_module.MYSQL_DB,
+        'USER': config_module.MYSQL_USER,
+        'PASSWORD': config_module.MYSQL_PWD,
+        'HOST': config_module.MYSQL_HOST,
+        'PORT': config_module.MYSQL_PORT,
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
 

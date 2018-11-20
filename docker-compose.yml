@@ -11,8 +11,11 @@ services:
       - "7070:7070"
     environment:
       - PYTHONPATH=/code
-      - HOTEL_API_SETTINGS=main.config.dev
+      - HOTEL_API_SETTINGS=main.config.local
     network_mode: bridge
+    external_links:
+      - redis:redis
+      - product_mysql:mysql
   pro:
     image: hub.gaoshiwang.cn/hotel_api:latest
     command: supervisord -c /code/deploy/supervisord.conf
@@ -31,6 +34,7 @@ services:
     restart: always
     external_links:
       - redis:redis
+      - mysql:mysql
 
   celery_test:
     image: hub.gaoshiwang.cn/hotel_api:latest
@@ -62,3 +66,4 @@ services:
     restart: always
     external_links:
       - redis:redis
+      - mysql:mysql

@@ -28,6 +28,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class CreateImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(allow_empty_file=False)
 
     class Meta:
         model = Images

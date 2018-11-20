@@ -25,5 +25,6 @@ class LoggerMiddleware(MiddlewareMixin):
         return response
 
     def process_request(self, request):
-        logger.info("request info body:{}, query:{},META:{}".format(request.body, request.GET, request.META))
+        if 'image' not in request.get_full_path():
+            logger.info("request info body:{}, query:{},META:{}".format(request.body, request.GET, request.META))
         return None

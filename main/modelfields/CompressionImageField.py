@@ -4,10 +4,9 @@
 # Site    : 
 # File    : CompressionImageField.py
 # Software: PyCharm
-from __future__ import unicode_literals
 import cStringIO
-
-from django.db.models import  ImageField
+import uuid
+from django.db.models import ImageField
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import ImageFieldFile
 
@@ -58,6 +57,9 @@ class ImageCompressionFieldFile(ImageFieldFile):
 
     def save(self, name, content, save=True):
         content = generate_thumb(content)
+        end_with = name.split('.')[-1]
+        name = uuid.uuid4().hex + '.' + end_with
+
         super(ImageCompressionFieldFile, self).save(name, content, save)
 
 

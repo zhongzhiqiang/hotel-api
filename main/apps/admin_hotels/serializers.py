@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from main.models import Hotel, RoomStyles, Rooms
 from main.common.gaode import GaoDeMap
@@ -127,11 +128,22 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
             'room_count',
             'tags'
         )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=RoomStyles.objects.all(),
+                fields=('belong_hotel', 'style_name'),
+                message='已存在相同类型房间'
+            )
+        ]
 
 
 class RoomStyleSerializer(serializers.ModelSerializer):
     images = ImageField()
     tags = TagsField()
+    hotel_name = serializers.CharField(
+        source='belong_hotel.name',
+        read_only=True
+    )
 
     class Meta:
         model = RoomStyles
@@ -147,8 +159,16 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'cover_image',
             'update_time',
             'operator_name',
-            'tags'
+            'tags',
+            'hotel_name'
         )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=RoomStyles.objects.all(),
+                fields=('belong_hotel', 'style_name'),
+                message='已存在相同类型房间'
+            )
+        ]
 
 
 class CreateRoomSerializer(serializers.ModelSerializer):

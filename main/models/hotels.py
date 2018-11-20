@@ -117,7 +117,6 @@ class RoomStyles(models.Model):
         '房间类型',
         max_length=100,
         db_index=True,
-        unique=True,
     )
     price = models.DecimalField(
         '单价',
@@ -197,6 +196,7 @@ class RoomStyles(models.Model):
     class Meta:
         verbose_name = '房间类型'
         verbose_name_plural = verbose_name
+        unique_together = ('belong_hotel', 'style_name')
 
 
 class Rooms(models.Model):

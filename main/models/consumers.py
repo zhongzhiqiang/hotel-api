@@ -190,7 +190,7 @@ class RechargeInfo(models.Model):
     )
     order_id = models.CharField(
         '充值订单号',
-        max_length=20,
+        max_length=40,
         blank=True,
         null=True,
         db_index=True

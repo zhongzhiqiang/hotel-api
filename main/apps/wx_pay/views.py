@@ -173,7 +173,7 @@ class ReceiveWXNotifyView(views.APIView):
 
             recharge.consumer.balance = recharge.consumer.balance + recharge.recharge_money
             recharge.consumer.free_balance = recharge.consumer.free_balance + recharge.free_money
-            recharge.save()
+            recharge.consumer.save()
 
             params = {
                 "consumer": recharge.consumer,
@@ -182,7 +182,7 @@ class ReceiveWXNotifyView(views.APIView):
                 "cost_price": recharge.recharge_money,
                 "left_balance": recharge.consumer.balance,
             }
-            ConsumerBalance(**params).save()
+            ConsumerBalance.objects.create(**params)
             return_code = WeiXinCode.success
         else:
             return_code = WeiXinCode.fail

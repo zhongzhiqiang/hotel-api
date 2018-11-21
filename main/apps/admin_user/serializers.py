@@ -57,6 +57,7 @@ class StaffProfileSerializer(serializers.ModelSerializer):
             'is_active',
             'username'
         )
+        read_only_fields = ('date_joined', )
 
 
 class CreateStaffProfileSerializer(serializers.ModelSerializer):

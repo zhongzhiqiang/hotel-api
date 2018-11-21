@@ -19,4 +19,4 @@ MYSQL_DB = 'hotel'
 MYSQL_HOST = 'mysql'
 MYSQL_USER = 'root'
 MYSQL_PORT = 3306
-MYSQL_PWD = 'Ksmysql_1'
+MYSQL_PWD = 'root'

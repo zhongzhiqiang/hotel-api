@@ -24,7 +24,6 @@ class RechargeSettingsViews(mixins.ListModelMixin,
     queryset = RechargeSettings.objects.filter(is_active=True)
     serializer_class = serializers.RechargeSettingsSerializer
     permission_classes = ()
-    authentication_classes = ()
 
     def get_paginated_response(self, data, meta={}):
         """

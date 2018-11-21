@@ -41,12 +41,14 @@ class AdminHotelView(mixins.CreateModelMixin,
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     def get_serializer_class(self):
         if self.action == 'get_lat_long':
@@ -107,12 +109,14 @@ class AdminRoomStyle(mixins.CreateModelMixin,
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     def get_serializer_class(self):
         if self.action == 'create':

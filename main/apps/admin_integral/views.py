@@ -30,12 +30,14 @@ class GrowthValueSettingView(mixins.CreateModelMixin,
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
     # 成长值配置
     queryset = GrowthValueSettings.objects.all()
     serializer_class = serializers.GrowthValueSettingsSerializer
@@ -61,12 +63,14 @@ class AdminIntegralSettingsView(mixins.CreateModelMixin,
     def perform_create(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
             serializer.save(operator_name=self.request.user.staffprofile)
-        serializer.save()
+        else:
+            serializer.save()
 
     queryset = IntegralSettings.objects.all()
     serializer_class = serializers.IntegralSettingsSerializer

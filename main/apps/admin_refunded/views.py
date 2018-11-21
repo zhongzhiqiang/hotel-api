@@ -76,7 +76,10 @@ class HotelRefundedViews(mixins.ListModelMixin,
         return self.request
 
     def perform_update(self, serializer):
-        serializer.save(operator_name=self.request.user.staffprofile)
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
+        else:
+            serializer.save()
 
     def get_serializer_class(self):
         if self.action == 'retry':
@@ -148,7 +151,10 @@ class MarketRefundedViews(mixins.ListModelMixin,
     permission_classes = (PermsRequired('main.refunded'),)
 
     def perform_update(self, serializer):
-        serializer.save(operator_name=self.request.user.staffprofile)
+        if self.request.user and hasattr(self.request.user, 'staffprofile'):
+            serializer.save(operator_name=self.request.user.staffprofile)
+        else:
+            serializer.save()
 
     def get_serializer_class(self):
         if self.action == 'retry':

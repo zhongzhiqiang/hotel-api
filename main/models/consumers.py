@@ -147,7 +147,7 @@ class ConsumerBalance(models.Model):
     )
     message = models.CharField(
         '消费备注',
-        max_length=30,
+        max_length=500,
         default=0,
     )
     cost_price = models.DecimalField(

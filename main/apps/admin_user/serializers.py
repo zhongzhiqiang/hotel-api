@@ -43,6 +43,13 @@ class StaffProfileSerializer(serializers.ModelSerializer):
         groups = [group.name for group in list(obj.user.groups.all())]
         return groups
 
+    def update(self, instance, validated_data):
+        user = validated_data.pop("user") or None
+        instance = super(StaffProfileSerializer, self).update(instance, validated_data)
+        if user:
+            User.objects.filter(id=instance.user.id).update(**user)
+        return instance
+
     class Meta:
         model = StaffProfile
         fields = (

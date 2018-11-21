@@ -29,6 +29,7 @@ class StaffProfileSerializer(serializers.ModelSerializer):
     )
     date_joined = serializers.DateTimeField(
         source='user.date_joined',
+        read_only=True
     )
     is_active = serializers.BooleanField(
         source='user.is_active',

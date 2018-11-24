@@ -5,7 +5,7 @@
 # File    : views.py
 # Software: PyCharm
 from __future__ import unicode_literals
-
+from datetime import datetime
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import detail_route
 
@@ -13,6 +13,7 @@ from main.apps.admin_marketorder import serializers, filters
 from main.models import Order
 from main.common.defines import OrderType
 from main.common.permissions import PermsRequired
+now = datetime.now()
 
 
 class MarketOrderView(mixins.UpdateModelMixin,
@@ -68,9 +69,9 @@ class MarketOrderView(mixins.UpdateModelMixin,
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
-            serializer.save(operator_name=self.request.user.staffprofile)
+            serializer.save(operator_name=self.request.user.staffprofile, operator_time=now)
         else:
-            serializer.save()
+            serializer.save(operator_time=now)
 
     def get_serializer_class(self):
         return self.serializer_class

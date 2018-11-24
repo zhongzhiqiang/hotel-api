@@ -5,6 +5,7 @@
 # File    : views.py
 # Software: PyCharm
 from __future__ import unicode_literals
+from datetime import datetime
 
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import detail_route
@@ -18,6 +19,7 @@ from main.common.permissions import PermsRequired
 refund_status = [OrderStatus.pre_refund, OrderStatus.refund_ing, OrderStatus.refunded,
                  OrderStatus.apply_refund, OrderStatus.fill_apply, OrderStatus.refunded_fail]
 
+now = datetime.now()
 
 class HotelRefundedViews(mixins.ListModelMixin,
                          mixins.UpdateModelMixin,
@@ -80,9 +82,9 @@ class HotelRefundedViews(mixins.ListModelMixin,
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
-            serializer.save(operator_name=self.request.user.staffprofile)
+            serializer.save(operator_name=self.request.user.staffprofile, operator_time=now)
         else:
-            serializer.save()
+            serializer.save(operator_time=now)
 
     def get_serializer_class(self):
         if self.action == 'retry':
@@ -161,9 +163,9 @@ class MarketRefundedViews(mixins.ListModelMixin,
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
-            serializer.save(operator_name=self.request.user.staffprofile)
+            serializer.save(operator_name=self.request.user.staffprofile, operator_time=now)
         else:
-            serializer.save()
+            serializer.save(operator_time=now)
 
     def get_serializer_class(self):
         if self.action == 'retry':

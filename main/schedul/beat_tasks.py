@@ -90,7 +90,7 @@ def auto_integral():
         integral_day = operator_time + datetime.timedelta(minutes=1)
         if now.year == integral_day.year and now.month == integral_day.month and now.day == integral_day.day:
             integral = get_integral(order.order_amount)
-            name = get_goods_name_by_instance(order.market_order_detail)
+            name = get_goods_name_by_instance(order.market_order_detail, 'market')
             remark = "购买商品:{},积分:{}".format(name, integral)
             make_integral(order.consumer, integral, remark)
             logger.info("{}, make integral:{}".format(order.consumer, remark,))

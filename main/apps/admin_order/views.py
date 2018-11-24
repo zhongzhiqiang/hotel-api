@@ -7,13 +7,13 @@
 from __future__ import unicode_literals
 
 from rest_framework import mixins, viewsets
-
+from datetime import datetime
 from main.models import Order
 from main.apps.admin_order import serializers, filters
 from main.common.defines import OrderType
 from main.common.permissions import PermsRequired
 
-
+now = datetime.now()
 class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
                               mixins.RetrieveModelMixin,
                               mixins.ListModelMixin,
@@ -66,9 +66,9 @@ class AdminHotelOrderInfoView(mixins.UpdateModelMixin,
 
     def perform_update(self, serializer):
         if self.request.user and hasattr(self.request.user, 'staffprofile'):
-            serializer.save(operator_name=self.request.user.staffprofile)
+            serializer.save(operator_name=self.request.user.staffprofile, operator_time=now)
         else:
-            serializer.save()
+            serializer.save(operator_time=now)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

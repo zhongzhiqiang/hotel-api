@@ -149,7 +149,7 @@ def get_wx_order_id(order_id):
     return wx_pay.wx_order_id
 
 
-def make_bonus(sell_user, order_amount):
+def make_bonus(buyers, sell_user, order_amount):
     # 生成奖金
     bonus = order_amount * Decimal(0.2)  # 以订单的20%计算
 
@@ -157,13 +157,14 @@ def make_bonus(sell_user, order_amount):
     params = {
         "consumer": sell_user,
         "status": 20,
+        "buyers": buyers,
         "detail_type": 10,
         "use_bonus": bonus,
         "last_bonus": sell_user.bonus,
         "remark": "赠送金额"
     }
     DistributionBonusDetail.objects.create(**params)
-    logger.info("user {}: obtain bonus:{}".format(sell_user, bonus))
+    logger.info("buyers:{}, sell_user {}: obtain bonus:{}".format(buyers, sell_user, bonus))
     sell_user.save()
 
 

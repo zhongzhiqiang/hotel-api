@@ -107,7 +107,7 @@ class HotelOrderInfoSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("生成积分失败")
             increase_room_num(self.instance)
             if instance.consumer.sell_user:
-                make_bonus(instance.consumer.sell_user, instance.order_amount)
+                make_bonus(instance.consumer, instance.consumer.sell_user, instance.order_amount)
             validated_data.update({"order_status": OrderStatus.success})
         instance = super(HotelOrderInfoSerializer, self).update(instance, validated_data)
         return instance

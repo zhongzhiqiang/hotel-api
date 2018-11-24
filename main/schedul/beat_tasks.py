@@ -92,7 +92,7 @@ def auto_integral():
             remark = "购买商品:{},积分:{}".format(name, integral)
             make_integral(order.consumer, integral, remark)
             if order.consumer.sell_user:
-                make_bonus(order.consumer.sell_user, order.order_amount)
+                make_bonus(order.consumer, order.consumer.sell_user, order.order_amount)
             order.is_make = True
             order.save()
 

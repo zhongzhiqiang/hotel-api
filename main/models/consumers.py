@@ -329,6 +329,12 @@ class DistributionBonusDetail(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+    buyers = models.ForeignKey(
+        'main.Consumer',
+        related_name='buyers',
+        null=True,
+        blank=True,
+    )
     status = models.IntegerField(
         '状态',
         choices=DETAIL_STATUS,

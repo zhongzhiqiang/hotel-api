@@ -48,7 +48,7 @@ def make_integral_task(order_id):
         remark = "购买商品:{},".format(integral)
         make_integral(order.consumer, integral, remark)
         if order.consumer.sell_user:
-            make_bonus(order.consumer.sell_user, order.order_amount)
+            make_bonus(order.consumer, order.consumer.sell_user, order.order_amount)
             logger.info("deal order_id:{}, bonus".format(order_id))
         order.is_make = True
         logger.info("deal order_id:{}".format(order_id))

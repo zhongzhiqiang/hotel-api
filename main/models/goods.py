@@ -44,6 +44,11 @@ class GoodsCategory(models.Model):
 
 
 class Goods(models.Model):
+    METHOD = (
+        ('no', '不参与'),
+        ('fixed', '固定'),
+        ('ratio', '比例')
+    )
 
     category = models.ForeignKey(
         'main.GoodsCategory',
@@ -87,6 +92,27 @@ class Goods(models.Model):
         '所需积分',
         default=0,
         blank=True
+    )
+    distribution_method = models.CharField(
+        '分销方式',
+        choices=METHOD,
+        default='no'
+    )
+    distribution_bonus = models.DecimalField(
+        '分销奖金',
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        blank=True,
+        help_text='固定比例分销奖金'
+    )
+    distribution_ratio = models.DecimalField(
+        '分销比例',
+        max_digits=2,
+        decimal_places=2,
+        default=0,
+        blank=True,
+        help_text='分销比例'
     )
     is_active = models.BooleanField(
         '是否上架',

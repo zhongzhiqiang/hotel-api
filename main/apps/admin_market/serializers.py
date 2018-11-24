@@ -102,6 +102,18 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
         if not is_integral and not goods_price:
             raise serializers.ValidationError("请传递商品单价")
 
+        distribution_method = attrs.get("distribution_method")
+        distribution_bonus = attrs.get("distribution_bonus") or 0
+        distribution_ratio = attrs.get("distribution_ratio")
+
+        if distribution_method == 'fixed':
+            if not distribution_bonus:
+                raise serializers.ValidationError("请传递固定分销金额")
+
+        elif distribution_method == 'ratio':
+            if distribution_ratio > 1.0 or distribution_ratio < 0:
+                raise serializers.ValidationError("请传递正确的分销比例.[0-1.0]之间")
+
         return attrs
 
     class Meta:
@@ -119,7 +131,10 @@ class CreateGoodsSerializer(serializers.ModelSerializer):
             'is_special',
             'vip_info',
             'cover_image',
-            'images'
+            'images',
+            'distribution_method',
+            'distribution_bonus',
+            'distribution_ratio'
         )
         validators = [
             UniqueTogetherValidator(

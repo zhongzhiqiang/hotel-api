@@ -639,12 +639,6 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         market_order_detail_list = attrs['market_order_detail'] or []
         market_order_contact = attrs.get("market_order_contact") or {}
-        if not market_order_contact:
-            raise serializers.ValidationError("请传递订单联系信息")
-
-        for k, v in market_order_contact.items():
-            if not v:
-                raise serializers.ValidationError("请传递完整传递联系")
 
         if len(market_order_detail_list) < 1:
             raise serializers.ValidationError("请传递商品信息")
@@ -671,6 +665,13 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
                 need_price += (goods.goods_price * market_order_detail['nums'])
                 market_order_detail.update({"goods_price": goods.goods_price})
 
+        if vip_count == 0:
+            if not market_order_contact:
+                raise serializers.ValidationError("请传递订单联系信息")
+
+            for k, v in market_order_contact.items():
+                if not v:
+                    raise serializers.ValidationError("请传递完整传递联系")
         # 这里判断会员类型的数量
         if vip_count > 1:
             raise serializers.ValidationError("只能够购买一个会员类型")
@@ -801,8 +802,10 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
         for market_order in market_order_detail:
             market_order.update({"market_order": instance})
             models.MarketOrderDetail.objects.create(**market_order)
-        market_order_contact.update({"order": instance})
-        models.MarketOrderContact.objects.create(**market_order_contact)
+
+        if market_order_contact:
+            market_order_contact.update({"order": instance})
+            models.MarketOrderContact.objects.create(**market_order_contact)
         # 这里删除用户的购物车.
         models.Cart.objects.filter(consumer=consumer).delete()
         cancel_task.apply_async(args=(instance.order_id,), countdown=CANCEl_TIME)

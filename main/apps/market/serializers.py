@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from rest_framework import serializers
+from django.db.models import Q, Avg
 
 from main.models import GoodsCategory, Goods, HotelOrderComment, CommentReply
 from main.common.seriliazer_fields import ImageField
@@ -17,6 +18,26 @@ class GoodsSerializer(serializers.ModelSerializer):
     )
     images = ImageField()
 
+    comment_count = serializers.SerializerMethodField()
+    avg_level = serializers.SerializerMethodField()
+
+    def get_comment_count(self, obj):
+        user = self.context['request'].user
+        query_params = (Q(comment_show=20) & Q(goods=obj))
+        if hasattr(user, 'consumer'):
+            query_params = query_params | Q(commenter=user.consumer)
+        return HotelOrderComment.objects.filter(query_params).all()
+
+    def get_avg_level(self, obj):
+        user = self.context['request'].user
+        query_params = (Q(comment_show=20) & Q(goods=obj))
+        if hasattr(user, 'consumer'):
+            query_params = query_params | Q(commenter=user.consumer)
+
+        level = HotelOrderComment.objects.filter(query_params).aggregate(level=Avg('comment_level')).get("level") or 0
+
+        return str(5.0) if level == 0 else ("%.1f" % level)
+
     class Meta:
         model = Goods
         fields = (
@@ -30,7 +51,9 @@ class GoodsSerializer(serializers.ModelSerializer):
             'is_integral',
             'goods_integral',
             'is_promotion',
-            'is_special'
+            'is_special',
+            'comment_count',
+            'avg_level'
         )
 
 

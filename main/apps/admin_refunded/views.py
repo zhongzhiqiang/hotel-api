@@ -57,6 +57,9 @@ class HotelRefundedViews(mixins.ListModelMixin,
         退款接口
     retrieve:
         返回详细信息
+    deal_apply:
+        处理退款
+        order_status = 50 同意退款。 61就不同意
     retry:
         重新退款，大多数情况下为微信支付的。退款条件为订单的状态为退款中且退款的状态为失败或重试
     # 还差微信退款查询接口。已经重新退款接口
@@ -84,7 +87,13 @@ class HotelRefundedViews(mixins.ListModelMixin,
     def get_serializer_class(self):
         if self.action == 'retry':
             return serializers.HotelOrderRetryRefundedSerializer
+        elif self.action == 'deal_apply':
+            return serializers.HotelOrderApplySerializer
         return self.serializer_class
+
+    @detail_route(methods=['POST'])
+    def deal_apply(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
     @detail_route(methods=['POST'])
     def retry(self, request, *args, **kwargs):

@@ -14,6 +14,7 @@ from django.db import transaction
 from main import models
 from main.common.defines import OrderStatus, PayType, RefundedStatus, WeiXinCode
 from main.apps.wx_pay.utils import unified_refunded
+from main.common import utils
 
 logger = logging.getLogger(__name__)
 
@@ -376,6 +377,11 @@ class MarketRefundedApplySerializer(serializers.ModelSerializer):
                 if k in ('refunded_address', 'refunded_name', 'refunded_phone') and not v:
                     raise serializers.ValidationError("请传递退款邮寄信息")
 
+        if order_status == OrderStatus.refunded_fail:
+            fail_reason = attrs.get("fail_reason") or ''
+            if not fail_reason:
+                raise serializers.ValidationError("退款拒绝请传递原因")
+
         return attrs
 
     @transaction.atomic
@@ -396,7 +402,32 @@ class MarketRefundedApplySerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "order_status",
-            "admin_refunded_info"
+            "admin_refunded_info",
+            'fail_reason'
+        )
+
+
+class HotelOrderApplySerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        order_status = attrs.get("order_status")
+        fail_reason = attrs.get("fail_reason")
+        if order_status == OrderStatus.refunded_fail:
+            if not fail_reason:
+                raise serializers.ValidationError("拒绝退款时,请传递退款拒绝原因")
+        return attrs
+
+    def update(self, instance, validated_data):
+        if validated_data['order_status'] == OrderStatus.pre_refund:
+            utils.increase_room_num(instance)
+        instance = super(HotelOrderApplySerializer, self).update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = models.Order
+        fields = (
+            'id',
+            "order_status",
+            "fail_reason"
         )
 
 
@@ -432,7 +463,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, attrs):
-        if self.instance.order_status != OrderStatus.apply_refund:
+        if self.instance.order_status != OrderStatus.pre_refund:
             raise serializers.ValidationError("当前订单不可退款")
         refunded_money = attrs.get("refunded_money")
         if not refunded_money:
@@ -475,6 +506,7 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
             "left_balance": consumer.balance
         }
         models.ConsumerBalance.objects.create(**balance_detail)
+
         refunded_info = {
             "order": instance,
             "refunded_money": re_recharge_money,

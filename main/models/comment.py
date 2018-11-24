@@ -23,9 +23,14 @@ class HotelOrderComment(models.Model):
         (4, '四分'),
         (5, '五分')
     )
-    belong_order = models.OneToOneField(
+    belong_order = models.ForeignKey(
         'main.Order',
         verbose_name='关联订单',
+    )
+    goods = models.ForeignKey(
+        'main.Goods',
+        null=True,
+        blank=True
     )
 
     comment_show = models.IntegerField(

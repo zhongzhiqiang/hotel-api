@@ -35,7 +35,6 @@ class OrderTest(BaseTest):
         room_style = RoomStyles.objects.get(id=order.hotel_order_detail.room_style.id)
         new_room_count = room_style.room_count
         self.assertEqual(order.order_status, OrderStatus.apply_refund)
-        self.assertEqual(room_count + order.num, new_room_count)
 
     def test_post_market_data(self):
         path = '/user/order/market_order_create/'

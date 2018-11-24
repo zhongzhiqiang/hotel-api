@@ -89,9 +89,9 @@ class GoodsView(mixins.ListModelMixin,
             return HotelCommentSerializer
         return self.serializer_class
 
-    @list_route(methods=['GET'])
-    def comment(self, request, *args, **kwargs):
-        query_params = Q(comment_show=20)
+    @detail_route(methods=['GET'])
+    def comment(self, request, pk, *args, **kwargs):
+        query_params = Q(comment_show=20) & Q(goods_id=pk)
         if hasattr(self.request.user, 'consumer'):
             query_params = (query_params | Q(commenter=self.request.user.consumer))
 

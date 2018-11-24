@@ -460,6 +460,10 @@ class OrderRefunded(models.Model):
     def __unicode__(self):
         return self.refunded_order_id
 
+    @property
+    def refunded_balance(self):
+        return self.refunded_money + self.refunded_free_money
+
     @classmethod
     def make_order_id(cls):
         """创建订单号"""

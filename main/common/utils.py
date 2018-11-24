@@ -152,7 +152,7 @@ def get_wx_order_id(order_id):
 def make_market_bonus(buyers, sell_user, order):
     market_order_detail_list = order.market_order_detail
     bonus = 0
-    for market_order_detail in market_order_detail_list:
+    for market_order_detail in market_order_detail_list.all():
         if market_order_detail.distribution_method == 'no':
             continue
         elif market_order_detail.distribution_method == 'fixed':

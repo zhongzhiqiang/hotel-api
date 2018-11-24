@@ -26,6 +26,19 @@ class MarketOrderExpressSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class OrderRefundedInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OrderRefunded
+        fields = (
+            'id',
+            'refunded_balance',
+            'refunded_money',
+            'refunded_free_money',
+            'refunded_integral',
+            'refunded_account'
+        )
+
+
 class AdminRefundedSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -269,6 +282,14 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
         source='goods.goods_name',
         read_only=True
     )
+    is_comment = serializers.SerializerMethodField()
+
+    def get_is_comment(self, obj):
+
+        comment = models.HotelOrderComment.objects.filter(goods=obj.goods, belong_order=obj.market_order).first()
+        if comment:
+            return True
+        return False
 
     class Meta:
         model = models.MarketOrderDetail
@@ -280,7 +301,8 @@ class MarketOrderDetailSerializer(serializers.ModelSerializer):
             'goods_name',
             'nums',
             'cover_image',
-            'is_integral'
+            'is_integral',
+            'is_comment'
         )
 
 
@@ -324,6 +346,7 @@ class OrderSerializer(serializers.ModelSerializer):
     order_express = MarketOrderExpressSerializer(read_only=True)
     user_refunded_info = UserRefundedSerializer(read_only=True)
     admin_refunded_info = AdminRefundedSerializer(read_only=True)
+    order_refunded = OrderRefundedInfoSerializer(read_only=True)
     belong_hotel_name = serializers.CharField(
         source='belong_hotel.name',
         read_only=True,
@@ -378,7 +401,9 @@ class OrderSerializer(serializers.ModelSerializer):
             'integral',
             'order_express',
             "user_refunded_info",
-            'admin_refunded_info'
+            'admin_refunded_info',
+            'fail_reason',
+            'order_refunded'
         )
         read_only_fields = (
             'order_id',
@@ -390,7 +415,8 @@ class OrderSerializer(serializers.ModelSerializer):
             'order_amount',
             'pay_time',
             'image',
-            'pay_type'
+            'pay_type',
+            'fail_reason'
         )
 
 
@@ -570,7 +596,8 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
             'integral',
             'order_express',
             'belong_hotel_name',
-            'belong_hotel'
+            'belong_hotel',
+            'fail_reason'
         )
         read_only_fields = (
             'order_amount',
@@ -578,7 +605,8 @@ class OrderPayAgainSerializer(serializers.ModelSerializer):
             'belong_hotel',
             'order_status',
             'num',
-            'integral'
+            'integral',
+            'fail_reason'
         )
 
 
@@ -829,7 +857,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'user_remark',
             'consumer',
             'market_order_detail',
-            'market_order_contact'
+            'market_order_contact',
+            'fail_reason'
         )
         read_only_fields = (
             'order_id',
@@ -839,7 +868,8 @@ class CreateMarketOrderSerializer(serializers.ModelSerializer):
             'order_type',
             'num',
             "order_status",
-            "pay_time"
+            "pay_time",
+            'fail_reason'
         )
 
 
@@ -936,7 +966,8 @@ class MarketRefundedOrderSerializer(serializers.ModelSerializer):
             'order_express',
             'integral',
             'user_refunded_info',
-            "admin_refunded_info"
+            "admin_refunded_info",
+            'fail_reason'
         )
         read_only_fields = (
             'order_id',
@@ -954,7 +985,8 @@ class MarketRefundedOrderSerializer(serializers.ModelSerializer):
             'order_express',
             'integral',
             'order_status'
-            "refund_reason"
+            "refund_reason",
+            'fail_reason'
         )
 
 
@@ -1011,7 +1043,6 @@ class RefundedApplySerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError({"non_field_errors": ['特殊商品无法退款']})
             validated_data.update({"order_status": OrderStatus.apply_refund})
         elif instance.order_type == OrderType.hotel:
-            utils.increase_room_num(instance)
             validated_data.update({"order_status": OrderStatus.apply_refund})
 
         instance = super(RefundedApplySerializer, self).update(instance, validated_data)
@@ -1043,7 +1074,8 @@ class RefundedApplySerializer(serializers.ModelSerializer):
             'order_express',
             'integral',
             'user_refunded_info',
-            "admin_refunded_info"
+            "admin_refunded_info",
+            'fail_reason'
         )
         read_only_fields = (
             'order_id',
@@ -1060,7 +1092,8 @@ class RefundedApplySerializer(serializers.ModelSerializer):
             'market_order_contact',
             'order_express',
             'integral',
-            'order_status'
+            'order_status',
+            'fail_reason'
         )
 
 
@@ -1144,7 +1177,8 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             'image',
             'market_order_contact',
             'order_express',
-            'integral'
+            'integral',
+            'fail_reason'
         )
         read_only_fields = (
             'order_id',
@@ -1160,7 +1194,8 @@ class RefundedOrderSerializer(serializers.ModelSerializer):
             'user_remark',
             'market_order_contact',
             'order_express',
-            'integral'
+            'integral',
+            'fail_reason'
         )
 
 

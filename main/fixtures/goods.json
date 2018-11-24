@@ -8,6 +8,7 @@
       "is_active": true,
       "operator_name": 1,
       "update_time": "2017-10-31T17:16:00"
+
     }
   },
   {
@@ -21,7 +22,9 @@
       "is_special": false,
       "is_active": true,
       "create_time": "2017-10-31T17:16:00",
-      "update_time": "2017-10-31T17:16:00"
+      "update_time": "2017-10-31T17:16:00",
+      "distribution_method": "fixed",
+      "distribution_calc": 20
     }
   },
   {

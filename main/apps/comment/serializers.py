@@ -9,8 +9,58 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 from django.db import transaction
 
-from main.models import HotelOrderComment, CommentReply
-from main.common.defines import OrderStatus
+from main.models import HotelOrderComment, CommentReply, Order, Goods
+from main.common.defines import OrderStatus, OrderType
+
+
+class CommentSerializer(serializers.Serializer):
+    goods = serializers.PrimaryKeyRelatedField(
+        required=False,
+        queryset=Goods.objects.all(),
+        allow_empty=True,
+        allow_null=True,
+        write_only=True
+    )
+    content = serializers.CharField(max_length=200)
+    comment_level = serializers.ChoiceField(choices=(1, 2, 3, 4, 5, '1', '2', '3', '4', '5'))
+
+
+class CreateCommentSerializer(serializers.Serializer):
+    belong_order = serializers.PrimaryKeyRelatedField(
+        required=True,
+        queryset=Order.objects.all()
+    )
+    comment_list = CommentSerializer(many=True)
+
+    def validate(self, attrs):
+        belong_order = attrs['belong_order']
+        comment_list = attrs['comment_list']
+        if belong_order.order_status not in (OrderStatus.success, OrderStatus.finish):
+            raise serializers.ValidationError("当前订单未完成无法评论")
+
+        if belong_order.order_type == OrderType.market:
+            for comment in comment_list:
+                if not comment.get("goods"):
+                    raise serializers.ValidationError("请传递商品ID")
+                order = belong_order.market_order_detail.filter(goods=comment['goods']).first()
+                is_comment = HotelOrderComment.objects.filter(belong_order=belong_order, goods=comment['goods']).first()
+                if is_comment:
+                    remark = u'{}:商品已评论'.format(comment['goods'].goods_name)
+                    raise serializers.ValidationError(remark)
+                if not order:
+                    raise serializers.ValidationError("无法评论非当前订单商品")
+
+        return attrs
+
+    @transaction.atomic
+    def create(self, validated_data):
+        consumer = self.context['request'].user.consumer
+        comment_list = validated_data['comment_list']
+        for comment in comment_list:
+            comment.update({"commenter": consumer, "belong_order": validated_data['belong_order']})
+            HotelOrderComment.objects.create(**comment)
+
+        return validated_data
 
 
 class CreateHotelOrderCommentSerializer(serializers.ModelSerializer):

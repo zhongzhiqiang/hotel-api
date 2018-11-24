@@ -18,5 +18,6 @@ class OrderCommentFilter(django_filters.rest_framework.FilterSet):
             "belong_order__order_type": ['exact'],
             "comment_show": ['exact'],
             "comment_level": ['exact', 'in'],
-            'is_reply': ['exact']
+            'is_reply': ['exact'],
+            'goods__id': ['in']
         }

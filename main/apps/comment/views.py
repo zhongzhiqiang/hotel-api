@@ -32,9 +32,12 @@ class CommentViews(mixins.CreateModelMixin,
         (5, '五星')
         ```
         {
+        "belong_order": "string"  # 对应订单的ID。最外层ID
+        comment_list: [{
+        "goods": "商品ID，只有当商场订单才专递", 
             "content": "string",
             "comment_level": "string",
-            "belong_order": "string"  # 对应订单的ID。最外层ID
+            }]
         }
         ```
     )
@@ -51,5 +54,5 @@ class CommentViews(mixins.CreateModelMixin,
 
     def get_serializer_class(self):
         if self.action == 'create':
-            return serializers.CreateHotelOrderCommentSerializer
+            return serializers.CreateCommentSerializer
         return self.serializer_class

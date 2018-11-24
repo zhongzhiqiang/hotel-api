@@ -123,7 +123,7 @@
     "model": "main.order",
     "pk": 5,
     "fields": {
-      "order_type": 10,
+      "order_type": 20,
       "order_id": "20181029000010",
       "order_status": 35,
       "create_time": "2017-10-31T17:16:00",

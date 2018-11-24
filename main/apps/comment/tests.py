@@ -19,8 +19,10 @@ class CommentTest(BaseTest):
         path = '/user/comment/'
         post_data = {
             'belong_order': 5,
-            "content": "xxx",
-            "comment_level": "5"
+            "comment_list": [{
+                "content": "xxx",
+                "comment_level": "5"
+            }]
         }
         resp = self.client.post(path, data=post_data, format='json')
         self.assertEqual(resp.status_code, 201)

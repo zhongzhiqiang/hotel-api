@@ -386,7 +386,7 @@ class DistributionBonusDetail(models.Model):
     )
 
     def __unicode__(self):
-        return self.id
+        return '%d' % self.id
 
     class Meta:
         verbose_name = '分销奖金明细'

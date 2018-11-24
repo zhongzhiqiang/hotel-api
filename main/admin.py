@@ -54,12 +54,17 @@ class WxPayInfoAdmin(admin.ModelAdmin):
 class WxRefundedAdmin(admin.ModelAdmin):
     list_display = ['id', 'order', 'refunded_status', 'refunded_order_id']
 
+
+class DistributionBonusDetailAdmin(admin.ModelAdmin):
+    list_display = ['id', 'consumer', 'buyers', 'detail_type']
+
 admin.site.register(models.Order, OrderAdmin)
 admin.site.register(models.Goods, GoodsAdmin)
 admin.site.register(models.ConsumerBalance, ConsumerBalanceAdmin)
 admin.site.register(models.Consumer, ConsumerAdmin)
 admin.site.register(models.WeiXinPayInfo, WxPayInfoAdmin)
 admin.site.register(models.OrderRefunded, WxRefundedAdmin)
+admin.site.register(models.DistributionBonusDetail, DistributionBonusDetailAdmin)
 for attr in dir(models):
     model = getattr(models, attr)
 

@@ -85,14 +85,17 @@ def auto_integral():
 
     for order in order_list:
         operator_time = order.operator_time
-        integral_day = operator_time + datetime.timedelta(days=7)
+        # TODO 这里需要更改
+        # integral_day = operator_time + datetime.timedelta(days=7)
+        integral_day = operator_time + datetime.timedelta(minutes=1)
         if now.year == integral_day.year and now.month == integral_day.month and now.day == integral_day.day:
             integral = get_integral(order.order_amount)
             name = get_goods_name_by_instance(order.market_order_detail)
             remark = "购买商品:{},积分:{}".format(name, integral)
             make_integral(order.consumer, integral, remark)
+            logger.info("{}, make integral:{}".format(order.consumer, remark,))
             if order.consumer.sell_user:
-                make_market_bonus(order.consumer, order.consumer.sell_user)
+                make_market_bonus(order.consumer, order.consumer.sell_user, order)
             order.is_make = True
             order.save()
 

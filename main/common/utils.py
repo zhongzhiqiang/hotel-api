@@ -153,12 +153,12 @@ def make_market_bonus(buyers, sell_user, order):
     market_order_detail_list = order.market_order_detail
     bonus = 0
     for market_order_detail in market_order_detail_list.all():
-        if market_order_detail.distribution_method == 'no':
+        if market_order_detail.goods.distribution_method == 'no':
             continue
-        elif market_order_detail.distribution_method == 'fixed':
-            bonus += market_order_detail.distribution_calc * order.num
+        elif market_order_detail.goods.distribution_method == 'fixed':
+            bonus += market_order_detail.goods.distribution_calc * order.num
         else:
-            bonus += market_order_detail.distribution_calc * order.order_amount
+            bonus += market_order_detail.goods.distribution_calc * order.order_amount
 
     sell_user.bonus = sell_user.bonus + bonus
     params = {

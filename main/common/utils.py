@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import logging
 from decimal import Decimal
 
-from main.models import IntegralDetail, VipMember, WeiXinPayInfo, DistributionBonusDetail
+from main.models import IntegralDetail, VipMember, WeiXinPayInfo, DistributionBonusDetail, RoomStyles
 
 
 logger = logging.getLogger('django')
@@ -149,9 +149,41 @@ def get_wx_order_id(order_id):
     return wx_pay.wx_order_id
 
 
-def make_bonus(buyers, sell_user, order_amount):
-    # 生成奖金
-    bonus = order_amount * Decimal(0.2)  # 以订单的20%计算
+def make_market_bonus(buyers, sell_user, order):
+    market_order_detail_list = order.market_order_detail
+    bonus = 0
+    for market_order_detail in market_order_detail_list:
+        if market_order_detail.distribution_method == 'no':
+            continue
+        elif market_order_detail.distribution_method == 'fixed':
+            bonus += market_order_detail.distribution_calc * order.num
+        else:
+            bonus += market_order_detail.distribution_calc * order.order_amount
+
+    sell_user.bonus = sell_user.bonus + bonus
+    params = {
+        "consumer": sell_user,
+        "status": 20,
+        "buyers": buyers,
+        "detail_type": 10,
+        "use_bonus": bonus,
+        "last_bonus": sell_user.bonus,
+        "remark": "赠送金额"
+    }
+    DistributionBonusDetail.objects.create(**params)
+    logger.info("buyers:{}, sell_user {}: obtain bonus:{}".format(buyers, sell_user, bonus))
+    sell_user.save()
+
+
+def make_hotel_bonus(buyers, sell_user, order):
+    # 首先判断分销方式
+    room_style = order.hotel_order_detail.room_style
+    if room_style.distribution_method == 'no':
+        return ''
+    elif room_style.distribution_method == 'fixed':
+        bonus = room_style.distribution_calc * order.num
+    else:
+        bonus = room_style.distribution_calc * order.order_amount
 
     sell_user.bonus = sell_user.bonus + bonus
     params = {

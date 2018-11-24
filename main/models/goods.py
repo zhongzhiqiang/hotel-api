@@ -96,24 +96,18 @@ class Goods(models.Model):
     distribution_method = models.CharField(
         '分销方式',
         choices=METHOD,
-        default='no'
+        default='no',
+        max_length=10
     )
-    distribution_bonus = models.DecimalField(
+    distribution_calc = models.DecimalField(
         '分销奖金',
         max_digits=10,
         decimal_places=2,
         default=0,
         blank=True,
-        help_text='固定比例分销奖金'
+        help_text='分销金额计算，如果是固定是单件商品价格，如果是比例这是销售价格的比例'
     )
-    distribution_ratio = models.DecimalField(
-        '分销比例',
-        max_digits=2,
-        decimal_places=2,
-        default=0,
-        blank=True,
-        help_text='分销比例'
-    )
+
     is_active = models.BooleanField(
         '是否上架',
         default=False,

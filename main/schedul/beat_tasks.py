@@ -12,7 +12,7 @@ from django.db import transaction
 from main.schedul.celery_app import app
 from main.models import Order
 from main.common.defines import OrderStatus, OrderType
-from main.common.utils import increase_room_num, get_goods_name_by_instance, make_bonus
+from main.common.utils import increase_room_num, get_goods_name_by_instance, make_market_bonus
 from main.apps.admin_integral.utils import make_integral, get_integral
 
 
@@ -92,7 +92,7 @@ def auto_integral():
             remark = "购买商品:{},积分:{}".format(name, integral)
             make_integral(order.consumer, integral, remark)
             if order.consumer.sell_user:
-                make_bonus(order.consumer, order.consumer.sell_user, order.order_amount)
+                make_market_bonus(order.consumer, order.consumer.sell_user)
             order.is_make = True
             order.save()
 

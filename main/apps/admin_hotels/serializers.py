@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-
+from decimal import Decimal
 from main.models import Hotel, RoomStyles, Rooms
 from main.common.gaode import GaoDeMap
 from main.common.seriliazer_fields import ImageField, TagsField
@@ -113,6 +113,18 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
             return attr
         raise serializers.ValidationError("请传递数组")
 
+    def validate(self, attrs):
+        distribution_method = attrs.get("distribution_method")
+        distribution_calc = attrs.get("distribution_calc")
+        if distribution_method == 'fixed':
+            if not distribution_calc:
+                raise serializers.ValidationError("请传递固定分销金额")
+        elif distribution_method == 'ratio':
+            if distribution_calc >= Decimal(1.0) or distribution_calc <= Decimal(0):
+                raise serializers.ValidationError("请传递正确的分销比例.[0-1.0]之间")
+
+        return attrs
+
     class Meta:
         model = RoomStyles
         fields = (
@@ -126,7 +138,9 @@ class CreateRoomStyleSerializer(serializers.ModelSerializer):
             'cover_image',
             'is_active',
             'room_count',
-            'tags'
+            'tags',
+            'distribution_calc',
+            'distribution_method'
         )
         validators = [
             UniqueTogetherValidator(
@@ -145,6 +159,18 @@ class RoomStyleSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    def validate(self, attrs):
+        distribution_method = attrs.get("distribution_method")
+        distribution_calc = attrs.get("distribution_calc")
+        if distribution_method == 'fixed':
+            if not distribution_calc:
+                raise serializers.ValidationError("请传递固定分销金额")
+        elif distribution_method == 'ratio':
+            if distribution_calc >= Decimal(1.0) or distribution_calc <= Decimal(0):
+                raise serializers.ValidationError("请传递正确的分销比例.[0-1.0]之间")
+
+        return attrs
+
     class Meta:
         model = RoomStyles
         fields = (
@@ -160,7 +186,9 @@ class RoomStyleSerializer(serializers.ModelSerializer):
             'update_time',
             'operator_name',
             'tags',
-            'hotel_name'
+            'hotel_name',
+            'distribution_calc',
+            'distribution_method'
         )
         validators = [
             UniqueTogetherValidator(

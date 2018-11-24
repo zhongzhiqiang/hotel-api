@@ -106,6 +106,12 @@ class Hotel(models.Model):
 
 
 class RoomStyles(models.Model):
+    METHOD = (
+        ('no', '不参与'),
+        ('fixed', '固定'),
+        ('ratio', '比例')
+    )
+
     belong_hotel = models.ForeignKey(
         'main.Hotel',
         on_delete=models.SET_DEFAULT,
@@ -152,6 +158,20 @@ class RoomStyles(models.Model):
     tags = JSONField(
         '标签',
         default=[],
+    )
+    distribution_method = models.CharField(
+        '分销方式',
+        choices=METHOD,
+        default='no',
+        max_length=10
+    )
+    distribution_calc = models.DecimalField(
+        '分销奖金',
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        blank=True,
+        help_text='分销金额计算，如果是固定是单件商品价格，如果是比例这是销售价格的比例'
     )
     # is_promotion = models.BooleanField(
     #     '是否促销',

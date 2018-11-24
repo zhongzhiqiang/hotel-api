@@ -97,6 +97,8 @@ class AdminRoomStyle(mixins.CreateModelMixin,
         更新某个房间数据，需要传递所有字段
     create:
         创建房间类型数据
+         分销创建字段: distribution_method :{'no', 'fixed', 'ratio'}
+                distribution_calc 分销金额:如果为No则为空。 fixed是固定分销金额， ratio是分销比例
     retrieve:
         返回单个数据。查询id为list返回的id
     """

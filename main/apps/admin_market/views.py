@@ -66,6 +66,10 @@ class GoodsView(mixins.CreateModelMixin,
         ```
         创建会员商品时,需要传递is_special字段为True，并且选择会员权益传递.
         ```
+        ```
+        分销创建字段: distribution_method :{'no', 'fixed', 'ratio'}
+                distribution_calc 分销金额:如果为No则为空。 fixed是固定分销金额， ratio是分销比例
+        ```
     retrieve:
         返回单个商品。查询id为list返回的id
     """

@@ -334,7 +334,8 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
             "operator_name_display",
             'refunded_integral',
             'refunded_money',
-            'user_refunded_info'
+            'user_refunded_info',
+            'refund_reason'
         )
         read_only_fields = (
             "order_type",
@@ -353,7 +354,8 @@ class MarketRefundedSerializer(serializers.ModelSerializer):
             "consumer_name",
             "operator_name",
             "operator_time",
-            "user_remark"
+            "user_remark",
+            'refund_reason'
         )
 
 
@@ -559,7 +561,8 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
             "user_remark",
             "operator_remark",
             "refunded_money",
-            "operator_name_display"
+            "operator_name_display",
+            'refund_reason'
         )
         read_only_fields = (
             "order_type",
@@ -579,7 +582,8 @@ class HotelOrderRefundedSerializer(serializers.ModelSerializer):
             "consumer_name",
             "operator_name",
             "operator_time",
-            "user_remark"
+            "user_remark",
+            'refund_reason'
         )
 
 

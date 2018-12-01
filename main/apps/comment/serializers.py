@@ -39,6 +39,8 @@ class CreateCommentSerializer(serializers.Serializer):
             raise serializers.ValidationError("当前订单未完成无法评论")
 
         if belong_order.order_type == OrderType.market:
+            if belong_order.market_order_detail.count() != len(comment_list):
+                raise serializers.ValidationError("请评价完所有商品")
             for comment in comment_list:
                 if not comment.get("goods"):
                     raise serializers.ValidationError("请传递商品ID")
@@ -59,6 +61,9 @@ class CreateCommentSerializer(serializers.Serializer):
         for comment in comment_list:
             comment.update({"commenter": consumer, "belong_order": validated_data['belong_order']})
             HotelOrderComment.objects.create(**comment)
+
+        validated_data['belong_order'].order_status = OrderStatus.finish
+        validated_data['belong_order'].save()
 
         return validated_data
 

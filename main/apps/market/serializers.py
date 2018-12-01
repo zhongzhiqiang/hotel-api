@@ -26,7 +26,7 @@ class GoodsSerializer(serializers.ModelSerializer):
         query_params = (Q(comment_show=20) & Q(goods=obj))
         if hasattr(user, 'consumer'):
             query_params = query_params | Q(commenter=user.consumer)
-        return HotelOrderComment.objects.filter(query_params).all()
+        return HotelOrderComment.objects.filter(query_params).all().count()
 
     def get_avg_level(self, obj):
         user = self.context['request'].user

@@ -32,18 +32,17 @@ class WeiXinCreateTokenSerializer(serializers.Serializer):
         return attrs
 
     def validate_avatar_url(self, attrs):
-        request = self.context['request']
-        try:
-            resp = requests.get(attrs)
-            image = resp.content
-            image = ContentFile(content=image, name='avatar_url')
-            image_serializer = CreateImageSerializer(data={"image": image})
-            image_serializer.is_valid(raise_exception=True)
-            instance = image_serializer.save()
-
-            attrs = request.build_absolute_uri(instance.image.url)
-        except Exception:
-            attrs = ""
+        # request = self.context['request']
+        # try:
+        #     resp = requests.get(attrs)
+        #     image = resp.content
+        #     image = ContentFile(content=image, name='avatar_url')
+        #     image_serializer = CreateImageSerializer(data={"image": image})
+        #     image_serializer.is_valid(raise_exception=True)
+        #     instance = image_serializer.save()
+        #     attrs = request.build_absolute_uri(instance.image.url)
+        # except Exception:
+        #     attrs = ""
         return attrs
 
     def validate_sell_user(self, value):
